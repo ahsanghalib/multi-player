@@ -9,7 +9,7 @@ require("esbuild")
     outfile: "dist/build/player.js",
     // outdir: "dist/build",
     banner: {
-      js: "/* eslint-disable */",
+      js: '/* eslint-disable */',
     },
   })
   .catch(() => process.exit(1));

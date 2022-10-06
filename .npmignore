@@ -14,3 +14,11 @@ package-lock.json
 /tmp*
 /mnt/
 /package/
+tsconfig.json
+yarn.lock
+index.html
+jest.config.js
+.eslintrc.js
+/scripts/
+/src/
+.npmrc
