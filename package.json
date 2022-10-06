@@ -12,7 +12,7 @@
     "hls js",
     "media player"
   ],
-  "main": "./dist/tsc/player.js",
+  "main": "./dist/build/player.js",
   "types": "./dist/tsc/player.d.ts",
   "browser": "./dist/build/player.js",
 
