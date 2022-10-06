@@ -21,6 +21,23 @@ export interface ISource {
   drm: IDrm | null;
 }
 
+export interface IEventCallbackData {
+  loading?: boolean;
+  error?: boolean;
+  detail?: any;
+  shakaLoaded?: boolean;
+}
+
+export interface IShakaConfigs {}
+
+export interface IHlsJsConfigs {}
+
+export interface IDashJsConfigs {}
+
 export interface IConfig {
-  debug: boolean
+  debug: boolean;
+  useShakaForDashStreams: boolean;
+  shaka: IShakaConfigs;
+  hlsjs: IHlsJsConfigs;
+  dashjs: IDashJsConfigs;
 }
