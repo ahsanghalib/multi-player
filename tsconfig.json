@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ESNext",
     "module": "commonjs",
-    "moduleResolution": "node",
+    // "moduleResolution": "",
     "declaration": true,
     "strict": true,
     "strictNullChecks": true /* Enable strict null checks. */,
@@ -21,7 +21,7 @@
       "jest"
     ],
     "lib": [
-      "ES6",
+      "ESNext",
       "DOM"
     ]
   },

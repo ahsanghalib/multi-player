@@ -1,20 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  IConfig,
-  ISource,
-  DRM_TYPES,
-  PlayersEnum,
-  IEvents,
-  Listener,
-  EventsEnum,
-} from "./types";
-import { Hls, Shaka, Dashjs, muxjs } from "../vendor";
+import Hls from "hls.js";
+import Shaka from "shaka-player/dist/shaka-player.compiled.debug";
+import muxjs from "mux.js";
+import Dashjs from "dashjs";
 
 class MultiPlayer {
-  private static instance: MultiPlayer;
+  static _instance: MultiPlayer;
   private config: IConfig;
   private source: ISource;
-  private mediaElement: HTMLMediaElement | null;
+  mediaElement: HTMLMediaElement | null;
   private hls: Hls | null;
   private shaka!: Shaka.Player;
   private dashjs: Dashjs.MediaPlayerClass;
@@ -22,14 +16,14 @@ class MultiPlayer {
   private player: PlayersEnum;
   private isVidgo: boolean;
   private isSafari: boolean;
-  // private errorRetryCounter: number;
-  private readonly events: IEvents;
+  private isPlaying: boolean;
+  readonly events: IEvents;
 
-  private constructor() {
+  constructor() {
     (window as any).muxjs = muxjs;
     this.player = PlayersEnum.NONE;
+    this.isPlaying = false;
     this.events = {};
-    // this.errorRetryCounter = 0;
     this.isSafari = false;
     this.isVidgo = false;
     this.config = {
@@ -58,33 +52,33 @@ class MultiPlayer {
     }
   }
 
-  private static isBrowser(): boolean {
+  static _isBrowser = (): boolean => {
     return typeof window === "object";
-  }
+  };
 
-  public static getInstance(): MultiPlayer {
-    if (this.isBrowser()) {
-      if (!MultiPlayer.instance) {
-        MultiPlayer.instance = new MultiPlayer();
+  public static getInstance = (): MultiPlayer => {
+    if (this._isBrowser()) {
+      if (!MultiPlayer._instance) {
+        MultiPlayer._instance = new MultiPlayer();
       }
-      return MultiPlayer.instance;
+      return MultiPlayer._instance;
     } else {
       throw new Error("Library only supported in browsers!");
     }
-  }
+  };
 
-  getLibraryVersions(): string {
+  getLibraryVersions = (): string => {
     return "shaka: v3.3.2, dashjs: v4.5.0, hls.js: v1.2.4, mux.js: v5.14.1";
-  }
+  };
 
-  setUpdateConfig(config: IConfig) {
+  setUpdateConfig = (config: IConfig) => {
     this.config = {
       ...this.config,
       ...config,
     };
-  }
+  };
 
-  private checkIsDrm(): void {
+  _checkIsDrm = (): void => {
     if (this.source.drm) {
       if (
         Object.values(DRM_TYPES).includes(this.source.drm?.drmType) &&
@@ -95,9 +89,9 @@ class MultiPlayer {
       }
     }
     this.isDrm = false;
-  }
+  };
 
-  async detachMediaElement() {
+  detachMediaElement = async () => {
     try {
       if (this.hls) {
         this.hls.destroy();
@@ -109,20 +103,9 @@ class MultiPlayer {
     } catch (e) {
       return Promise.reject(true);
     }
-  }
+  };
 
-  checkUrl(src: ISource) {
-    if (src.url && this.source.url) {
-      return (
-        new URL(src.url).origin + new URL(src.url).pathname ===
-        new URL(this.source.url).origin + new URL(this.source.url).pathname
-      );
-    }
-    return false;
-  }
-
-  setSource(src: ISource, isVidgo: boolean) {
-    if (this.checkUrl(src)) return;
+  setSource = (src: ISource, isVidgo: boolean) => {
     this.mediaElement = document.querySelector("video[data-multi-player]");
     if (!this.mediaElement) {
       console.error(
@@ -130,45 +113,63 @@ class MultiPlayer {
       );
       return;
     }
-
+    this.isPlaying = false;
     this.source = src;
     this.isVidgo = isVidgo;
     this.isSafari = /version\/(\d+).+?safari/.test(
       ((navigator && navigator.userAgent) || "").toLowerCase()
     );
-    this.checkIsDrm();
+    this._checkIsDrm();
 
     this.detachMediaElement()
       .then(async () => {
         try {
           if (this.isDrm) {
             if (this.source.drm?.drmType === DRM_TYPES.FAIRPLAY) {
-              await this.initShakaPlayer(true);
+              await this._initShakaPlayer(true);
               return;
             }
             if (this.source.drm?.drmType === DRM_TYPES.WIDEVINE) {
               if (this.config.useShakaForDashStreams) {
-                await this.initShakaPlayer(false);
+                await this._initShakaPlayer(false);
                 return;
               }
-              this.initDashjsPlayer();
+              this._initDashjsPlayer();
               return;
             }
           }
           if (this.source.url) {
-            this.initHlsPlayer();
+            this._initHlsPlayer();
             return;
           }
+
+          this._loadingErrorEvents(
+            false,
+            false,
+            `Provided sourcee is not correct please check, src: ${JSON.stringify(
+              this.source
+            )}`
+          );
         } catch (e) {
-          return;
+          this._emit(EventsEnum.ERROR, {
+            event: EventsEnum.ERROR,
+            player: this.player,
+            value: true,
+            detail: null,
+          });
         }
       })
       .catch(() => {
-        console.error("error....");
+        this._emit(EventsEnum.ERROR, {
+          event: EventsEnum.ERROR,
+          player: this.player,
+          value: true,
+          detail: null,
+        });
       });
-  }
+  };
 
-  private initHlsPlayer() {
+  _initHlsPlayer = () => {
     this.player = PlayersEnum.HLS;
     const config = Hls.DefaultConfig;
     this.hls = new Hls({
@@ -176,12 +177,14 @@ class MultiPlayer {
       debug: this.config.debug,
     });
     if (this.mediaElement) this.hls.attachMedia(this.mediaElement);
-    this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-      if (this.hls && this.source.url) this.hls.loadSource(this.source.url);
-    });
-  }
 
-  private async initShakaPlayer(isFairPlay: boolean) {
+    this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+      this.hls!.loadSource(this.source.url!);
+    });
+    this._addHlsEvents();
+  };
+
+  _initShakaPlayer = async (isFairPlay: boolean) => {
     this.player = PlayersEnum.SHAKA;
     const _shaka = Shaka as any;
     _shaka.log.setLevel(
@@ -221,10 +224,12 @@ class MultiPlayer {
     this.shaka.setTextTrackVisibility(false);
 
     if (this.isVidgo && isFairPlay && this.isSafari) {
-      this.vidgoResponseFilter();
+      this._vidgoResponseFilter();
     } else {
-      this.shaka.getNetworkingEngine()?.clearAllResponseFilters();
+      this.shaka.getNetworkingEngine()!.clearAllResponseFilters();
     }
+
+    this._addShakaEvents();
 
     this.shaka
       .load(this.source.url || "")
@@ -238,9 +243,9 @@ class MultiPlayer {
       .catch(() => {
         return;
       });
-  }
+  };
 
-  private vidgoResponseFilter() {
+  _vidgoResponseFilter = () => {
     this.shaka.getNetworkingEngine()?.clearAllResponseFilters();
     this.shaka.getNetworkingEngine()?.registerResponseFilter((type, resp) => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
@@ -259,9 +264,9 @@ class MultiPlayer {
         resp.data = data;
       }
     });
-  }
+  };
 
-  private initDashjsPlayer() {
+  _initDashjsPlayer = () => {
     this.player = PlayersEnum.DASHJS;
     if (this.mediaElement) {
       this.dashjs.attachView(this.mediaElement);
@@ -276,6 +281,8 @@ class MultiPlayer {
       this.dashjs
         .getProtectionController()
         .setRobustnessLevel("SW_SECURE_CRYPTO");
+
+      this._addDashjsEvents();
 
       const _dashjs = Dashjs as any;
 
@@ -295,33 +302,40 @@ class MultiPlayer {
         },
       });
     }
-  }
+  };
 
-  // Events;
-  on(event: EventsEnum, fn: Listener) {
-    this._addHlsEvents();
-    this._addDashjsEvents();
-    this._addShakaEvents();
+  /**
+   * event methods.
+   */
+  on = (event: EventsEnum, fn: Listener) => {
     this._addMediaElementEvents();
     if (typeof this.events[event] !== "object") this.events[event] = [];
     this.events[event].push(fn);
     return () => this._removeListener(event, fn);
-  }
+  };
 
-  emit(event: EventsEnum, ...args: any[]) {
+  _emit = (
+    event: EventsEnum,
+    ...args: {
+      event: EventsEnum;
+      player: PlayersEnum;
+      value: boolean;
+      detail: any;
+    }[]
+  ) => {
     if (typeof this.events[event] !== "object") return;
     [...this.events[event]].forEach((listener) => listener.apply(this, args));
-  }
+  };
 
-  private _removeListener(event: EventsEnum, listener: Listener) {
+  _removeListener = (event: EventsEnum, listener: Listener) => {
     if (typeof this.events[event] !== "object") return;
     const idx: number = this.events[event].indexOf(listener);
     if (idx > -1) {
       this.events[event].splice(idx, 1);
     }
-  }
+  };
 
-  removeAllListeners() {
+  removeAllListeners = () => {
     this._removeHlsEvents();
     this._removeDashjsEvents();
     this._removeShakaEvents();
@@ -329,84 +343,110 @@ class MultiPlayer {
     Object.keys(this.events).forEach((event: string) =>
       this.events[event].splice(0, this.events[event].length)
     );
-  }
+  };
 
-  private _loadingErrorEvents(loading: boolean, error: boolean, detail?: any) {
-    MultiPlayer.getInstance().emit(EventsEnum.LOADING, {
+  /**
+   * event helpers
+   */
+  _loadingErrorEvents = (loading: boolean, error: boolean, detail?: any) => {
+    this._emit(EventsEnum.LOADING, {
       event: EventsEnum.LOADING,
+      player: this.player,
       value: loading,
+      detail,
     });
-    MultiPlayer.getInstance().emit(EventsEnum.ERROR, {
+    this._emit(EventsEnum.ERROR, {
       event: EventsEnum.ERROR,
+      player: this.player,
       value: error,
       detail,
     });
-  }
+  };
 
-  private _fatalErrorRetry(d: any) {
-    MultiPlayer.getInstance()._loadingErrorEvents(false, true, d);
-  }
+  _fatalErrorRetry = (d: any) => {
+    this._loadingErrorEvents(false, true, d);
+  };
 
-  private _shakaBufferingEvent(d: any) {
+  /**
+   * shaka player events
+   */
+  _shakaBufferingEvent = (d: any) => {
     if (d?.buffering) {
-      MultiPlayer.getInstance()._loadingErrorEvents(true, false);
+      this._loadingErrorEvents(true, false);
     } else {
-      MultiPlayer.getInstance()._loadingErrorEvents(false, false);
+      this._loadingErrorEvents(false, false);
     }
-  }
+  };
 
-  private _shakaErrorEvent(d: any) {
+  _shakaErrorEvent = (d: any) => {
     console.log("shaka-error-event", d);
     if (d?.severity === Shaka.util.Error.Severity.CRITICAL) {
       this._fatalErrorRetry(d);
     }
-  }
+  };
 
-  private _shakaStallDetectedEvent() {
-    MultiPlayer.getInstance()._loadingErrorEvents(true, false);
-  }
+  _shakaStallDetectedEvent = () => {
+    this._loadingErrorEvents(true, false);
+  };
 
-  private _addShakaEvents() {
+  _addShakaEvents = () => {
     this._removeShakaEvents();
-    this.shaka.addEventListener("buffering", this._shakaBufferingEvent);
-    this.shaka.addEventListener("error", this._shakaErrorEvent);
-    this.shaka.addEventListener("stalldetected", this._shakaStallDetectedEvent);
-  }
-
-  private _removeShakaEvents() {
-    this.shaka.removeEventListener("buffering", this._shakaBufferingEvent);
-    this.shaka.removeEventListener("error", this._shakaErrorEvent);
-    this.shaka.removeEventListener(
-      "stalldetected",
+    this.shaka.addEventListener(
+      ShakaEventsEnum.BUFFERING,
+      this._shakaBufferingEvent
+    );
+    this.shaka.addEventListener(ShakaEventsEnum.ERROR, this._shakaErrorEvent);
+    this.shaka.addEventListener(
+      ShakaEventsEnum.STALL_DETECTED,
       this._shakaStallDetectedEvent
     );
-  }
+  };
 
-  private _hlsErrorEvent(e: any, d: any) {
+  _removeShakaEvents = () => {
+    this.shaka.removeEventListener(
+      ShakaEventsEnum.BUFFERING,
+      this._shakaBufferingEvent
+    );
+    this.shaka.removeEventListener(
+      ShakaEventsEnum.ERROR,
+      this._shakaErrorEvent
+    );
+    this.shaka.removeEventListener(
+      ShakaEventsEnum.STALL_DETECTED,
+      this._shakaStallDetectedEvent
+    );
+  };
+
+  /**
+   * hlsjs events
+   */
+  _hlsErrorEvent = (e: any, d: any) => {
     console.log("hls-error", e, d);
     if (d?.details === "bufferStalledError") {
-      MultiPlayer.getInstance()._loadingErrorEvents(true, false);
+      this._loadingErrorEvents(true, false, "hlsjs - error");
     }
 
     if (d?.fatal) {
       this._fatalErrorRetry(d);
     }
-  }
+  };
 
-  private _addHlsEvents() {
-    this._removeHlsEvents();
+  _addHlsEvents = () => {
     if (this.hls) {
       this.hls.on(Hls.Events.ERROR, this._hlsErrorEvent);
     }
-  }
+  };
 
-  private _removeHlsEvents() {
+  _removeHlsEvents = () => {
     if (this.hls) {
       this.hls.removeAllListeners();
     }
-  }
+  };
 
-  private _dashjsErrorEvent(d: any) {
+  /**
+   * dashjs events
+   */
+  _dashjsErrorEvent = (d: any) => {
     console.log("dashjs - error", d);
 
     const dashjsErrors = {
@@ -424,21 +464,21 @@ class MultiPlayer {
     const { error } = d;
     const errorCode = error?.code?.toString();
     if (errorCode in dashjsErrors) {
-      MultiPlayer.getInstance()._loadingErrorEvents(false, true, d);
+      this._loadingErrorEvents(false, true, d);
     } else {
       this._fatalErrorRetry(d);
     }
-  }
+  };
 
-  private _dashjsBufferLoadedEvent() {
-    MultiPlayer.getInstance()._loadingErrorEvents(false, false);
-  }
+  _dashjsBufferLoadedEvent = () => {
+    this._loadingErrorEvents(false, false);
+  };
 
-  private _dashjsBufferEmptyEvent() {
-    MultiPlayer.getInstance()._loadingErrorEvents(true, false);
-  }
+  _dashjsBufferEmptyEvent = () => {
+    this._loadingErrorEvents(true, false);
+  };
 
-  private _addDashjsEvents() {
+  _addDashjsEvents = () => {
     this._removeDashjsEvents();
     this.dashjs.on(Dashjs.MediaPlayer.events.ERROR, this._dashjsErrorEvent);
     this.dashjs.on(
@@ -449,9 +489,9 @@ class MultiPlayer {
       Dashjs.MediaPlayer.events.BUFFER_LOADED,
       this._dashjsBufferLoadedEvent
     );
-  }
+  };
 
-  private _removeDashjsEvents() {
+  _removeDashjsEvents = () => {
     this.dashjs.off(Dashjs.MediaPlayer.events.ERROR, this._dashjsErrorEvent);
     this.dashjs.off(
       Dashjs.MediaPlayer.events.BUFFER_EMPTY,
@@ -461,30 +501,127 @@ class MultiPlayer {
       Dashjs.MediaPlayer.events.BUFFER_LOADED,
       this._dashjsBufferLoadedEvent
     );
-  }
+  };
 
-  waitingEvent() {
-    MultiPlayer.getInstance()._loadingErrorEvents(true, false);
-  }
+  /**
+   * media element events.
+   * */
+  _waitingEvent = () => {
+    this._loadingErrorEvents(true, false, "video - wating event");
+  };
 
-  playEvent() {
-    MultiPlayer.getInstance()._loadingErrorEvents(false, false);
-  }
+  _playingEvent = () => {
+    this.isPlaying = true;
+    this._loadingErrorEvents(false, false, "video - playing event");
+    if (this.hls) this.hls.startLoad();
+  };
 
-  private _addMediaElementEvents() {
+  _pauseEvent = () => {
+    this.isPlaying = false;
+    this._loadingErrorEvents(false, false, "video - pause event");
+    if (this.hls) this.hls.stopLoad();
+  };
+
+  _addMediaElementEvents = () => {
     this._removeMediaElementEvents();
     if (this.mediaElement) {
-      this.mediaElement.addEventListener("waiting", this.waitingEvent);
-      this.mediaElement.addEventListener("playing", this.playEvent);
+      this.mediaElement.addEventListener(
+        VideoEventsEnum.WAITING,
+        this._waitingEvent
+      );
+      this.mediaElement.addEventListener(
+        VideoEventsEnum.PLAYING,
+        this._playingEvent
+      );
+      this.mediaElement.addEventListener(
+        VideoEventsEnum.PAUSE,
+        this._pauseEvent
+      );
     }
-  }
+  };
 
-  private _removeMediaElementEvents() {
+  _removeMediaElementEvents = () => {
     if (this.mediaElement) {
-      this.mediaElement.removeEventListener("waiting", this.waitingEvent);
-      this.mediaElement.removeEventListener("playing", this.playEvent);
+      this.mediaElement.removeEventListener(
+        VideoEventsEnum.WAITING,
+        this._waitingEvent
+      );
+      this.mediaElement.removeEventListener(
+        VideoEventsEnum.PLAYING,
+        this._playingEvent
+      );
+      this.mediaElement.removeEventListener(
+        VideoEventsEnum.PAUSE,
+        this._pauseEvent
+      );
     }
-  }
+  };
 }
 
 export const player = MultiPlayer.getInstance();
+
+/**
+ * types
+ */
+enum DRM_TYPES {
+  WIDEVINE = "widevine",
+  FAIRPLAY = "fairplay",
+}
+
+enum PlayersEnum {
+  SHAKA = "shaka",
+  HLS = "hls",
+  DASHJS = "dashjs",
+  NONE = "none",
+}
+
+enum EventsEnum {
+  ERROR = "error",
+  LOADING = "loading",
+  LOADED = "loaded",
+}
+
+interface IDrm {
+  drmType: DRM_TYPES;
+  licenseUrl: string;
+  certicateUrl?: string;
+}
+
+interface ISource {
+  url: string | null;
+  drm: IDrm | null;
+}
+
+type Listener = (...args: any[]) => void;
+
+interface IEvents {
+  [event: string]: Array<Listener>;
+}
+
+enum VideoEventsEnum {
+  WAITING = "waiting",
+  PLAYING = "playing",
+  ERROR = "error",
+  PAUSE = "pause",
+  LOADSTART = "loadstart",
+}
+
+enum ShakaEventsEnum {
+  BUFFERING = "buffering",
+  ERROR = "error",
+  STALL_DETECTED = "stalldetected",
+}
+
+interface IShakaConfigs {}
+
+interface IHlsJsConfigs {}
+
+interface IDashJsConfigs {}
+
+interface IConfig {
+  debug: boolean;
+  useShakaForDashStreams: boolean;
+  shaka: IShakaConfigs;
+  hlsjs: IHlsJsConfigs;
+  dashjs: IDashJsConfigs;
+}
