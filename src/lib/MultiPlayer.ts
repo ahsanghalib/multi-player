@@ -4,7 +4,9 @@ import {
   ISource,
   DRM_TYPES,
   PlayersEnum,
-  IEventCallbackData,
+  IEvents,
+  Listener,
+  EventsEnum,
 } from "./types";
 import { Hls, Shaka, Dashjs, muxjs } from "../vendor";
 
@@ -20,13 +22,14 @@ class MultiPlayer {
   private player: PlayersEnum;
   private isVidgo: boolean;
   private isSafari: boolean;
-  private errorRetryCounter: number;
-  private eventCallback!: (data: IEventCallbackData) => void;
+  // private errorRetryCounter: number;
+  private readonly events: IEvents;
 
   private constructor() {
     (window as any).muxjs = muxjs;
     this.player = PlayersEnum.NONE;
-    this.errorRetryCounter = 0;
+    this.events = {};
+    // this.errorRetryCounter = 0;
     this.isSafari = false;
     this.isVidgo = false;
     this.config = {
@@ -75,19 +78,10 @@ class MultiPlayer {
   }
 
   setUpdateConfig(config: IConfig) {
-    this.config = config;
-    const _shaka = Shaka as any;
-    const _dashjs = Dashjs as any;
-    _shaka.log.setLevel(
-      this.config.debug ? _shaka.log.Level.DEBUG : _shaka.log.Level.NONE
-    );
-    this.dashjs.updateSettings({
-      debug: {
-        logLevel: this.config.debug
-          ? _dashjs.Debug.LOG_LEVEL_DEBUG
-          : _dashjs.Debug.LOG_LEVEL_NONE,
-      },
-    });
+    this.config = {
+      ...this.config,
+      ...config,
+    };
   }
 
   private checkIsDrm(): void {
@@ -117,7 +111,18 @@ class MultiPlayer {
     }
   }
 
+  checkUrl(src: ISource) {
+    if (src.url && this.source.url) {
+      return (
+        new URL(src.url).origin + new URL(src.url).pathname ===
+        new URL(this.source.url).origin + new URL(this.source.url).pathname
+      );
+    }
+    return false;
+  }
+
   setSource(src: ISource, isVidgo: boolean) {
+    if (this.checkUrl(src)) return;
     this.mediaElement = document.querySelector("video[data-multi-player]");
     if (!this.mediaElement) {
       console.error(
@@ -178,6 +183,11 @@ class MultiPlayer {
 
   private async initShakaPlayer(isFairPlay: boolean) {
     this.player = PlayersEnum.SHAKA;
+    const _shaka = Shaka as any;
+    _shaka.log.setLevel(
+      this.config.debug ? _shaka.log.Level.DEBUG : _shaka.log.Level.NONE
+    );
+
     this.shaka.resetConfiguration();
 
     if (this.mediaElement) await this.shaka.attach(this.mediaElement);
@@ -230,6 +240,27 @@ class MultiPlayer {
       });
   }
 
+  private vidgoResponseFilter() {
+    this.shaka.getNetworkingEngine()?.clearAllResponseFilters();
+    this.shaka.getNetworkingEngine()?.registerResponseFilter((type, resp) => {
+      if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
+        const jsonResp = JSON.parse(
+          String.fromCharCode.apply(
+            null,
+            new Uint8Array(resp.data as any) as any
+          )
+        );
+        const raw = Buffer.from(jsonResp.ckc, "base64");
+        const rawLength = raw.length;
+        const data = new Uint8Array(new ArrayBuffer(rawLength));
+        for (let i = 0; i < rawLength; i += 1) {
+          data[i] = raw[i];
+        }
+        resp.data = data;
+      }
+    });
+  }
+
   private initDashjsPlayer() {
     this.player = PlayersEnum.DASHJS;
     if (this.mediaElement) {
@@ -245,33 +276,83 @@ class MultiPlayer {
       this.dashjs
         .getProtectionController()
         .setRobustnessLevel("SW_SECURE_CRYPTO");
-    }
-  }
 
-  private _fatalErrorRetry(d: any) {
-    this.errorRetryCounter += 1;
-    if (this.errorRetryCounter > 10) {
-      this.eventCallback({ loading: false, error: true, detail: d });
-      this.errorRetryCounter = 0;
-    } else {
-      this.setSource(this.source, this.isVidgo);
-    }
-  }
+      const _dashjs = Dashjs as any;
 
-  private _shakaBufferingEvent(d: any) {
-    if (d?.buffering) {
-      this.eventCallback({ loading: true, error: false, detail: "buffering" });
-    } else {
-      this.eventCallback({
-        loading: false,
-        error: false,
-        detail: "buffering",
+      this.dashjs.updateSettings({
+        debug: {
+          logLevel: this.config.debug
+            ? _dashjs.Debug.LOG_LEVEL_DEBUG
+            : _dashjs.Debug.LOG_LEVEL_NONE,
+        },
+        streaming: {
+          scheduling: {
+            scheduleWhilePaused: false,
+          },
+          buffer: {
+            fastSwitchEnabled: true,
+          },
+        },
       });
     }
   }
 
-  private _shakaLoadedEvent() {
-    this.eventCallback({ shakaLoaded: true });
+  // Events;
+  on(event: EventsEnum, fn: Listener) {
+    this._addHlsEvents();
+    this._addDashjsEvents();
+    this._addShakaEvents();
+    this._addMediaElementEvents();
+    if (typeof this.events[event] !== "object") this.events[event] = [];
+    this.events[event].push(fn);
+    return () => this._removeListener(event, fn);
+  }
+
+  emit(event: EventsEnum, ...args: any[]) {
+    if (typeof this.events[event] !== "object") return;
+    [...this.events[event]].forEach((listener) => listener.apply(this, args));
+  }
+
+  private _removeListener(event: EventsEnum, listener: Listener) {
+    if (typeof this.events[event] !== "object") return;
+    const idx: number = this.events[event].indexOf(listener);
+    if (idx > -1) {
+      this.events[event].splice(idx, 1);
+    }
+  }
+
+  removeAllListeners() {
+    this._removeHlsEvents();
+    this._removeDashjsEvents();
+    this._removeShakaEvents();
+    this._removeMediaElementEvents();
+    Object.keys(this.events).forEach((event: string) =>
+      this.events[event].splice(0, this.events[event].length)
+    );
+  }
+
+  private _loadingErrorEvents(loading: boolean, error: boolean, detail?: any) {
+    MultiPlayer.getInstance().emit(EventsEnum.LOADING, {
+      event: EventsEnum.LOADING,
+      value: loading,
+    });
+    MultiPlayer.getInstance().emit(EventsEnum.ERROR, {
+      event: EventsEnum.ERROR,
+      value: error,
+      detail,
+    });
+  }
+
+  private _fatalErrorRetry(d: any) {
+    MultiPlayer.getInstance()._loadingErrorEvents(false, true, d);
+  }
+
+  private _shakaBufferingEvent(d: any) {
+    if (d?.buffering) {
+      MultiPlayer.getInstance()._loadingErrorEvents(true, false);
+    } else {
+      MultiPlayer.getInstance()._loadingErrorEvents(false, false);
+    }
   }
 
   private _shakaErrorEvent(d: any) {
@@ -281,26 +362,30 @@ class MultiPlayer {
     }
   }
 
+  private _shakaStallDetectedEvent() {
+    MultiPlayer.getInstance()._loadingErrorEvents(true, false);
+  }
+
   private _addShakaEvents() {
+    this._removeShakaEvents();
     this.shaka.addEventListener("buffering", this._shakaBufferingEvent);
-    this.shaka.addEventListener("loaded", this._shakaLoadedEvent);
     this.shaka.addEventListener("error", this._shakaErrorEvent);
+    this.shaka.addEventListener("stalldetected", this._shakaStallDetectedEvent);
   }
 
   private _removeShakaEvents() {
     this.shaka.removeEventListener("buffering", this._shakaBufferingEvent);
-    this.shaka.removeEventListener("loaded", this._shakaLoadedEvent);
     this.shaka.removeEventListener("error", this._shakaErrorEvent);
+    this.shaka.removeEventListener(
+      "stalldetected",
+      this._shakaStallDetectedEvent
+    );
   }
 
   private _hlsErrorEvent(e: any, d: any) {
     console.log("hls-error", e, d);
     if (d?.details === "bufferStalledError") {
-      this.eventCallback({
-        loading: true,
-        error: false,
-        detail: d,
-      });
+      MultiPlayer.getInstance()._loadingErrorEvents(true, false);
     }
 
     if (d?.fatal) {
@@ -309,19 +394,16 @@ class MultiPlayer {
   }
 
   private _addHlsEvents() {
-    this.hls?.on(Hls.Events.ERROR, this._hlsErrorEvent);
+    this._removeHlsEvents();
+    if (this.hls) {
+      this.hls.on(Hls.Events.ERROR, this._hlsErrorEvent);
+    }
   }
 
   private _removeHlsEvents() {
-    this.hls?.removeAllListeners();
-  }
-
-  private _dashjsBufferLoadedEvent() {
-    this.eventCallback({ loading: false, error: false });
-  }
-
-  private _dashjsBufferEmptyEvent() {
-    this.eventCallback({ loading: true, error: false });
+    if (this.hls) {
+      this.hls.removeAllListeners();
+    }
   }
 
   private _dashjsErrorEvent(d: any) {
@@ -342,13 +424,22 @@ class MultiPlayer {
     const { error } = d;
     const errorCode = error?.code?.toString();
     if (errorCode in dashjsErrors) {
-      this.eventCallback({ loading: false, error: true, detail: d });
+      MultiPlayer.getInstance()._loadingErrorEvents(false, true, d);
     } else {
       this._fatalErrorRetry(d);
     }
   }
 
+  private _dashjsBufferLoadedEvent() {
+    MultiPlayer.getInstance()._loadingErrorEvents(false, false);
+  }
+
+  private _dashjsBufferEmptyEvent() {
+    MultiPlayer.getInstance()._loadingErrorEvents(true, false);
+  }
+
   private _addDashjsEvents() {
+    this._removeDashjsEvents();
     this.dashjs.on(Dashjs.MediaPlayer.events.ERROR, this._dashjsErrorEvent);
     this.dashjs.on(
       Dashjs.MediaPlayer.events.BUFFER_EMPTY,
@@ -372,52 +463,27 @@ class MultiPlayer {
     );
   }
 
-  on(callback: (data: IEventCallbackData) => void) {
-    this.eventCallback = callback;
-    if (this.player === PlayersEnum.SHAKA) {
-      this._addShakaEvents();
-    } else {
-      this._removeShakaEvents();
-    }
+  waitingEvent() {
+    MultiPlayer.getInstance()._loadingErrorEvents(true, false);
+  }
 
-    if (this.hls && PlayersEnum.HLS) {
-      this._addHlsEvents();
-    } else {
-      this._removeHlsEvents();
-    }
+  playEvent() {
+    MultiPlayer.getInstance()._loadingErrorEvents(false, false);
+  }
 
-    if (this.player === PlayersEnum.DASHJS) {
-      this._addDashjsEvents();
-    } else {
-      this._removeDashjsEvents();
+  private _addMediaElementEvents() {
+    this._removeMediaElementEvents();
+    if (this.mediaElement) {
+      this.mediaElement.addEventListener("waiting", this.waitingEvent);
+      this.mediaElement.addEventListener("playing", this.playEvent);
     }
   }
 
-  off() {
-    this._removeShakaEvents();
-    this._removeHlsEvents();
-    this._removeDashjsEvents();
-  }
-
-  private vidgoResponseFilter() {
-    this.shaka.getNetworkingEngine()?.clearAllResponseFilters();
-    this.shaka.getNetworkingEngine()?.registerResponseFilter((type, resp) => {
-      if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
-        const jsonResp = JSON.parse(
-          String.fromCharCode.apply(
-            null,
-            new Uint8Array(resp.data as any) as any
-          )
-        );
-        const raw = Buffer.from(jsonResp.ckc, "base64");
-        const rawLength = raw.length;
-        const data = new Uint8Array(new ArrayBuffer(rawLength));
-        for (let i = 0; i < rawLength; i += 1) {
-          data[i] = raw[i];
-        }
-        resp.data = data;
-      }
-    });
+  private _removeMediaElementEvents() {
+    if (this.mediaElement) {
+      this.mediaElement.removeEventListener("waiting", this.waitingEvent);
+      this.mediaElement.removeEventListener("playing", this.playEvent);
+    }
   }
 }
 

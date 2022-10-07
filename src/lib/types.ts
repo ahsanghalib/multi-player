@@ -10,6 +10,12 @@ export enum PlayersEnum {
   NONE = "none",
 }
 
+export enum EventsEnum {
+  ERROR = "error",
+  LOADING = "loading",
+  LOADED = "loaded",
+}
+
 export interface IDrm {
   drmType: DRM_TYPES;
   licenseUrl: string;
@@ -21,11 +27,10 @@ export interface ISource {
   drm: IDrm | null;
 }
 
-export interface IEventCallbackData {
-  loading?: boolean;
-  error?: boolean;
-  detail?: any;
-  shakaLoaded?: boolean;
+export type Listener = (...args: any[]) => void;
+
+export interface IEvents {
+  [event: string]: Array<Listener>;
 }
 
 export interface IShakaConfigs {}

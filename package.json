@@ -3,7 +3,7 @@
   "version": "0.0.4",
   "description": "Library play all types of streams with minimal configs",
   "author": "ahsanghalib@gmail.com",
-  "repository": "git@github.com:ahsanghalib/multi-players.git",
+  "repository": "git@github.com:ahsanghalib/multi-player.git",
   "license": "MIT",
   "private": false,
   "keywords": [
