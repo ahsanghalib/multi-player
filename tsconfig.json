@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "commonjs",
-    // "moduleResolution": "",
+    "removeComments": true,
+    "moduleResolution": "node",
     "declaration": true,
     "strict": true,
     "strictNullChecks": true /* Enable strict null checks. */,
@@ -15,7 +16,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "sourceMap": false,
-    "outDir": "./dist/tsc/",
+    "outDir": "./dist/multiplayer/",
     "types": [
       "node",
       "jest"

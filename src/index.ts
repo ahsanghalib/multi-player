@@ -1,3 +1,3 @@
-import {player} from "./lib/MultiPlayer";
-(window as any).multiPlayer = player
-export { player as multiPlayer };
+import { multiPlayer } from "./lib/MultiPlayer";
+(window as any).multiPlayer = multiPlayer;
+export { multiPlayer };
