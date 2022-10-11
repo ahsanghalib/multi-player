@@ -1,6 +1,7 @@
 import Dashjs from "dashjs";
 import { Events } from "../Events";
-import { DRMEnums, IConfig, IPlayer, ISource } from "../types";
+import { DRMEnums, IConfig, IPlayer, ISource, MimeTypesEnum } from "../types";
+import { getMimeType } from "../Utils";
 
 export class DashjsPlayer implements IPlayer {
   private _dashjs: Dashjs.MediaPlayerClass;
@@ -14,7 +15,7 @@ export class DashjsPlayer implements IPlayer {
 
   urlCheck = (source: ISource) => {
     if (!source.url) return false;
-    const url = /.*(\.mpd).*$/.test(source.url);
+    const url = getMimeType(source.url) === MimeTypesEnum.MPD;
     const isDrm = source.drm?.drmType === DRMEnums.WIDEVINE;
     return isDrm ? url && !!source.drm?.licenseUrl : url;
   };
@@ -39,7 +40,7 @@ export class DashjsPlayer implements IPlayer {
       }
       this._dashjs
         .getProtectionController()
-        
+
         .setRobustnessLevel("SW_SECURE_CRYPTO");
 
       this._dashjs.updateSettings({

@@ -1,6 +1,7 @@
 import Hls from "hls.js";
 import { Events } from "../Events";
-import { IConfig, IPlayer, ISource } from "../types";
+import { IConfig, IPlayer, ISource, MimeTypesEnum } from "../types";
+import { getMimeType } from "../Utils";
 
 export class HlsjsPlayer implements IPlayer {
   private _hls: Hls | null;
@@ -16,7 +17,7 @@ export class HlsjsPlayer implements IPlayer {
 
   urlCheck = (source: ISource) => {
     if (!source.url) return false;
-    return /.*(\.m3u8).*$/.test(source.url);
+    return getMimeType(source.url) === MimeTypesEnum.M3U8;
   };
 
   initPlayer = async (

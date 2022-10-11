@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "commonjs",
+    "module": "amd",
     "removeComments": true,
     "moduleResolution": "node",
     "declaration": true,
@@ -16,7 +16,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "sourceMap": false,
-    "outDir": "./dist/multiplayer/",
+    "outFile": "./dist/multiplayer.js",
     "types": [
       "node",
       "jest"

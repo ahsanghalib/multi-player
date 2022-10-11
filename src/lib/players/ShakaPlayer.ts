@@ -1,7 +1,14 @@
 import Shaka from "shaka-player/dist/shaka-player.compiled.debug";
 import { Events } from "../Events";
-import { DRMEnums, IConfig, IPlayer, ISource, ShakaEventsEnum } from "../types";
-import { isSafari } from "../Utils";
+import {
+  DRMEnums,
+  IConfig,
+  IPlayer,
+  ISource,
+  MimeTypesEnum,
+  ShakaEventsEnum,
+} from "../types";
+import { getMimeType, isSafari } from "../Utils";
 
 export class ShakaPlayer implements IPlayer {
   private _shaka: Shaka.Player;
@@ -19,11 +26,9 @@ export class ShakaPlayer implements IPlayer {
 
   urlCheck = (source: ISource) => {
     if (!source.url) return false;
-    const isM3U8 = /.*(\.m3u8).*$/.test(source.url);
-    const isMPD = /.*(\.m3u8).*$/.test(source.url);
 
     if (
-      isM3U8 &&
+      getMimeType(source.url) === MimeTypesEnum.M3U8 &&
       source.drm?.drmType === DRMEnums.FAIRPLAY &&
       !!source.drm?.certicateUrl &&
       !!source.drm?.licenseUrl
@@ -32,7 +37,7 @@ export class ShakaPlayer implements IPlayer {
     }
 
     if (
-      isMPD &&
+      getMimeType(source.url) === MimeTypesEnum.MPD &&
       source.drm?.drmType === DRMEnums.WIDEVINE &&
       !!source.drm?.licenseUrl
     ) {
@@ -61,6 +66,7 @@ export class ShakaPlayer implements IPlayer {
       await this._shaka.attach(mediaElement);
 
       let drmConfig = {};
+
       if (isSafari() && source.drm?.drmType === DRMEnums.FAIRPLAY) {
         drmConfig = {
           drm: {
@@ -96,8 +102,10 @@ export class ShakaPlayer implements IPlayer {
 
       this.addEvents();
 
+      let mimeType = getMimeType(source.url || "");
+
       this._shaka
-        .load(source.url || "", config.startTime)
+        .load(source.url || "", config.startTime, mimeType)
         .then(async () => {
           try {
             await mediaElement.play();
