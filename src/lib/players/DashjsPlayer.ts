@@ -31,9 +31,6 @@ export class DashjsPlayer implements IPlayer {
 
     const check = this.urlCheck(source);
     if (mediaElement && check) {
-      this._dashjs.attachView(mediaElement);
-      this._dashjs.setAutoPlay(true);
-
       if (source.drm?.drmType === DRMEnums.WIDEVINE) {
         this._dashjs.setProtectionData({
           "com.widevine.alpha": {
@@ -165,6 +162,8 @@ export class DashjsPlayer implements IPlayer {
         },
       });
 
+      this._dashjs.attachView(mediaElement);
+      this._dashjs.setAutoPlay(true);
       this._dashjs.attachSource(source.url || "");
 
       this._url = source.url;
