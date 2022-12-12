@@ -1,26 +1,29 @@
 import Shaka from "shaka-player/dist/shaka-player.compiled.debug";
 import { Events } from "../Events";
+import { MultiPlayer } from "../MultiPlayer";
 import {
   DRMEnums,
-  IConfig,
   IPlayer,
   ISource,
   MimeTypesEnum,
   ShakaEventsEnum,
 } from "../types";
-import { getMimeType, isSafari } from "../Utils";
+import { _getMimeType, _isSafari } from "../Utils";
 
 export class ShakaPlayer implements IPlayer {
   private _shaka: Shaka.Player;
   private _events: Events;
+  private _player: MultiPlayer;
+  private _url: string | null = null;
 
-  constructor(events: Events) {
+  constructor(player: MultiPlayer, events: Events) {
     this._events = events;
+    this._player = player;
     this._shaka = new Shaka.Player();
     if (Shaka.Player.isBrowserSupported()) {
       Shaka.polyfill.installAll();
     } else {
-      throw new Error("Shaka Player is not Supported.");
+      console.error("Shaka Player is not Supported.");
     }
   }
 
@@ -28,7 +31,7 @@ export class ShakaPlayer implements IPlayer {
     if (!source.url) return false;
 
     if (
-      getMimeType(source.url) === MimeTypesEnum.M3U8 &&
+      _getMimeType(source.url) === MimeTypesEnum.M3U8 &&
       source.drm?.drmType === DRMEnums.FAIRPLAY &&
       !!source.drm?.certicateUrl &&
       !!source.drm?.licenseUrl
@@ -37,7 +40,7 @@ export class ShakaPlayer implements IPlayer {
     }
 
     if (
-      getMimeType(source.url) === MimeTypesEnum.MPD &&
+      _getMimeType(source.url) === MimeTypesEnum.MPD &&
       source.drm?.drmType === DRMEnums.WIDEVINE &&
       !!source.drm?.licenseUrl
     ) {
@@ -47,12 +50,11 @@ export class ShakaPlayer implements IPlayer {
     return false;
   };
 
-  initPlayer = async (
-    mediaElement: HTMLMediaElement,
-    source: ISource,
-    config: IConfig,
-    isVidgo: boolean
-  ) => {
+  initPlayer = async () => {
+    const mediaElement = this._player.getMediaElement();
+    const config = this._player.getCurrentConfig();
+    const source = this._player.getSource();
+
     const check = this.urlCheck(source);
     if (mediaElement && source) {
       (Shaka as any).log.setLevel(
@@ -67,7 +69,7 @@ export class ShakaPlayer implements IPlayer {
 
       let drmConfig = {};
 
-      if (isSafari() && source.drm?.drmType === DRMEnums.FAIRPLAY) {
+      if (_isSafari() && source.drm?.drmType === DRMEnums.FAIRPLAY) {
         drmConfig = {
           drm: {
             servers: {
@@ -81,10 +83,10 @@ export class ShakaPlayer implements IPlayer {
           },
         };
 
-        if (isVidgo) {
+        if (config.isVidgo) {
           this.vidgoResponseFilter();
         } else {
-          this._shaka.getNetworkingEngine()?.clearAllResponseFilters();
+          this._shaka.getNetworkingEngine()!.clearAllResponseFilters();
         }
       }
 
@@ -94,21 +96,38 @@ export class ShakaPlayer implements IPlayer {
             servers: {
               "com.widevine.alpha": source.drm?.licenseUrl,
             },
+            advanced: {
+              "com.widevine.alpha": {
+                videoRobustness: "SW_SECURE_CRYPTO",
+                audioRobustness: "SW_SECURE_CRYPTO",
+              },
+            },
           },
         };
       }
 
-      this._shaka.configure({ ...drmConfig });
+      this._shaka.configure({
+        streaming: {
+          alwaysStreamText: true,
+          autoLowLatencyMode: true,
+          jumpLargeGaps: true,
+          lowLatencyMode: false,
+          updateIntervalSeconds: 0.5,
+        },
+        ...drmConfig,
+      });
 
       this.addEvents();
 
-      let mimeType = getMimeType(source.url || "");
+      let mimeType = _getMimeType(source.url || "");
+
+      this._url = source?.url;
 
       this._shaka
         .load(source.url || "", config.startTime, mimeType)
         .then(async () => {
           try {
-            await mediaElement.play();
+            if (mediaElement) await mediaElement.play();
             return Promise.resolve();
           } catch (e) {}
         })
@@ -121,8 +140,8 @@ export class ShakaPlayer implements IPlayer {
   };
 
   vidgoResponseFilter = () => {
-    this._shaka.getNetworkingEngine()?.clearAllResponseFilters();
-    this._shaka.getNetworkingEngine()?.registerResponseFilter((type, resp) => {
+    this._shaka.getNetworkingEngine()!.clearAllResponseFilters();
+    this._shaka.getNetworkingEngine()!.registerResponseFilter((type: any, resp: any) => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         const jsonResp = JSON.parse(
           String.fromCharCode.apply(
@@ -139,6 +158,18 @@ export class ShakaPlayer implements IPlayer {
         resp.data = data;
       }
     });
+  };
+
+  reload = async () => {
+    if (this._url) {
+      try {
+        await this._shaka.load(this._url || "");
+        return Promise.resolve();
+      } catch (e) {
+        return Promise.reject();
+      }
+    }
+    return Promise.reject();
   };
 
   destroy = async () => {
@@ -174,10 +205,12 @@ export class ShakaPlayer implements IPlayer {
   };
 
   _shakaBufferingEvent = (d: any) => {
-    if (d?.buffering) {
-      this._events.loadingErrorEvents(true, false);
-    } else {
-      this._events.loadingErrorEvents(false, false);
+    if (this._player.getPlayerState().loaded) {
+      if (d?.buffering) {
+        this._events.loadingErrorEvents(true, false);
+      } else {
+        this._events.loadingErrorEvents(false, false);
+      }
     }
   };
 
@@ -189,6 +222,8 @@ export class ShakaPlayer implements IPlayer {
   };
 
   _shakaStallDetectedEvent = () => {
-    this._events.loadingErrorEvents(true, false);
+    if (this._player.getPlayerState().loaded) {
+      this._events.loadingErrorEvents(true, false);
+    }
   };
 }

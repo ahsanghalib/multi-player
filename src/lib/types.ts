@@ -1,28 +1,14 @@
 export interface IPlayer {
   urlCheck: (source: ISource) => boolean;
   initPlayer: (
-    mediaElement: HTMLMediaElement,
+    mediaElement: HTMLMediaElement | null,
     source: ISource,
-    config: IConfig,
-    isVidgo: boolean
+    config: IConfig
   ) => Promise<void>;
   destroy: () => Promise<void>;
   addEvents: () => void;
   removeEvents: () => void;
 }
-
-export enum DRMEnums {
-  WIDEVINE = "widevine",
-  FAIRPLAY = "fairplay",
-}
-
-export enum PlayersEnum {
-  SHAKA = "shaka",
-  HLS = "hls",
-  DASHJS = "dashjs",
-  NONE = "none",
-}
-
 export interface IDrm {
   drmType: DRMEnums;
   licenseUrl: string;
@@ -40,33 +26,24 @@ export interface IEvents {
   [event: string]: Array<Listener>;
 }
 
-export enum MainEventsEnum {
-  ERROR = "error",
-  LOADING = "loading",
-}
-
-export enum VideoEventsEnum {
-  WAITING = "waiting",
-  PLAYING = "playing",
-  ERROR = "error",
-  PAUSE = "pause",
-  LOADSTART = "loadstart",
-}
-
-export enum ShakaEventsEnum {
-  BUFFERING = "buffering",
-  ERROR = "error",
-  STALL_DETECTED = "stalldetected",
-}
-
-export const EventsEnum = { ...MainEventsEnum, ...VideoEventsEnum };
-export type EventsEnumType = MainEventsEnum | VideoEventsEnum;
-
 export interface IConfig {
   debug: boolean;
   useShakaForDashStreams: boolean;
   isVidgo: boolean;
   startTime?: number;
+  maxRetryCount: number;
+}
+
+export interface IPlayerState {
+  player: PlayersEnum;
+  loaded: boolean;
+  loading: boolean;
+  error: boolean;
+  ended: boolean;
+  textTrack: any;
+  videoTrack: any;
+  audioTrack: any;
+  isPlaying: boolean;
 }
 
 export enum MimeTypesEnum {
@@ -87,4 +64,58 @@ export enum MimeTypesEnum {
   AAC = "audio/aac",
   FLAC = "audio/flac",
   WAV = "audio/wav",
+}
+
+export enum DRMEnums {
+  WIDEVINE = "widevine",
+  FAIRPLAY = "fairplay",
+}
+
+export enum PlayersEnum {
+  SHAKA = "shaka",
+  HLS = "hls",
+  DASHJS = "dashjs",
+  NONE = "none",
+}
+
+export enum EventsEnum {
+  ABORT = "abort",
+  CANPLAY = "canplay",
+  CANPLAYTHROUGH = "canplaythrough",
+  DURATIONCHANGE = "durationchange",
+  EMPTIED = "emptied",
+  ENDED = "ended",
+  ERROR = "error",
+  LOADEDDATA = "loadeddata",
+  LOADEDMETADATA = "loadedmetadata",
+  LOADSTART = "loadstart",
+  PAUSE = "pause",
+  PLAY = "play",
+  PLAYING = "playing",
+  PROGRESS = "progress",
+  RATECHANGE = "ratechange",
+  SEEKED = "seeked",
+  SEEKING = "seeking",
+  STALLED = "stalled",
+  SUSPEND = "suspend",
+  TIMEUPDATE = "timeupdate",
+  VOLUMECHANGE = "volumechange",
+  WAITING = "waiting",
+  LOADING = "loading",
+  LOADED = "loaded",
+  TEXTTRACKS = "texttracks",
+  VIDEOTRACKS = "videotracks",
+  AUDIOTRACKS = "audiotracks",
+}
+
+export enum ShakaEventsEnum {
+  BUFFERING = "buffering",
+  ERROR = "error",
+  STALL_DETECTED = "stalldetected",
+}
+
+export enum TextTrackLabels {
+  eng = "English",
+  en = "English",
+  und = "English",
 }

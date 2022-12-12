@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+const esbuild = require("esbuild");
+// const { nodeExternalsPlugin } = require("esbuild-node-externals");
+const package = require("../package.json");
 
-const package = require('../package.json')
-
-require("esbuild")
+esbuild
   .build({
     logLevel: "info",
     entryPoints: ["src/index.ts"],
@@ -10,8 +11,8 @@ require("esbuild")
     minify: true,
     outfile: "dist/build/player.js",
     ignoreAnnotations: true,
-    legalComments: 'none',
-    // outdir: "dist/build",
+    legalComments: "none",
+    // plugins: [nodeExternalsPlugin()],
     banner: {
       js: `/* eslint-disable */\n/** ${package.name}-${package.version} */`,
     },

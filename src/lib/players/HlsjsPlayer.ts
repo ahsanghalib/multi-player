@@ -1,30 +1,35 @@
 import Hls from "hls.js";
 import { Events } from "../Events";
-import { IConfig, IPlayer, ISource, MimeTypesEnum } from "../types";
-import { getMimeType } from "../Utils";
+import { MultiPlayer } from "../MultiPlayer";
+import { IPlayer, ISource, MimeTypesEnum } from "../types";
+import { _getMimeType } from "../Utils";
 
 export class HlsjsPlayer implements IPlayer {
+  private _player: MultiPlayer;
   private _hls: Hls | null;
   private _events: Events;
+  private _isHlsStopped: boolean;
 
-  constructor(events: Events) {
+  constructor(player: MultiPlayer, events: Events) {
     this._events = events;
+    this._isHlsStopped = false;
     this._hls = null;
+    this._player = player;
     if (!Hls.isSupported()) {
-      throw new Error("HLS.js is not Supported.");
+      console.error("HLS.js is not Supported.");
     }
   }
 
   urlCheck = (source: ISource) => {
     if (!source.url) return false;
-    return getMimeType(source.url) === MimeTypesEnum.M3U8;
+    return _getMimeType(source.url) === MimeTypesEnum.M3U8;
   };
 
-  initPlayer = async (
-    mediaElement: HTMLMediaElement,
-    source: ISource,
-    config: IConfig
-  ) => {
+  initPlayer = async () => {
+    const mediaElement = this._player.getMediaElement();
+    const config = this._player.getCurrentConfig();
+    const source = this._player.getSource();
+
     const check = this.urlCheck(source);
     if (mediaElement && check) {
       this._hls = new Hls({
@@ -36,7 +41,7 @@ export class HlsjsPlayer implements IPlayer {
       this._hls.attachMedia(mediaElement);
 
       this._hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        this._hls?.loadSource(source.url || "");
+        this._hls!.loadSource(source.url || "");
       });
 
       this.addEvents();
@@ -56,11 +61,17 @@ export class HlsjsPlayer implements IPlayer {
   };
 
   startLoad = (startPosition?: number) => {
-    if (this._hls) this._hls.startLoad(startPosition);
+    if (this._hls && this._isHlsStopped) {
+      this._hls.startLoad(startPosition);
+      this._isHlsStopped = false;
+    }
   };
 
   stopLoad = () => {
-    if (this._hls) this._hls.stopLoad();
+    if (this._hls) {
+      this._hls.stopLoad();
+      this._isHlsStopped = true;
+    }
   };
 
   addEvents = () => {
@@ -78,7 +89,7 @@ export class HlsjsPlayer implements IPlayer {
   _hlsErrorEvent = (e: any, d: any) => {
     console.log("hls-error", e, d);
     if (d?.details === "bufferStalledError") {
-      this._events.loadingErrorEvents(true, false, "hlsjs - error");
+      this._events.loadingErrorEvents(true, false);
     }
 
     if (d?.fatal) {

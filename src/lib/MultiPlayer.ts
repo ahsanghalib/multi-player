@@ -1,31 +1,74 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import muxjs from "mux.js";
 import { Events } from "./Events";
+import { MediaElementEvents } from "./MediaElementEvents";
 import { DashjsPlayer, ShakaPlayer, HlsjsPlayer } from "./players";
 import {
   DRMEnums,
   EventsEnum,
-  EventsEnumType,
   IConfig,
+  IPlayerState,
   ISource,
   Listener,
+  PlayersEnum,
 } from "./types";
+import { _getMediaElement, delay, _getMainVideoContainer } from "./Utils";
 
-class MultiPlayer {
+const defaultConfig: IConfig = {
+  debug: false,
+  useShakaForDashStreams: false,
+  isVidgo: false,
+  startTime: undefined,
+  maxRetryCount: 5,
+};
+
+const defaultPlayerState = {
+  player: PlayersEnum.NONE,
+  loaded: false,
+  loading: true,
+  error: false,
+  ended: false,
+  textTrack: null,
+  videoTrack: null,
+  audioTrack: null,
+  isPlaying: false,
+};
+
+export class MultiPlayer {
   static _instance: MultiPlayer;
-  mediaElement: HTMLMediaElement | null;
-  private hls: HlsjsPlayer;
-  private shaka!: ShakaPlayer;
-  private dashjs: DashjsPlayer;
+  private _mediaElement: HTMLVideoElement | null;
+  private _source: ISource;
+  private _config: IConfig;
+  private _playerState: IPlayerState;
+  private _textTracks: Array<any>;
+  private _timer?: NodeJS.Timeout;
+  private _timerCounter: number;
+  private _retryCount: number;
+  private _hls: HlsjsPlayer;
+  private _shaka!: ShakaPlayer;
+  private _dashjs: DashjsPlayer;
   private readonly _events: Events;
+  private _mediaEvents: MediaElementEvents;
 
   private constructor() {
     (window as any).muxjs = muxjs;
-    this._events = new Events();
-    this.mediaElement = null;
-    this.hls = new HlsjsPlayer(this._events);
-    this.shaka = new ShakaPlayer(this._events);
-    this.dashjs = new DashjsPlayer(this._events);
+    this._events = new Events(this);
+    this._mediaElement = null;
+    this._source = { url: null, drm: null };
+    this._config = defaultConfig;
+    this._playerState = defaultPlayerState;
+    this._timer = undefined;
+    this._timerCounter = 0;
+    this._retryCount = 0;
+    this._textTracks = [];
+    this._hls = new HlsjsPlayer(this, this._events);
+    this._shaka = new ShakaPlayer(this, this._events);
+    this._dashjs = new DashjsPlayer(this, this._events);
+    this._mediaEvents = new MediaElementEvents(
+      this,
+      this._events,
+      this._hls,
+      this._dashjs
+    );
   }
 
   static _isBrowser = (): boolean => {
@@ -43,206 +86,348 @@ class MultiPlayer {
     }
   };
 
-  getDefaultConfig = (): IConfig => {
-    return {
-      debug: false,
-      useShakaForDashStreams: false,
-      isVidgo: false,
-      startTime: undefined,
-    };
+  getMediaElement = () => this._mediaElement;
+
+  setMediaElement = (element: HTMLVideoElement) => {
+    this._mediaElement = element;
+  };
+
+  getSource = () => this._source;
+
+  getCurrentConfig = () => this._config;
+
+  /**
+   * updateConfig
+   * @param {debug: boolean, useShakaForDashStreams: boolean, isVidgo: boolean, startTime: number | undefined} config
+   */
+  updateConfig = (data?: Partial<IConfig>) => {
+    this._config = { ...defaultConfig, ...this._config, ...data };
+    if (!!this._config.debug) {
+      (window as any).videoplayer = _getMediaElement();
+    } else {
+      delete (window as any).videoplayer;
+    }
+  };
+
+  getRetryCount = () => this._retryCount;
+
+  increaseRetryCount = () => (this._retryCount += 1);
+
+  resetRetryCount = () => (this._retryCount = 0);
+
+  getPlayerState = () => this._playerState;
+
+  setPlayerState = (state?: Partial<IPlayerState>) => {
+    let current = this._playerState;
+    if (!!state?.ended) {
+      current = {
+        ...current,
+        loading: false,
+        error: false,
+        isPlaying: false,
+        textTrack: null,
+        videoTrack: null,
+        audioTrack: null,
+      };
+    }
+    this._playerState = { ...defaultPlayerState, ...current, ...state };
   };
 
   detachMediaElement = async () => {
     try {
-      await this.hls.destroy();
-      await this.dashjs.destroy();
-      await this.shaka.destroy();
+      if (this._playerState.player === PlayersEnum.HLS)
+        await this._hls.destroy();
+      if (this._playerState.player === PlayersEnum.DASHJS)
+        await this._dashjs.destroy();
+      if (this._playerState.player === PlayersEnum.SHAKA)
+        await this._shaka.destroy();
       return Promise.resolve();
     } catch (e) {
       return Promise.reject();
     }
   };
 
-  setSource = (source: ISource, config: IConfig) => {
-    this.mediaElement = document.querySelector("video[data-multi-player]");
-    if (!this.mediaElement) {
+  removePlayer = () => {
+    if (this._mediaElement) {
+      this._mediaElement.muted = true;
+      this.detachMediaElement().then(() => {
+        this._mediaElement = null;
+        if (
+          !!document.pictureInPictureEnabled &&
+          !!document.pictureInPictureElement
+        ) {
+          sessionStorage.removeItem("pip-enter");
+          document.exitPictureInPicture().catch((e) => console.log());
+        }
+      });
+    }
+  };
+
+  reloadPlayer = async () => {
+    try {
+      await delay(5 * 1000);
+      if (this._playerState.player === PlayersEnum.HLS) this.retry(true);
+      if (this._playerState.player === PlayersEnum.DASHJS)
+        await this._dashjs.reload();
+      if (this._playerState.player === PlayersEnum.SHAKA)
+        await this._shaka.reload();
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject();
+    }
+  };
+
+  retry = (hard: boolean = false) => {
+    this._events.loadingErrorEvents(true, false);
+    if (hard) {
+      this.setSource(this._source, this._config);
+      return;
+    }
+    this.reloadPlayer().catch((e) => console.log());
+  };
+
+  setSource = async (source: ISource, config?: IConfig) => {
+    clearTimeout(this._timer);
+
+    this.setPlayerState({
+      ...defaultPlayerState,
+      player: this._playerState.player,
+      textTrack: this._playerState.textTrack,
+    });
+
+    if (!source.url) {
+      console.error("Source URL is not valid.");
+      return;
+    }
+
+    this._source = { ...source };
+    this.updateConfig(config);
+
+    if (this._mediaElement) {
+      try {
+        await this.detachMediaElement();
+      } catch (err) {}
+      this._mediaElement = null;
+    }
+
+    const element = _getMediaElement();
+    if (!element) {
       console.error(
         "Please create video element with data-multi-player attribute function."
       );
       return;
     }
-    const newConfig = { ...this.getDefaultConfig(), ...config };
 
-    this.detachMediaElement()
-      .then(async () => {
-        try {
-          if (source.drm?.drmType === DRMEnums.FAIRPLAY) {
-            await this.shaka.initPlayer(
-              this.mediaElement!,
-              source,
-              newConfig,
-              config.isVidgo
-            );
-            return;
-          }
+    this.setMediaElement(element);
+    this.hideTextTracks();
+    this._textTracks = [];
+    this._timerCounter = 0;
+    this._events.emit(EventsEnum.TEXTTRACKS, { value: this._textTracks });
+    this._mediaEvents._init();
 
-          if (source.drm?.drmType === DRMEnums.WIDEVINE) {
-            if (newConfig.useShakaForDashStreams) {
-              await this.shaka.initPlayer(
-                this.mediaElement!,
-                source,
-                newConfig,
-                config.isVidgo
-              );
-              return;
-            }
+    try {
+      if (this._source.drm?.drmType === DRMEnums.FAIRPLAY) {
+        this.setPlayerState({ player: PlayersEnum.SHAKA });
+        await this._shaka.initPlayer();
+        return;
+      }
 
-            await this.dashjs.initPlayer(this.mediaElement!, source, newConfig);
-            return;
-          }
-
-          if (source.url) {
-            this.hls.initPlayer(this.mediaElement!, source, newConfig);
-            return;
-          }
-
-          this._events.loadingErrorEvents(
-            false,
-            false,
-            `Provided sourcee is not correct please check, src: ${JSON.stringify(
-              source
-            )}`
-          );
-        } catch (e) {
-          this._events.emit(EventsEnum.ERROR, {
-            event: EventsEnum.ERROR,
-            value: true,
-            detail: null,
-          });
+      if (this._source.drm?.drmType === DRMEnums.WIDEVINE) {
+        if (this._config.useShakaForDashStreams) {
+          this.setPlayerState({ player: PlayersEnum.SHAKA });
+          await this._shaka.initPlayer();
+          return;
         }
-      })
-      .catch(() => {
-        this._events.emit(EventsEnum.ERROR, {
-          event: EventsEnum.ERROR,
-          value: true,
-          detail: null,
-        });
-      });
+
+        this.setPlayerState({ player: PlayersEnum.DASHJS });
+        await this._dashjs.initPlayer();
+        return;
+      }
+
+      if (this._source.url) {
+        this.setPlayerState({ player: PlayersEnum.HLS });
+        await this._hls.initPlayer();
+        return;
+      }
+    } catch (e) {
+      console.log();
+    }
   };
 
-  /**
-   * event methods.
-   */
-  on = (event: EventsEnumType, fn: Listener) => {
+  hideTextTracks = () => {
+    if (this._mediaElement) {
+      Object.keys(this._mediaElement.textTracks || {}).forEach(
+        (t: any) => (this._mediaElement!.textTracks[t].mode = "hidden")
+      );
+    }
+  };
+
+  checkTextTracks = () => {
+    if (this._mediaElement && !!this._playerState.loaded) {
+      const tracks = this._mediaElement.textTracks;
+      const tracksData: Array<any> = Object.keys(tracks).reduce(
+        (a: any, c: any) => {
+          tracks[c].mode = "hidden";
+          return tracks[c].kind !== "metadata" &&
+            !!Object.keys(tracks[c].cues || {}).length
+            ? [
+                ...a,
+                {
+                  id: c,
+                  label: tracks[c].label,
+                  lang: tracks[c].language,
+                  track: tracks[c],
+                },
+              ]
+            : [...a];
+        },
+        []
+      );
+
+      if (!tracksData.length && this._timerCounter < 1000) {
+        this._timerCounter += 1;
+        this._timer = setTimeout(this.checkTextTracks, 2000);
+      } else {
+        this._textTracks = tracksData;
+        this._events.emit(EventsEnum.TEXTTRACKS, { value: this._textTracks });
+        this.setTextTrack(this._playerState.textTrack);
+      }
+    }
+  };
+
+  setTextTrack = (id: any) => {
+    if (this._textTracks.length) {
+      this._playerState = { ...this._playerState, textTrack: id };
+      const idx = this._textTracks.findIndex((t) => t.id === id);
+      if (idx !== -1) {
+        this._textTracks.forEach((t) => (t.track.mode = "hidden"));
+        this._textTracks[idx].track.mode = "showing";
+      } else {
+        this._textTracks.forEach((t) => (t.track.mode = "hidden"));
+      }
+    } else {
+      this._playerState = { ...this._playerState, textTrack: null };
+    }
+  };
+
+  togglePlayPause = (play: boolean) => {
+    const video = this.getMediaElement();
+    if (!!video) {
+      if (play) video.play();
+      if (!play) video.pause();
+    }
+  };
+
+  toggleMuteUnMute = () => {
+    const video = this.getMediaElement();
+    if (!!video) {
+      if (video.muted) {
+        video.muted = false;
+      } else {
+        video.muted = true;
+      }
+    }
+  };
+
+  toggleForwardRewind = (forward: boolean) => {
+    const video = this.getMediaElement();
+    if (!!video) {
+      const ct = video.currentTime;
+      const dt = video.duration;
+
+      if (ct >= 0 && dt >= 0) {
+        if (forward) {
+          video.currentTime = Math.min(ct + 30, dt);
+          return;
+        }
+        video.currentTime = Math.max(0, ct - 15);
+      }
+    }
+  };
+
+  seekTime = (timeInSeconds: number) => {
+    const video = this.getMediaElement();
+    if (!!video) {
+      video.currentTime = timeInSeconds;
+    }
+  };
+
+  togglePip = async () => {
+    const video = this.getMediaElement();
+    if (!document.pictureInPictureEnabled) return;
+    if (this.isFullScreen()) {
+      this.toggleFullScreen();
+    }
+    try {
+      if (!!video && video !== document.pictureInPictureElement) {
+        await video.requestPictureInPicture();
+      } else {
+        await document.exitPictureInPicture();
+      }
+    } catch (e) {
+      console.log();
+    }
+  };
+
+  toggleFullScreen = async () => {
+    const video = this.getMediaElement();
+    const videoContainer = _getMainVideoContainer();
+    if (!video && !videoContainer) return;
+    if (video === document.pictureInPictureElement) await this.togglePip();
+    if ((document as any).fullscreenElement) {
+      (document as any).exitFullscreen();
+    } else if ((document as any).webkitFullscreenElement) {
+      (document as any).webkitExitFullscreen();
+    } else if ((document as any).msExitFullscreen) {
+      (document as any).msExitFullscreen();
+    } else if ((videoContainer as any).webkitRequestFullscreen) {
+      (videoContainer as any).webkitRequestFullscreen();
+    } else if ((videoContainer as any).requestFullscreen) {
+      (videoContainer as any).requestFullscreen();
+    } else if ((videoContainer as any).msRequestFullscreen) {
+      (videoContainer as any).msRequestFullscreen();
+    }
+  };
+
+  isFullScreen = () => {
+    if (
+      (document as any).fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      (document as any).msExitFullscreen
+    )
+      return true;
+    return false;
+  };
+
+  formatTime = (timeInSeconds?: number) => {
+    if (Number.isNaN(timeInSeconds) || !Number.isFinite(timeInSeconds)) {
+      return "00:00";
+    }
+
+    const t = new Date(timeInSeconds! * 1000)
+      .toISOString()
+      .substring(11, 19)
+      .split(":");
+
+    if (t.length === 3) {
+      if (parseInt(t[0]) === 0) return `${t[1]}:${t[2]}`;
+      if (parseInt(t[0]) > 0) return `${t[0]}:${t[1]}:${t[2]}`;
+    }
+
+    return "00:00";
+  };
+
+  on = (event: EventsEnum, fn: Listener) => {
     this._events.on(event, fn);
   };
 
   removeAllListeners = () => {
     this._events.removeAllListeners();
+    this._dashjs.removeEvents();
+    this._shaka.removeEvents();
+    this._hls.removeEvents();
+    this._mediaEvents._removeMediaElementEvents();
   };
-
-  // /**
-  //  * media element events.
-  //  * */
-  // _waitingEvent = () => {
-  //   this._loadingErrorEvents(true, false, "video - wating event");
-  // };
-
-  // _playingEvent = () => {
-  //   this.isPlaying = true;
-  //   this._loadingErrorEvents(false, false, "video - playing event");
-  //   if (this.hls) this.hls.startLoad();
-  // };
-
-  // _pauseEvent = () => {
-  //   this.isPlaying = false;
-  //   this._loadingErrorEvents(false, false, "video - pause event");
-  //   if (this.hls) this.hls.stopLoad();
-  // };
-
-  // _addMediaElementEvents = () => {
-  //   this._removeMediaElementEvents();
-  //   if (this.mediaElement) {
-  //     this.mediaElement.addEventListener(
-  //       VideoEventsEnum.WAITING,
-  //       this._waitingEvent
-  //     );
-  //     this.mediaElement.addEventListener(
-  //       VideoEventsEnum.PLAYING,
-  //       this._playingEvent
-  //     );
-  //     this.mediaElement.addEventListener(
-  //       VideoEventsEnum.PAUSE,
-  //       this._pauseEvent
-  //     );
-  //   }
-  // };
-
-  // _removeMediaElementEvents = () => {
-  //   if (this.mediaElement) {
-  //     this.mediaElement.removeEventListener(
-  //       VideoEventsEnum.WAITING,
-  //       this._waitingEvent
-  //     );
-  //     this.mediaElement.removeEventListener(
-  //       VideoEventsEnum.PLAYING,
-  //       this._playingEvent
-  //     );
-  //     this.mediaElement.removeEventListener(
-  //       VideoEventsEnum.PAUSE,
-  //       this._pauseEvent
-  //     );
-  //   }
-  // };
 }
 
 export const multiPlayer = MultiPlayer.getInstance();
-
-/**
-The only cross-browser solution I have found to date is: Hide the video’s text tracks and use your own.
-This will allow you to create your own text nodes, with classes, id’s etc. which can then be styled simply via css.
-In order to do so, you would utilize the onenter and onexit methods of the text cues in order to implement your own text nodes.
-
-let video   = document.querySelector(‘YOUR_VIDEO_SELECTOR’)
-    tracks  = video.textTracks[0],
-    tracks.mode = 'hidden', // must occur before cues is retrieved
-    cues    = tracks.cues;
-
-  let replaceText = function(text) {
-        $('WHERE_TEXT_GETS_INSERTED').html(text);
-      },
-
-      showText = function() {
-        $('WHERE_TEXT_GETS_INSERTED').show();
-      },
-
-      hideText = function() {
-        $('WHERE_TEXT_GETS_INSERTED').hide();
-      },
-
-      cueEnter = function() {
-        replaceText(this.text);
-        showText();
-      },
-
-      cueExit = function() {
-        hideText();
-      },
-
-      videoLoaded = function(e) {
-        for (var i in cues) {
-          var cue = cues[i];
-          cue.onenter = cueEnter;
-          cue.onexit = cueExit;
-        }
-      },
-
-      playVideo = function(e) {
-        video.play();
-      };
-
-  video.addEventListener('loadedmetadata', videoLoaded);
-  video.addEventLister('load', playVideo);
-  video.load();
-
-  */
