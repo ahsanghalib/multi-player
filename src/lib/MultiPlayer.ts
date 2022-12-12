@@ -135,11 +135,8 @@ export class MultiPlayer {
 
   detachMediaElement = async () => {
     try {
-      // if (this._playerState.player === PlayersEnum.HLS)
       await this._hls.destroy();
-      // if (this._playerState.player === PlayersEnum.DASHJS)
       await this._dashjs.destroy();
-      // if (this._playerState.player === PlayersEnum.SHAKA)
       await this._shaka.destroy();
       return Promise.resolve();
     } catch (e) {
