@@ -1,6 +1,6 @@
 {
   "name": "multi-players",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "To play all types of streams with minimal configs",
   "author": "ahsanghalib@gmail.com",
   "repository": "git@github.com:ahsanghalib/multi-player.git",
@@ -24,8 +24,8 @@
     "tsc": "tsc -p tsconfig.json",
     "build": "./scripts/build.js",
     "build:all": "yarn clean && yarn tsc && yarn build",
-    "build:dev": "./scripts/dev.js",
-    "build:watch": "./scripts/watch.js",
+    "dev": "./scripts/dev.js",
+    "watch": "./scripts/watch.js",
     "docs": "typedoc --entryPoints src/index.ts",
     "release": "yarn build:all && npm publish"
   },
