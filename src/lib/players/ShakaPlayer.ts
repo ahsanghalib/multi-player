@@ -1,11 +1,12 @@
 import Shaka from "shaka-player/dist/shaka-player.compiled.debug";
-import { Events } from "../Events";
-import { MultiPlayer } from "../MultiPlayer";
+import type { Events } from "../Events";
+import type { MultiPlayer } from "../MultiPlayer";
 import {
   DRMEnums,
   IPlayer,
   ISource,
   MimeTypesEnum,
+  PlayersEnum,
   ShakaEventsEnum,
 } from "../types";
 import { _getMimeType, _isSafari } from "../Utils";
@@ -174,6 +175,8 @@ export class ShakaPlayer implements IPlayer {
 
   destroy = async () => {
     await this._shaka.detach();
+    this._player.setPlayerState({ player: PlayersEnum.NONE });
+    await Promise.resolve();
   };
 
   addEvents = () => {

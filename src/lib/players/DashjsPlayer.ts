@@ -1,7 +1,7 @@
 import Dashjs from "dashjs";
-import { Events } from "../Events";
-import { MultiPlayer } from "../MultiPlayer";
-import { DRMEnums, IConfig, IPlayer, ISource, MimeTypesEnum } from "../types";
+import type { Events } from "../Events";
+import type { MultiPlayer } from "../MultiPlayer";
+import { DRMEnums, IPlayer, ISource, MimeTypesEnum, PlayersEnum } from "../types";
 import { _getMimeType } from "../Utils";
 
 export class DashjsPlayer implements IPlayer {
@@ -179,6 +179,7 @@ export class DashjsPlayer implements IPlayer {
   destroy = async () => {
     try {
       this._dashjs.reset();
+      this._player.setPlayerState({ player: PlayersEnum.NONE });
       await Promise.resolve();
     } catch (e) {}
   };

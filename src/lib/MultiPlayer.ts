@@ -135,9 +135,12 @@ export class MultiPlayer {
 
   detachMediaElement = async () => {
     try {
-      await this._hls.destroy();
-      await this._dashjs.destroy();
-      await this._shaka.destroy();
+      if (this._playerState.player === PlayersEnum.HLS)
+        await this._hls.destroy();
+      if (this._playerState.player === PlayersEnum.DASHJS)
+        await this._dashjs.destroy();
+      if (this._playerState.player === PlayersEnum.SHAKA)
+        await this._shaka.destroy();
       return Promise.resolve();
     } catch (e) {
       return Promise.reject();
@@ -202,11 +205,14 @@ export class MultiPlayer {
 
     if (this._mediaElement) {
       try {
+        this._mediaElement.pause();
         await this.detachMediaElement();
+        this._mediaElement.removeAttribute("src");
+        this._mediaElement.load()
+        await delay(100)
       } catch (err) {}
-      this._mediaElement = null;
     }
-
+    
     const element = _getMediaElement();
     if (!element) {
       console.error(

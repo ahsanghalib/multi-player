@@ -1,6 +1,6 @@
-import { Events } from "./Events";
-import { MultiPlayer } from "./MultiPlayer";
-import { DashjsPlayer, HlsjsPlayer } from "./players";
+import type { Events } from "./Events";
+import type { MultiPlayer } from "./MultiPlayer";
+import type { DashjsPlayer, HlsjsPlayer } from "./players";
 import { EventsEnum, IConfig } from "./types";
 
 export class MediaElementEvents {

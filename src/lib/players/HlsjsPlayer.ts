@@ -1,7 +1,7 @@
 import Hls from "hls.js";
-import { Events } from "../Events";
-import { MultiPlayer } from "../MultiPlayer";
-import { IPlayer, ISource, MimeTypesEnum } from "../types";
+import type { Events } from "../Events";
+import type { MultiPlayer } from "../MultiPlayer";
+import { IPlayer, ISource, MimeTypesEnum, PlayersEnum } from "../types";
 import { _getMimeType } from "../Utils";
 
 export class HlsjsPlayer implements IPlayer {
@@ -31,7 +31,7 @@ export class HlsjsPlayer implements IPlayer {
     const source = this._player.getSource();
 
     const check = this.urlCheck(source);
-    if (mediaElement && check) {
+    if (mediaElement && check && !this._hls) {
       this._hls = new Hls({
         ...config,
         debug: config.debug,
@@ -54,8 +54,11 @@ export class HlsjsPlayer implements IPlayer {
 
   destroy = async () => {
     if (this._hls) {
+      this._hls.stopLoad();
+      this._hls.detachMedia();
       this._hls.destroy();
       this._hls = null;
+      this._player.setPlayerState({ player: PlayersEnum.NONE });
     }
     return Promise.resolve();
   };
