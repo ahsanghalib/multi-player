@@ -1,8 +1,14 @@
 import Dashjs from "dashjs";
 import type { Events } from "../Events";
 import type { MultiPlayer } from "../MultiPlayer";
-import { DRMEnums, IPlayer, ISource, MimeTypesEnum, PlayersEnum } from "../types";
-import { _getMimeType } from "../Utils";
+import {
+  DRMEnums,
+  IPlayer,
+  ISource,
+  MimeTypesEnum,
+  PlayersEnum,
+} from "../types";
+import { _getMimeType, hasHeader } from "../Utils";
 
 export class DashjsPlayer implements IPlayer {
   private _player: MultiPlayer;
@@ -16,6 +22,8 @@ export class DashjsPlayer implements IPlayer {
     this._events = events;
     this._player = player;
   }
+
+  getDash = () => this._dashjs;
 
   urlCheck = (source: ISource) => {
     if (!source.url) return false;
@@ -32,12 +40,24 @@ export class DashjsPlayer implements IPlayer {
     const check = this.urlCheck(source);
     if (mediaElement && check) {
       if (source.drm?.drmType === DRMEnums.WIDEVINE) {
-        this._dashjs.setProtectionData({
+        let protoData: any = {
           "com.widevine.alpha": {
             serverURL: source.drm?.licenseUrl,
             priority: 0,
           },
-        });
+        };
+
+        if (hasHeader(source.drm?.licenseHeader)) {
+          protoData = {
+            "com.widevine.alpha": {
+              serverURL: source.drm?.licenseUrl,
+              httpRequestHeaders: source.drm?.licenseHeader,
+              priority: 0,
+            },
+          };
+        }
+
+        this._dashjs.setProtectionData(protoData);
       }
 
       this._dashjs

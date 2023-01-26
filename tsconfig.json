@@ -6,10 +6,10 @@
     "moduleResolution": "node",
     "declaration": true,
     "strict": true,
-    "strictNullChecks": true /* Enable strict null checks. */,
-    "strictFunctionTypes": true /* Enable strict checking of function types. */,
-    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
-    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "importHelpers": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -17,20 +17,9 @@
     "experimentalDecorators": true,
     "sourceMap": false,
     "outDir": "./dist/MultiPlayer",
-    "types": [
-      "node",
-      "jest"
-    ],
-    "lib": [
-      "es6",
-      "dom"
-    ]
+    "types": ["node"],
+    "lib": ["es6", "dom"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.test.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

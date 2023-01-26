@@ -13,6 +13,7 @@ export interface IDrm {
   drmType: DRMEnums;
   licenseUrl: string;
   certicateUrl?: string;
+  licenseHeader?: Record<string, string>;
 }
 
 export interface ISource {
@@ -29,7 +30,7 @@ export interface IEvents {
 export interface IConfig {
   debug: boolean;
   useShakaForDashStreams: boolean;
-  isVidgo: boolean;
+  isNagra: boolean;
   startTime?: number;
   maxRetryCount: number;
 }

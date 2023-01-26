@@ -5,11 +5,13 @@ export const _isSafari = (): boolean =>
     ((navigator && navigator.userAgent) || "").toLowerCase()
   );
 
-export const _getMimeType = (url: string) =>
-  /.*(\.m3u8).*$/.test(url)
-    ? MimeTypesEnum.M3U8
-    : /.*(\.mpd).*$/.test(url)
-    ? MimeTypesEnum.MPD
+export const _getMimeType = (url: string | null) =>
+  url
+    ? /.*(\.m3u8).*$/.test(url)
+      ? MimeTypesEnum.M3U8
+      : /.*(\.mpd).*$/.test(url)
+      ? MimeTypesEnum.MPD
+      : "none"
     : "none";
 
 export const _getMediaElement = (): HTMLVideoElement | null =>
@@ -21,4 +23,12 @@ export const _getCloseCaptionContainer = (): HTMLDivElement | null =>
 export const _getMainVideoContainer = () =>
   document.querySelector("div[data-multi-player-main-container]");
 
-export const delay = (ms: number = 0) => new Promise((resolve) => setTimeout(resolve, ms));
+export const delay = (ms = 0) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export const hasHeader = (obj: unknown) =>
+  !!obj &&
+  typeof obj === "object" &&
+  Object.keys(obj).length === 1 &&
+  typeof Object.keys(obj)[0] === "string" &&
+  typeof Object.values(obj)[0] === "string";

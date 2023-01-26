@@ -123,7 +123,7 @@ export class MediaElementEvents {
       return;
     }
 
-    if (this._progressCounter > 2) {
+    if (this._progressCounter > 15) {
       this._progressCounter = 0;
       this._player.reloadPlayer().catch((e) => console.log());
     }

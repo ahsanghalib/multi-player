@@ -9,14 +9,20 @@ import {
   IPlayerState,
   ISource,
   Listener,
+  MimeTypesEnum,
   PlayersEnum,
 } from "./types";
-import { _getMediaElement, delay, _getMainVideoContainer } from "./Utils";
+import {
+  _getMediaElement,
+  delay,
+  _getMainVideoContainer,
+  _getMimeType,
+} from "./Utils";
 
 const defaultConfig: IConfig = {
   debug: false,
   useShakaForDashStreams: false,
-  isVidgo: false,
+  isNagra: false,
   startTime: undefined,
   maxRetryCount: 5,
 };
@@ -41,7 +47,6 @@ export class MultiPlayer {
   private _playerState: IPlayerState;
   private _textTracks: Array<any>;
   private _timer?: NodeJS.Timeout;
-  private _timerCounter: number;
   private _retryCount: number;
   private _hls: HlsjsPlayer;
   private _shaka!: ShakaPlayer;
@@ -57,7 +62,6 @@ export class MultiPlayer {
     this._config = defaultConfig;
     this._playerState = defaultPlayerState;
     this._timer = undefined;
-    this._timerCounter = 0;
     this._retryCount = 0;
     this._textTracks = [];
     this._hls = new HlsjsPlayer(this, this._events);
@@ -208,11 +212,11 @@ export class MultiPlayer {
         this._mediaElement.pause();
         await this.detachMediaElement();
         this._mediaElement.removeAttribute("src");
-        this._mediaElement.load()
-        await delay(100)
+        this._mediaElement.load();
+        await delay(100);
       } catch (err) {}
     }
-    
+
     const element = _getMediaElement();
     if (!element) {
       console.error(
@@ -224,33 +228,46 @@ export class MultiPlayer {
     this.setMediaElement(element);
     this.hideTextTracks();
     this._textTracks = [];
-    this._timerCounter = 0;
     this._events.emit(EventsEnum.TEXTTRACKS, { value: this._textTracks });
     this._mediaEvents._init();
 
     try {
-      if (this._source.drm?.drmType === DRMEnums.FAIRPLAY) {
-        this.setPlayerState({ player: PlayersEnum.SHAKA });
-        await this._shaka.initPlayer();
-        return;
-      }
+      const isDrm =
+        this._source.drm?.drmType === DRMEnums.FAIRPLAY ||
+        this._source.drm?.drmType === DRMEnums.WIDEVINE;
+      const isM3U8 = _getMimeType(this._source.url) === MimeTypesEnum.M3U8;
+      const isMPD = _getMimeType(this._source.url) === MimeTypesEnum.MPD;
 
-      if (this._source.drm?.drmType === DRMEnums.WIDEVINE) {
-        if (this._config.useShakaForDashStreams) {
+      if (isDrm) {
+        if (isM3U8) {
           this.setPlayerState({ player: PlayersEnum.SHAKA });
           await this._shaka.initPlayer();
           return;
         }
 
-        this.setPlayerState({ player: PlayersEnum.DASHJS });
-        await this._dashjs.initPlayer();
-        return;
-      }
+        if (isMPD) {
+          if (this._config.useShakaForDashStreams) {
+            this.setPlayerState({ player: PlayersEnum.SHAKA });
+            await this._shaka.initPlayer();
+            return;
+          }
 
-      if (this._source.url) {
-        this.setPlayerState({ player: PlayersEnum.HLS });
-        await this._hls.initPlayer();
-        return;
+          this.setPlayerState({ player: PlayersEnum.DASHJS });
+          await this._dashjs.initPlayer();
+          return;
+        }
+      } else {
+        if (isM3U8) {
+          this.setPlayerState({ player: PlayersEnum.HLS });
+          await this._hls.initPlayer();
+          return;
+        }
+
+        if (isMPD) {
+          this.setPlayerState({ player: PlayersEnum.DASHJS });
+          await this._dashjs.initPlayer();
+          return;
+        }
       }
     } catch (e) {
       console.log();
@@ -267,6 +284,8 @@ export class MultiPlayer {
 
   checkTextTracks = () => {
     if (this._mediaElement && !!this._playerState.loaded) {
+      clearTimeout(this._timer);
+
       const tracks = this._mediaElement.textTracks;
       const tracksData: Array<any> = Object.keys(tracks).reduce(
         (a: any, c: any) => {
@@ -287,14 +306,10 @@ export class MultiPlayer {
         []
       );
 
-      if (!tracksData.length && this._timerCounter < 1000) {
-        this._timerCounter += 1;
-        this._timer = setTimeout(this.checkTextTracks, 2000);
-      } else {
-        this._textTracks = tracksData;
-        this._events.emit(EventsEnum.TEXTTRACKS, { value: this._textTracks });
-        this.setTextTrack(this._playerState.textTrack);
-      }
+      this._textTracks = tracksData;
+      this._events.emit(EventsEnum.TEXTTRACKS, { value: this._textTracks });
+      this.setTextTrack(this._playerState.textTrack);
+      this._timer = setTimeout(this.checkTextTracks, 2000);
     }
   };
 

@@ -20,6 +20,8 @@ export class HlsjsPlayer implements IPlayer {
     }
   }
 
+  getHls = () => this._hls;
+
   urlCheck = (source: ISource) => {
     if (!source.url) return false;
     return _getMimeType(source.url) === MimeTypesEnum.M3U8;

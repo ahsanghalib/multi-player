@@ -1,7 +1,7 @@
 import { DRMEnums, EventsEnum, TextTrackLabels } from "./lib/types";
 import { multiPlayer } from "./lib/MultiPlayer";
 
-const exp = {
+const player = {
   getPlayerState: multiPlayer.getPlayerState,
   getMediaElement: multiPlayer.getMediaElement,
   detachMediaElement: multiPlayer.detachMediaElement,
@@ -26,6 +26,6 @@ const exp = {
   TextTrackLabels,
 };
 
-(window as any).multiPlayer = exp;
+(window as any).multiPlayer = player;
 
-export default { exp };
+export default { player };
