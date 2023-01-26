@@ -26,6 +26,4 @@ const player = {
   TextTrackLabels,
 };
 
-(window as any).multiPlayer = player;
-
-export default { player };
+export default player;

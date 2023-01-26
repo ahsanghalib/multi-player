@@ -3,7 +3,6 @@ const esbuild = require("esbuild");
 const path = require("path");
 const { readFile, writeFile } = require("fs");
 const package = require("../package.json");
-// const { nodeExternalsPlugin } = require("esbuild-node-externals");
 
 esbuild
   .build({
@@ -11,16 +10,15 @@ esbuild
     entryPoints: ["src/index.ts"],
     bundle: true,
     minify: true,
-    outfile: "dist/build/player.js",
+    outfile: "dist/player.js",
     ignoreAnnotations: true,
     legalComments: "none",
-    // plugins: [nodeExternalsPlugin()],
     banner: {
       js: `/* eslint-disable */\n/** ${package.name}-${package.version} */`,
     },
   })
   .then(() => {
-    const loc = path.join(__dirname, "../dist/build/player.js");
+    const loc = path.join(__dirname, "../dist/player.js");
     readFile(loc, "utf-8", (err, contents) => {
       if (err) {
         console.log(err);

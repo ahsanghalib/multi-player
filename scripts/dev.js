@@ -8,10 +8,10 @@ esbuild
     logLevel: "info",
     entryPoints: ["src/index.ts"],
     bundle: true,
-    outfile: "dist/build/player.js",
+    outfile: "dist/player.js",
   })
   .then(() => {
-    const loc = path.join(__dirname, "../dist/build/player.js");
+    const loc = path.join(__dirname, "../dist/player.js");
     readFile(loc, "utf-8", (err, contents) => {
       if (err) {
         console.log(err);
