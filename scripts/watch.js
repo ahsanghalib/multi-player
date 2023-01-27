@@ -9,10 +9,10 @@ esbuild
     entryPoints: ["src/index.ts"],
     bundle: true,
     watch: true,
-    outfile: "dist/player.js",
+    outfile: "dist/index.js",
   })
   .then(() => {
-    const loc = path.join(__dirname, "../dist/player.js");
+    const loc = path.join(__dirname, "../dist/index.js");
     readFile(loc, "utf-8", (err, contents) => {
       if (err) {
         console.log(err);

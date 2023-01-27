@@ -16,9 +16,8 @@
     "npm": ">=8.0.0",
     "node": ">=16.0.0"
   },
-  "main": "./dist/player.js",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "browser": "./dist/player.js",
   "scripts": {
     "clean": "rm -rf dist build package",
     "tsc": "tsc -p tsconfig.json --emitDeclarationOnly --outDir dist",

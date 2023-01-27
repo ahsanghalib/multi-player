@@ -1,4 +1,4 @@
-import { MultiPlayer } from "./MultiPlayer";
+import type { MultiPlayer } from "./MultiPlayer";
 import { EventsEnum, IEvents, Listener } from "./types";
 
 export class Events {

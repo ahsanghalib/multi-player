@@ -448,4 +448,4 @@ export class MultiPlayer {
   };
 }
 
-export const multiPlayer = MultiPlayer.getInstance();
+export const multiPlayerInstance = MultiPlayer.getInstance();
