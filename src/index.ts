@@ -26,4 +26,4 @@ const player = {
   TextTrackLabels,
 };
 
-export default player;
+export default { player };
