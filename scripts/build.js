@@ -10,9 +10,12 @@ esbuild
     entryPoints: ["src/index.ts"],
     bundle: true,
     minify: true,
-    outfile: "dist/index.js",
+    splitting: true,
+    outdir: 'dist',
     ignoreAnnotations: true,
     legalComments: "none",
+    target: ['esnext'],
+    format: 'esm',
     banner: {
       js: `/* eslint-disable */\n/** ${package.name}-${package.version} */`,
     },
