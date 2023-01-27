@@ -1,6 +1,6 @@
 {
   "name": "multi-players",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "To play all types of streams with minimal configs",
   "author": "ahsanghalib@gmail.com",
   "repository": "git@github.com:ahsanghalib/multi-player.git",
@@ -20,7 +20,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "clean": "rm -rf dist build package",
-    "tsc": "tsc -p tsconfig.json --emitDeclarationOnly --outDir dist",
+    "tsc": "tsc -p tsconfig.json",
     "build": "./scripts/build.js",
     "build:all": "yarn clean && yarn build && yarn tsc",
     "dev": "./scripts/dev.js",
