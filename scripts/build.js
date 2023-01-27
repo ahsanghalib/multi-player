@@ -13,6 +13,7 @@ esbuild
     outfile: "dist/index.js",
     ignoreAnnotations: true,
     legalComments: "none",
+    format: "cjs",
     banner: {
       js: `/* eslint-disable */\n/** ${package.name}-${package.version} */`,
     },

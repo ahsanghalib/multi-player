@@ -23,7 +23,7 @@ const {
   removePlayer,
 } = multiPlayerInstance;
 
-export const player = {
+const player = {
   getPlayerState,
   getMediaElement,
   detachMediaElement,
@@ -47,3 +47,5 @@ export const player = {
   EventsEnum,
   TextTrackLabels,
 };
+
+export default player;

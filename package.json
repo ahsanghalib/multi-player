@@ -1,6 +1,6 @@
 {
   "name": "multi-players",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "To play all types of streams with minimal configs",
   "author": "ahsanghalib@gmail.com",
   "repository": "git@github.com:ahsanghalib/multi-player.git",
@@ -16,13 +16,17 @@
     "npm": ">=8.0.0",
     "node": ">=16.0.0"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/multi-players.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "clean": "rm -rf dist build package",
     "tsc": "tsc -p tsconfig.json",
     "build": "./scripts/build.js",
-    "build:all": "yarn clean && yarn build",
+    "build:types": "tsc --build tsconfig-lib.json && api-extractor run --local",
+    "build:all": "yarn clean && yarn build && yarn build:types",
     "dev": "./scripts/dev.js",
     "watch": "./scripts/watch.js",
     "docs": "typedoc --entryPoints src/index.ts",
@@ -45,6 +49,7 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
+    "@microsoft/api-extractor": "^7.34.0",
     "dashjs": "3.2.2",
     "hls.js": "1.2.9",
     "mux.js": "5.14.1",
