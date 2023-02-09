@@ -1,8 +1,8 @@
-import Hls from "hls.js";
-import type { Events } from "../Events";
-import type { MultiPlayer } from "../MultiPlayer";
-import { IPlayer, ISource, MimeTypesEnum, PlayersEnum } from "../types";
-import { _getMimeType } from "../Utils";
+import Hls from 'hls.js';
+import type { Events } from '../Events';
+import type { MultiPlayer } from '../MultiPlayer';
+import { IPlayer, ISource, MimeTypesEnum, PlayersEnum } from '../types';
+import { _getMimeType } from '../Utils';
 
 export class HlsjsPlayer implements IPlayer {
   private _player: MultiPlayer;
@@ -16,7 +16,7 @@ export class HlsjsPlayer implements IPlayer {
     this._hls = null;
     this._player = player;
     if (!Hls.isSupported()) {
-      console.error("HLS.js is not Supported.");
+      console.error('HLS.js is not Supported.');
     }
   }
 
@@ -38,12 +38,13 @@ export class HlsjsPlayer implements IPlayer {
         ...config,
         debug: config.debug,
         startPosition: config.startTime,
+				liveDurationInfinity: true,
       });
 
       this._hls.attachMedia(mediaElement);
 
       this._hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        this._hls!.loadSource(source.url || "");
+        this._hls!.loadSource(source.url || '');
       });
 
       this.addEvents();
@@ -92,8 +93,8 @@ export class HlsjsPlayer implements IPlayer {
   };
 
   _hlsErrorEvent = (e: any, d: any) => {
-    console.log("hls-error", e, d);
-    if (d?.details === "bufferStalledError") {
+    console.log('hls-error', e, d);
+    if (d?.details === 'bufferStalledError') {
       this._events.loadingErrorEvents(true, false);
     }
 

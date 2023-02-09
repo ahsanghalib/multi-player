@@ -1,8 +1,9 @@
-import type { MultiPlayer } from "./MultiPlayer";
-import { EventsEnum, IEvents, Listener } from "./types";
+import { MultiPlayer } from './MultiPlayer';
+import { EventsEnum, IEvents, Listener } from './types';
 
 export class Events {
   private _events: IEvents;
+
   private _player: MultiPlayer;
 
   constructor(player: MultiPlayer) {
@@ -11,7 +12,7 @@ export class Events {
   }
 
   on = (event: EventsEnum, fn: Listener) => {
-    if (typeof this._events[event] !== "object") this._events[event] = [];
+    if (typeof this._events[event] !== 'object') this._events[event] = [];
     this._events[event].push(fn);
     return () => this.removeListener(event, fn);
   };
@@ -21,16 +22,16 @@ export class Events {
     args: {
       value?: boolean | number | string | Array<any>;
       detail?: any;
-    }
+    },
   ) => {
-    if (typeof this._events[event] !== "object") return;
+    if (typeof this._events[event] !== 'object') return;
     [...this._events[event]].forEach((listener) =>
-      listener.apply(this, [{ event, ...args }])
+      listener.apply(this, [{ event, ...args }]),
     );
   };
 
   removeListener = (event: EventsEnum, listener: Listener) => {
-    if (typeof this._events[event] !== "object") return;
+    if (typeof this._events[event] !== 'object') return;
     const idx: number = this._events[event].indexOf(listener);
     if (idx > -1) {
       this._events[event].splice(idx, 1);
@@ -44,7 +45,7 @@ export class Events {
   fatalErrorRetry = (d: any) => {
     const maxCount = this._player.getCurrentConfig().maxRetryCount;
     const currentCount = this._player.getRetryCount();
-    console.log("RETRY #", currentCount);
+    console.log('RETRY #', currentCount);
     if (currentCount === maxCount) {
       this.loadingErrorEvents(false, true, d);
       return;

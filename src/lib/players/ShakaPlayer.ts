@@ -1,6 +1,6 @@
-import Shaka from "shaka-player/dist/shaka-player.compiled.debug";
-import type { Events } from "../Events";
-import type { MultiPlayer } from "../MultiPlayer";
+import Shaka from 'shaka-player/dist/shaka-player.compiled.debug';
+import type { Events } from '../Events';
+import type { MultiPlayer } from '../MultiPlayer';
 import {
   DRMEnums,
   IPlayer,
@@ -8,8 +8,8 @@ import {
   MimeTypesEnum,
   PlayersEnum,
   ShakaEventsEnum,
-} from "../types";
-import { hasHeader, _getMimeType, _isSafari } from "../Utils";
+} from '../types';
+import { hasHeader, _getMimeType, _isSafari } from '../Utils';
 
 export class ShakaPlayer implements IPlayer {
   private _shaka: Shaka.Player;
@@ -25,7 +25,7 @@ export class ShakaPlayer implements IPlayer {
     if (Shaka.Player.isBrowserSupported()) {
       Shaka.polyfill.installAll();
     } else {
-      console.error("Shaka Player is not Supported.");
+      console.error('Shaka Player is not Supported.');
     }
   }
 
@@ -64,7 +64,7 @@ export class ShakaPlayer implements IPlayer {
       (Shaka as any).log.setLevel(
         config.debug
           ? (Shaka as any).log.Level.DEBUG
-          : (Shaka as any).log.Level.NONE
+          : (Shaka as any).log.Level.NONE,
       );
 
       this._shaka.resetConfiguration();
@@ -76,9 +76,9 @@ export class ShakaPlayer implements IPlayer {
       let drmConfig = {};
 
       if (_isSafari() && source.drm?.drmType === DRMEnums.FAIRPLAY) {
-        if (config.isNagra) {
+        if (config.isVidgo) {
           drmConfig = this.basicDrmConfigs(source, DRMEnums.FAIRPLAY);
-          this.nagraResponseFilter();
+          this.vidgoResponseFilter();
         } else if (hasHeader(source.drm?.licenseHeader)) {
           drmConfig = this.basicDrmConfigs(source, DRMEnums.FAIRPLAY, false);
           this.buydrmFairplayRequestFilter(source);
@@ -93,12 +93,12 @@ export class ShakaPlayer implements IPlayer {
         }
       }
 
-      if (config.debug) console.log("drmConfig", drmConfig);
+      if (config.debug) console.log('drmConfig', drmConfig);
 
       this._shaka.configure({
         streaming: {
           alwaysStreamText: true,
-          autoLowLatencyMode: true,
+					autoLowLatencyMode: true,
           jumpLargeGaps: true,
           lowLatencyMode: false,
           updateIntervalSeconds: 0.5,
@@ -108,12 +108,12 @@ export class ShakaPlayer implements IPlayer {
 
       this.addEvents();
 
-      let mimeType = _getMimeType(source.url || "");
+      let mimeType = _getMimeType(source.url || '');
 
       this._url = source?.url;
 
       this._shaka
-        .load(source.url || "", config.startTime, mimeType)
+        .load(source.url || '', config.startTime, mimeType)
         .then(async () => {
           try {
             await mediaElement.play();
@@ -129,7 +129,7 @@ export class ShakaPlayer implements IPlayer {
   };
 
   buydrmWidevineRequestFilter = (source: ISource) => {
-    this._shaka.getNetworkingEngine()!.registerRequestFilter((type: any, req: any) => {
+    this._shaka.getNetworkingEngine()!.registerRequestFilter((type, req) => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         req.headers = {
           ...req.headers,
@@ -147,8 +147,8 @@ export class ShakaPlayer implements IPlayer {
           let txt = Shaka.util.StringUtils.fromUTF8(resp.data);
           txt = txt.trim();
           if (
-            txt.substring(0, 5) === "<ckc>" &&
-            txt.substring(-6) === "</ckc>"
+            txt.substring(0, 5) === '<ckc>' &&
+            txt.substring(-6) === '</ckc>'
           ) {
             txt = txt.slice(5, -6);
           }
@@ -160,7 +160,7 @@ export class ShakaPlayer implements IPlayer {
   buydrmFairplayRequestFilter = (source: ISource) => {
     this._shaka
       .getNetworkingEngine()!
-      .registerRequestFilter((type: any, req: any) => {
+      .registerRequestFilter((type, req: any) => {
         if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
           const originalPayload = new Uint8Array(req.body as any);
           const base64Payload =
@@ -168,7 +168,7 @@ export class ShakaPlayer implements IPlayer {
           const params = `spc=${base64Payload}&assetId=${this._contentId}`;
           req.headers = {
             ...req.headers,
-            "Content-Type": "application/x-www-form-urlencoded",
+            'Content-Type': 'application/x-www-form-urlencoded',
             ...source.drm!.licenseHeader!,
           };
           req.body = Shaka.util.StringUtils.toUTF8(params);
@@ -176,7 +176,7 @@ export class ShakaPlayer implements IPlayer {
       });
   };
 
-  nagraResponseFilter = () => {
+  vidgoResponseFilter = () => {
     this._shaka
       .getNetworkingEngine()!
       .registerResponseFilter((type: any, resp: any) => {
@@ -184,10 +184,10 @@ export class ShakaPlayer implements IPlayer {
           const jsonResp = JSON.parse(
             String.fromCharCode.apply(
               null,
-              new Uint8Array(resp.data as any) as any
-            )
+              new Uint8Array(resp.data as any) as any,
+            ),
           );
-          const raw = Buffer.from(jsonResp.ckc, "base64");
+          const raw = Buffer.from(jsonResp.ckc, 'base64');
           const rawLength = raw.length;
           const data = new Uint8Array(new ArrayBuffer(rawLength));
           for (let i = 0; i < rawLength; i += 1) {
@@ -201,18 +201,18 @@ export class ShakaPlayer implements IPlayer {
   basicDrmConfigs = (
     source: ISource,
     type: DRMEnums,
-    lagacyFairplay: boolean = true
+    lagacyFairplay: boolean = true,
   ) => {
     if (type === DRMEnums.WIDEVINE) {
       return {
         drm: {
           servers: {
-            "com.widevine.alpha": source.drm?.licenseUrl,
+            'com.widevine.alpha': source.drm?.licenseUrl,
           },
           advanced: {
-            "com.widevine.alpha": {
-              videoRobustness: "SW_SECURE_CRYPTO",
-              audioRobustness: "SW_SECURE_CRYPTO",
+            'com.widevine.alpha': {
+              videoRobustness: 'SW_SECURE_CRYPTO',
+              audioRobustness: 'SW_SECURE_CRYPTO',
             },
           },
         },
@@ -224,10 +224,10 @@ export class ShakaPlayer implements IPlayer {
         return {
           drm: {
             servers: {
-              "com.apple.fps.1_0": source.drm?.licenseUrl,
+              'com.apple.fps.1_0': source.drm?.licenseUrl,
             },
             advanced: {
-              "com.apple.fps.1_0": {
+              'com.apple.fps.1_0': {
                 serverCertificateUri: source.drm?.certicateUrl,
               },
             },
@@ -238,26 +238,26 @@ export class ShakaPlayer implements IPlayer {
       return {
         drm: {
           servers: {
-            "com.apple.fps": source.drm?.licenseUrl,
+            'com.apple.fps': source.drm?.licenseUrl,
           },
           advanced: {
-            "com.apple.fps": {
+            'com.apple.fps': {
               serverCertificateUri: source.drm?.certicateUrl,
             },
           },
           initDataTransform: (
             initData: any,
             initDataType: any,
-            drmInfo: any
+            drmInfo: any,
           ) => {
-            if (initDataType !== "skd") return initData;
+            if (initDataType !== 'skd') return initData;
             this._contentId =
               Shaka.util.FairPlayUtils.defaultGetContentId(initData);
             const cert = drmInfo.serverCertificate;
             return Shaka.util.FairPlayUtils.initDataTransform(
               initData,
               this._contentId,
-              cert
+              cert,
             );
           },
         },
@@ -270,7 +270,7 @@ export class ShakaPlayer implements IPlayer {
   reload = async () => {
     if (this._url) {
       try {
-        await this._shaka.load(this._url || "");
+        await this._shaka.load(this._url || '');
         return Promise.resolve();
       } catch (e) {
         return Promise.reject();
@@ -289,27 +289,27 @@ export class ShakaPlayer implements IPlayer {
     this.removeEvents();
     this._shaka.addEventListener(
       ShakaEventsEnum.BUFFERING,
-      this._shakaBufferingEvent
+      this._shakaBufferingEvent,
     );
     this._shaka.addEventListener(ShakaEventsEnum.ERROR, this._shakaErrorEvent);
     this._shaka.addEventListener(
       ShakaEventsEnum.STALL_DETECTED,
-      this._shakaStallDetectedEvent
+      this._shakaStallDetectedEvent,
     );
   };
 
   removeEvents = () => {
     this._shaka.removeEventListener(
       ShakaEventsEnum.BUFFERING,
-      this._shakaBufferingEvent
+      this._shakaBufferingEvent,
     );
     this._shaka.removeEventListener(
       ShakaEventsEnum.ERROR,
-      this._shakaErrorEvent
+      this._shakaErrorEvent,
     );
     this._shaka.removeEventListener(
       ShakaEventsEnum.STALL_DETECTED,
-      this._shakaStallDetectedEvent
+      this._shakaStallDetectedEvent,
     );
   };
 
@@ -324,7 +324,7 @@ export class ShakaPlayer implements IPlayer {
   };
 
   _shakaErrorEvent = (d: any) => {
-    console.log("shaka-error-event", d);
+    console.log('shaka-error-event', d);
     if (d?.severity === Shaka.util.Error.Severity.CRITICAL) {
       this._events.fatalErrorRetry(d);
     }

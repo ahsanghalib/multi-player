@@ -1,7 +1,7 @@
-import muxjs from "mux.js";
-import { Events } from "./Events";
-import { MediaElementEvents } from "./MediaElementEvents";
-import { DashjsPlayer, ShakaPlayer, HlsjsPlayer } from "./players";
+import muxjs from 'mux.js';
+import { Events } from './Events';
+import { MediaElementEvents } from './MediaElementEvents';
+import { DashjsPlayer, ShakaPlayer, HlsjsPlayer } from './players';
 import {
   DRMEnums,
   EventsEnum,
@@ -11,18 +11,20 @@ import {
   Listener,
   MimeTypesEnum,
   PlayersEnum,
-} from "./types";
+  STORAGE_CONSTANTS,
+} from './types';
 import {
   _getMediaElement,
   delay,
   _getMainVideoContainer,
   _getMimeType,
-} from "./Utils";
+  _getCloseCaptionContainer,
+} from './Utils';
 
 const defaultConfig: IConfig = {
   debug: false,
   useShakaForDashStreams: false,
-  isNagra: false,
+  isVidgo: false,
   startTime: undefined,
   maxRetryCount: 5,
 };
@@ -71,12 +73,12 @@ export class MultiPlayer {
       this,
       this._events,
       this._hls,
-      this._dashjs
+      this._dashjs,
     );
   }
 
   static _isBrowser = (): boolean => {
-    return typeof window === "object";
+    return typeof window === 'object';
   };
 
   public static getInstance = (): MultiPlayer => {
@@ -86,7 +88,7 @@ export class MultiPlayer {
       }
       return MultiPlayer._instance;
     } else {
-      throw new Error("Library only supported in browsers!");
+      throw new Error('Library only supported in browsers!');
     }
   };
 
@@ -160,16 +162,16 @@ export class MultiPlayer {
           !!document.pictureInPictureEnabled &&
           !!document.pictureInPictureElement
         ) {
-          sessionStorage.removeItem("pip-enter");
+          sessionStorage.removeItem('pip-enter');
           document.exitPictureInPicture().catch((e) => console.log());
         }
       });
     }
   };
 
-  reloadPlayer = async () => {
+  reloadPlayer = async (wait = true) => {
     try {
-      await delay(5 * 1000);
+      if (wait) await delay(5 * 1000);
       if (this._playerState.player === PlayersEnum.HLS) this.retry(true);
       if (this._playerState.player === PlayersEnum.DASHJS)
         await this._dashjs.reload();
@@ -181,7 +183,7 @@ export class MultiPlayer {
     }
   };
 
-  retry = (hard: boolean = false) => {
+  retry = (hard = false) => {
     this._events.loadingErrorEvents(true, false);
     if (hard) {
       this.setSource(this._source, this._config);
@@ -193,42 +195,43 @@ export class MultiPlayer {
   setSource = async (source: ISource, config?: IConfig) => {
     clearTimeout(this._timer);
 
+		if (this._mediaElement) {
+      try {
+        this.hideTextTracks();
+        this._mediaElement.pause();
+        await this.detachMediaElement();
+        this._mediaElement.removeAttribute('src');
+        this._mediaElement.load();
+        await delay(100);
+      } catch (err) {}
+    }
+
     this.setPlayerState({
       ...defaultPlayerState,
       player: this._playerState.player,
-      textTrack: this._playerState.textTrack,
+      textTrack: null,
     });
 
+
+
     if (!source.url) {
-      console.error("Source URL is not valid.");
+      console.error('Source URL is not valid.');
       return;
     }
 
     this._source = { ...source };
     this.updateConfig(config);
 
-    if (this._mediaElement) {
-      try {
-        this._mediaElement.pause();
-        await this.detachMediaElement();
-        this._mediaElement.removeAttribute("src");
-        this._mediaElement.load();
-        await delay(100);
-      } catch (err) {}
-    }
-
     const element = _getMediaElement();
     if (!element) {
       console.error(
-        "Please create video element with data-multi-player attribute function."
+        'Please create video element with data-multi-player attribute function.',
       );
       return;
     }
 
     this.setMediaElement(element);
-    this.hideTextTracks();
-    this._textTracks = [];
-    this._events.emit(EventsEnum.TEXTTRACKS, { value: this._textTracks });
+
     this._mediaEvents._init();
 
     try {
@@ -238,59 +241,61 @@ export class MultiPlayer {
       const isM3U8 = _getMimeType(this._source.url) === MimeTypesEnum.M3U8;
       const isMPD = _getMimeType(this._source.url) === MimeTypesEnum.MPD;
 
-      if (isDrm) {
-        if (isM3U8) {
+      if (isM3U8) {
+        if (isDrm) {
           this.setPlayerState({ player: PlayersEnum.SHAKA });
           await this._shaka.initPlayer();
           return;
         }
 
-        if (isMPD) {
-          if (this._config.useShakaForDashStreams) {
-            this.setPlayerState({ player: PlayersEnum.SHAKA });
-            await this._shaka.initPlayer();
-            return;
-          }
+        this.setPlayerState({ player: PlayersEnum.HLS });
+        await this._hls.initPlayer();
+        return;
+      }
 
-          this.setPlayerState({ player: PlayersEnum.DASHJS });
-          await this._dashjs.initPlayer();
-          return;
-        }
-      } else {
-        if (isM3U8) {
-          this.setPlayerState({ player: PlayersEnum.HLS });
-          await this._hls.initPlayer();
+      if (isMPD) {
+        if (this._config.useShakaForDashStreams) {
+          this.setPlayerState({ player: PlayersEnum.SHAKA });
+          await this._shaka.initPlayer();
           return;
         }
 
-        if (isMPD) {
-          this.setPlayerState({ player: PlayersEnum.DASHJS });
-          await this._dashjs.initPlayer();
-          return;
-        }
+        this.setPlayerState({ player: PlayersEnum.DASHJS });
+        await this._dashjs.initPlayer();
+        return;
       }
     } catch (e) {
       console.log();
     }
   };
 
-  hideTextTracks = () => {
+  hideTextTracks = (player = false) => {
     if (this._mediaElement) {
-      Object.keys(this._mediaElement.textTracks || {}).forEach(
-        (t: any) => (this._mediaElement!.textTracks[t].mode = "hidden")
-      );
+      if (!!this._textTracks.length) {
+        this._textTracks.forEach((t) =>
+          t.track.removeEventListener('cuechange', this.activeCuesEvent, true),
+        );
+      }
+      sessionStorage.removeItem(STORAGE_CONSTANTS.trackId);
+			this.resetCloseCaptionContainer();
+      if (!player) {
+        Object.keys(this._mediaElement.textTracks || {}).forEach(
+          (t: any) => (this._mediaElement!.textTracks[t].mode = 'disabled'),
+        );
+        this._textTracks = [];
+        this._events.emit(EventsEnum.TEXTTRACKS, { value: this._textTracks });
+      }
     }
   };
 
   checkTextTracks = () => {
     if (this._mediaElement && !!this._playerState.loaded) {
       clearTimeout(this._timer);
-
       const tracks = this._mediaElement.textTracks;
-      const tracksData: Array<any> = Object.keys(tracks).reduce(
+      const tracksData: Array<any> = Object.keys(tracks || {}).reduce(
         (a: any, c: any) => {
-          tracks[c].mode = "hidden";
-          return tracks[c].kind !== "metadata" &&
+          tracks[c].mode = 'hidden';
+          return tracks[c].kind !== 'metadata' &&
             !!Object.keys(tracks[c].cues || {}).length
             ? [
                 ...a,
@@ -303,36 +308,89 @@ export class MultiPlayer {
               ]
             : [...a];
         },
-        []
+        [],
       );
 
       this._textTracks = tracksData;
       this._events.emit(EventsEnum.TEXTTRACKS, { value: this._textTracks });
-      this.setTextTrack(this._playerState.textTrack);
-      this._timer = setTimeout(this.checkTextTracks, 2000);
+      const id = sessionStorage.getItem(STORAGE_CONSTANTS.trackId);
+      this.setTextTrack(id, false);
+      if (!this._textTracks.length) {
+        this._timer = setTimeout(this.checkTextTracks, 500);
+      }
     }
   };
 
-  setTextTrack = (id: any) => {
+  setTextTrack = (id: string | null, player: boolean) => {
+    if (!id && !!player) {
+      this.hideTextTracks(player);
+    }
     if (this._textTracks.length) {
-      this._playerState = { ...this._playerState, textTrack: id };
       const idx = this._textTracks.findIndex((t) => t.id === id);
       if (idx !== -1) {
-        this._textTracks.forEach((t) => (t.track.mode = "hidden"));
-        this._textTracks[idx].track.mode = "showing";
-      } else {
-        this._textTracks.forEach((t) => (t.track.mode = "hidden"));
+        sessionStorage.setItem(STORAGE_CONSTANTS.trackId, id!);
+        this._playerState = { ...this._playerState, textTrack: id };
+        this._textTracks[idx].track.addEventListener(
+          'cuechange',
+          this.activeCuesEvent,
+          true,
+        );
+        return;
       }
-    } else {
       this._playerState = { ...this._playerState, textTrack: null };
+      return;
+    }
+    this._playerState = { ...this._playerState, textTrack: null };
+  };
+
+  resetCloseCaptionContainer = () => {
+    const container = _getCloseCaptionContainer();
+    if (container) {
+      container.style.display = 'none';
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
     }
   };
 
-  togglePlayPause = (play: boolean) => {
+  activeCuesEvent = (e: any) => {
+    let text = [];
+    const cues = e?.target?.activeCues;
+
+    if (!!Object.keys(cues || {}).length) {
+      text = Object.keys(cues).reduce((a: any, c: any) => {
+        return [...a, cues[c].text];
+      }, []);
+    }
+
+    this.resetCloseCaptionContainer();
+
+    const container = _getCloseCaptionContainer();
+
+    if (container) {
+      if (!!text.length) {
+        text.forEach((txt) => {
+          let wrapper = document.createElement('div');
+          wrapper.className = 'close-caption';
+          wrapper.id = 'close-caption';
+          wrapper.innerHTML = txt;
+          container.appendChild(wrapper);
+        });
+        container.style.display = 'flex';
+      }
+    }
+  };
+
+  togglePlayPause = () => {
     const video = this.getMediaElement();
     if (!!video) {
-      if (play) video.play();
-      if (!play) video.pause();
+      if (!video.duration) return;
+
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
     }
   };
 
@@ -350,6 +408,7 @@ export class MultiPlayer {
   toggleForwardRewind = (forward: boolean) => {
     const video = this.getMediaElement();
     if (!!video) {
+      if (!video.duration) return;
       const ct = video.currentTime;
       const dt = video.duration;
 
@@ -366,6 +425,7 @@ export class MultiPlayer {
   seekTime = (timeInSeconds: number) => {
     const video = this.getMediaElement();
     if (!!video) {
+      if (!video.duration) return;
       video.currentTime = timeInSeconds;
     }
   };
@@ -419,20 +479,29 @@ export class MultiPlayer {
 
   formatTime = (timeInSeconds?: number) => {
     if (Number.isNaN(timeInSeconds) || !Number.isFinite(timeInSeconds)) {
-      return "00:00";
+      return '00:00';
     }
 
     const t = new Date(timeInSeconds! * 1000)
       .toISOString()
       .substring(11, 19)
-      .split(":");
+      .split(':');
 
     if (t.length === 3) {
       if (parseInt(t[0]) === 0) return `${t[1]}:${t[2]}`;
       if (parseInt(t[0]) > 0) return `${t[0]}:${t[1]}:${t[2]}`;
     }
 
-    return "00:00";
+    return '00:00';
+  };
+
+  isLive = () => {
+    if (this._mediaElement) {
+      if (this._mediaElement.duration === Infinity) return true;
+      if (this.getShaka().isLive()) return true;
+    }
+
+    return false;
   };
 
   on = (event: EventsEnum, fn: Listener) => {
@@ -446,6 +515,10 @@ export class MultiPlayer {
     this._hls.removeEvents();
     this._mediaEvents._removeMediaElementEvents();
   };
+
+  getShaka = () => this._shaka.getShaka();
+  getHls = () => this._hls.getHls();
+  getDash = () => this._dashjs.getDash();
 }
 
-export const multiPlayerInstance = MultiPlayer.getInstance();
+export const multiPlayer = MultiPlayer.getInstance();

@@ -1,14 +1,14 @@
-import Dashjs from "dashjs";
-import type { Events } from "../Events";
-import type { MultiPlayer } from "../MultiPlayer";
+import Dashjs from 'dashjs';
+import type { Events } from '../Events';
+import type { MultiPlayer } from '../MultiPlayer';
 import {
   DRMEnums,
   IPlayer,
   ISource,
   MimeTypesEnum,
   PlayersEnum,
-} from "../types";
-import { _getMimeType, hasHeader } from "../Utils";
+} from '../types';
+import { _getMimeType, hasHeader } from '../Utils';
 
 export class DashjsPlayer implements IPlayer {
   private _player: MultiPlayer;
@@ -41,7 +41,7 @@ export class DashjsPlayer implements IPlayer {
     if (mediaElement && check) {
       if (source.drm?.drmType === DRMEnums.WIDEVINE) {
         let protoData: any = {
-          "com.widevine.alpha": {
+          'com.widevine.alpha': {
             serverURL: source.drm?.licenseUrl,
             priority: 0,
           },
@@ -49,7 +49,7 @@ export class DashjsPlayer implements IPlayer {
 
         if (hasHeader(source.drm?.licenseHeader)) {
           protoData = {
-            "com.widevine.alpha": {
+            'com.widevine.alpha': {
               serverURL: source.drm?.licenseUrl,
               httpRequestHeaders: source.drm?.licenseHeader,
               priority: 0,
@@ -62,7 +62,7 @@ export class DashjsPlayer implements IPlayer {
 
       this._dashjs
         .getProtectionController()
-        .setRobustnessLevel("SW_SECURE_CRYPTO");
+        .setRobustnessLevel('SW_SECURE_CRYPTO');
 
       this._dashjs.enableForcedTextStreaming(true);
 
@@ -110,8 +110,8 @@ export class DashjsPlayer implements IPlayer {
             maximumAllowedDrift: 100,
             enableBackgroundSyncAfterSegmentDownloadError: true,
             defaultTimingSource: {
-              scheme: "urn:mpeg:dash:utc:http-xsdate:2014",
-              value: "https://time.akamai.com/?iso&ms",
+              scheme: 'urn:mpeg:dash:utc:http-xsdate:2014',
+              value: 'https://time.akamai.com/?iso&ms',
             },
           },
           liveCatchup: {
@@ -121,16 +121,16 @@ export class DashjsPlayer implements IPlayer {
             latencyThreshold: NaN,
             playbackBufferMin: NaN,
             enabled: false,
-            mode: "liveCatchupModeDefault",
+            mode: 'liveCatchupModeDefault',
           },
           lastBitrateCachingInfo: { enabled: true, ttl: 360000 },
           lastMediaSettingsCachingInfo: { enabled: true, ttl: 360000 },
           cacheLoadThresholds: { video: 50, audio: 5 },
           trackSwitchMode: {
-            audio: "alwaysReplace",
-            video: "alwaysReplace",
+            audio: 'alwaysReplace',
+            video: 'alwaysReplace',
           },
-          selectionModeForInitialTrack: "highestBitrate",
+          selectionModeForInitialTrack: 'highestBitrate',
           fragmentRequestTimeout: 0,
           retryIntervals: {
             MPD: 500,
@@ -155,8 +155,8 @@ export class DashjsPlayer implements IPlayer {
             lowLatencyMultiplyFactor: 0,
           },
           abr: {
-            movingAverageMethod: "slidingWindow",
-            ABRStrategy: "abrDynamic",
+            movingAverageMethod: 'slidingWindow',
+            ABRStrategy: 'abrDynamic',
             bandwidthSafetyFactor: 0.2,
             useDefaultABRRules: true,
             useDeadTimeLatency: true,
@@ -169,7 +169,7 @@ export class DashjsPlayer implements IPlayer {
             initialRepresentationRatio: { audio: -1, video: -1 },
             autoSwitchBitrate: { audio: true, video: true },
             fetchThroughputCalculationMode:
-              "abrFetchThroughputCalculationDownloadedData",
+              'abrFetchThroughputCalculationDownloadedData',
           },
           cmcd: {
             enabled: false,
@@ -177,14 +177,14 @@ export class DashjsPlayer implements IPlayer {
             cid: undefined,
             rtp: undefined,
             rtpSafetyFactor: 5,
-            mode: "query",
+            mode: 'query',
           },
         },
       });
 
       this._dashjs.attachView(mediaElement);
       this._dashjs.setAutoPlay(true);
-      this._dashjs.attachSource(source.url || "");
+      this._dashjs.attachSource(source.url || '');
 
       this._url = source.url;
 
@@ -226,11 +226,11 @@ export class DashjsPlayer implements IPlayer {
     this._dashjs.on(Dashjs.MediaPlayer.events.ERROR, this._dashjsErrorEvent);
     this._dashjs.on(
       Dashjs.MediaPlayer.events.BUFFER_EMPTY,
-      this._dashjsBufferEmptyEvent
+      this._dashjsBufferEmptyEvent,
     );
     this._dashjs.on(
       Dashjs.MediaPlayer.events.BUFFER_LOADED,
-      this._dashjsBufferLoadedEvent
+      this._dashjsBufferLoadedEvent,
     );
   };
 
@@ -238,16 +238,16 @@ export class DashjsPlayer implements IPlayer {
     this._dashjs.off(Dashjs.MediaPlayer.events.ERROR, this._dashjsErrorEvent);
     this._dashjs.off(
       Dashjs.MediaPlayer.events.BUFFER_EMPTY,
-      this._dashjsBufferEmptyEvent
+      this._dashjsBufferEmptyEvent,
     );
     this._dashjs.off(
       Dashjs.MediaPlayer.events.BUFFER_LOADED,
-      this._dashjsBufferLoadedEvent
+      this._dashjsBufferLoadedEvent,
     );
   };
 
   _dashjsErrorEvent = (d: any) => {
-    console.log("dashjs - error", d);
+    console.log('dashjs - error', d);
     this._events.fatalErrorRetry(d);
   };
 
