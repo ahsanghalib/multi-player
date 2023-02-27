@@ -39,6 +39,7 @@ const defaultPlayerState = {
   videoTrack: null,
   audioTrack: null,
   isPlaying: false,
+  isPIP: false,
 };
 
 export class MultiPlayer {
@@ -134,6 +135,7 @@ export class MultiPlayer {
         textTrack: null,
         videoTrack: null,
         audioTrack: null,
+        isPIP: false,
       };
     }
     this._playerState = { ...defaultPlayerState, ...current, ...state };
@@ -498,7 +500,7 @@ export class MultiPlayer {
   isLive = () => {
     if (this._mediaElement) {
       if (this._mediaElement.duration === Infinity) return true;
-      if (this.getShaka().isLive()) return true;
+      if (this._shaka.isLive()) return true;
     }
 
     return false;
@@ -515,10 +517,6 @@ export class MultiPlayer {
     this._hls.removeEvents();
     this._mediaEvents._removeMediaElementEvents();
   };
-
-  getShaka = () => this._shaka.getShaka();
-  getHls = () => this._hls.getHls();
-  getDash = () => this._dashjs.getDash();
 }
 
 export const multiPlayer = MultiPlayer.getInstance();

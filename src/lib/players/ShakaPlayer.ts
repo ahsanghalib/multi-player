@@ -31,6 +31,8 @@ export class ShakaPlayer implements IPlayer {
 
   getShaka = () => this._shaka;
 
+	isLive = () => this._shaka.isLive();
+
   urlCheck = (source: ISource) => {
     if (!source.url) return false;
 

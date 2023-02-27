@@ -92,7 +92,7 @@ export class MediaElementEvents {
   _pauseEvent = () => {
     if (this._config?.debug) console.log('VIDEO - onPause');
     this._player.setPlayerState({ isPlaying: false });
-    if (this._player.isLive()) this._isPaused = true;
+    if (this._player.isLive() && !this._player.getPlayerState().isPIP) this._isPaused = true;
     this._hls.stopLoad();
     this._dashjs.stopLoad();
   };

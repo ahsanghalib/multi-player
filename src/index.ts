@@ -3,6 +3,7 @@ import { multiPlayer } from './lib/MultiPlayer';
 
 const exp = {
   getPlayerState: multiPlayer.getPlayerState,
+  setPlayerState: multiPlayer.setPlayerState,
   getMediaElement: multiPlayer.getMediaElement,
   detachMediaElement: multiPlayer.detachMediaElement,
   setSource: multiPlayer.setSource,
@@ -22,9 +23,6 @@ const exp = {
   setTextTrack: multiPlayer.setTextTrack,
   removePlayer: multiPlayer.removePlayer,
 	isLive: multiPlayer.isLive,
-  getShaka: multiPlayer.getShaka,
-  getHls: multiPlayer.getHls,
-  getDash: multiPlayer.getDash,
   DRMEnums,
   EventsEnum,
   TextTrackLabels,

@@ -46,6 +46,7 @@ export interface IPlayerState {
   videoTrack: any;
   audioTrack: any;
   isPlaying: boolean;
+  isPIP: boolean;
 }
 
 export enum MimeTypesEnum {
@@ -123,6 +124,6 @@ export enum TextTrackLabels {
 }
 
 export enum STORAGE_CONSTANTS {
-	trackId = 'cc-track-id',
-	trackLang = 'cc-track-lang'
+  trackId = 'cc-track-id',
+  trackLang = 'cc-track-lang',
 }
