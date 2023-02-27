@@ -61,6 +61,8 @@ export class ShakaPlayer implements IPlayer {
     const config = this._player.getCurrentConfig();
     const source = this._player.getSource();
 
+    console.log('')
+
     const check = this.urlCheck(source);
     if (mediaElement && check) {
       (Shaka as any).log.setLevel(

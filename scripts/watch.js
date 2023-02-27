@@ -8,8 +8,9 @@ esbuild
     logLevel: "info",
     entryPoints: ["src/index.ts"],
     bundle: true,
-    watch: true,
     outfile: "dist/index.js",
+    format: 'esm',
+    watch: true,
   })
   .then(() => {
     const loc = path.join(__dirname, "../dist/index.js");

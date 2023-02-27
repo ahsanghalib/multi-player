@@ -30,4 +30,4 @@ const exp = {
 
 (window as any).multiPlayer = exp;
 
-export default { exp };
+export default exp;

@@ -9,6 +9,7 @@ esbuild
     entryPoints: ["src/index.ts"],
     bundle: true,
     outfile: "dist/index.js",
+    format: 'esm',
   })
   .then(() => {
     const loc = path.join(__dirname, "../dist/index.js");
