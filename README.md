@@ -1,6 +1,3 @@
 # multi-player
 
-It's a simple player library, wihout any UI, main perpose it use to use these libraries in a single player to play DRM & Non-DRM content, it uses following libraries. 
-1. Hls.js
-2. ShakaPlayer
-3. DashJS
+This is a straightforward player library designed without a user interface. Its primary purpose is to consolidate various libraries into a single player for playing both DRM and non-DRM content. The library integrates HLS.js, ShakaPlayer, and DASH.js.
