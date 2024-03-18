@@ -1,7 +1,8 @@
 {
   "extends": "./tsconfig-lib.json",
   "compilerOptions": {
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": false,
+    "types": ["vitest/globals", "vitest/importMeta"]
   },
   "include": ["src/**/*", "tests/unit/**/*", "demo/**/*"]
 }
