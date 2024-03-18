@@ -192,7 +192,9 @@ export class Utils {
       return '00:00';
     }
 
-    const t = new Date(timeInSeconds || 0 * 1000).toISOString().substring(11, 19).split(':');
+    const t = timeInSeconds
+      ? new Date(timeInSeconds * 1000).toISOString().substring(11, 19).split(':')
+      : [];
 
     if (t.length === 3) {
       if (parseInt(t[0]) === 0) return `${t[1]}:${t[2]}`;
@@ -408,8 +410,7 @@ export class Utils {
 
       const tracksData: Array<any> = Object.keys(tracks || {}).reduce((a: any, c: any) => {
         tracks[c].mode = 'hidden';
-        return tracks[c].kind !== 'metadata' &&
-          !!Object.keys(tracks[c].cues || {}).length
+        return tracks[c].kind !== 'metadata' && !!Object.keys(tracks[c].cues || {}).length
           ? [
               ...a,
               {
