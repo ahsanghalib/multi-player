@@ -24,7 +24,6 @@ export class CastingSender {
     this.ui = ui;
   }
 
-  /* c8 ignore start */
   load = () => {
     (window as any).__onGCastApiAvailable = (loaded: any) => {
       if (
@@ -43,7 +42,6 @@ export class CastingSender {
       }
     });
   };
-  /* c8 ignore stop */
 
   init = () => {
     if (Utils.getBrowser() !== BrowsersEnum.CHROME && Utils.getBrowser() !== BrowsersEnum.EDGE) {
@@ -238,9 +236,7 @@ export class CastingSender {
         }
         case 'player_loaded': {
           const { texts, variants } = data;
-          /* c8 ignore next */
           this.ui.player.setPlayerState({ textTracks: texts || [] });
-          /* c8 ignore next */
           this.ui.player.setPlayerState({ videoTracks: variants || [] });
           if (Array.isArray(texts) && texts.length) {
             this.ui.castingCloseCaptionButton.classList.remove('none');
@@ -289,7 +285,6 @@ export class CastingSender {
                 this.ui.castingRewindButton.classList.remove('none');
               }
               break;
-            /* c8 ignore start */
             default:
               break;
           }
@@ -297,7 +292,6 @@ export class CastingSender {
         }
         default:
           break;
-        /* c8 ignore stop */
       }
     } catch (e) {
       console.log('onMessageReceived: ', 'error in parse', e);
@@ -315,11 +309,9 @@ export class CastingSender {
           () => {},
           (e: any) => console.log('sendMessage error: ', e),
         );
-        /* c8 ignore start */
       } catch (e) {
         console.log('try sendMessage error', e);
       }
-      /* c8 ignore stop */
     }
   };
 

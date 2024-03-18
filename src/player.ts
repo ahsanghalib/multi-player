@@ -170,11 +170,9 @@ export class Player {
       this.updateConfig(config);
       this.castSender.init();
       await this.setSource(source, false);
-      /* c8 ignore start */
     } catch (e) {
       console.log(e);
     }
-    /* c8 ignore stop */
   };
 
   setSource = async (source: ISource, retry: boolean) => {
@@ -186,13 +184,11 @@ export class Player {
 
       let videoCurrentTime = -1;
 
-      /* c8 ignore start */
       if (hashedSourceNew === hashedSourceOld) {
         videoCurrentTime = Number(sessionStorage.getItem(STORAGE_KEYS.VIDOE_CURRENT_TIME)) || -1;
       } else {
         sessionStorage.removeItem(STORAGE_KEYS.VIDOE_CURRENT_TIME);
       }
-      /* c8 ignore stop */
 
       this.source = {
         ...source,
@@ -237,10 +233,8 @@ export class Player {
         this.setPlayerState({ player: PlayersEnum.NATIVE });
         await this.native.init(this.ui.videoElement, this.source);
         return Promise.resolve();
-        /* c8 ignore start */
       }
       return Promise.resolve();
-      /* c8 ignore stop */
     } catch (e) {
       console.log(e);
       return Promise.reject(e);
@@ -286,7 +280,6 @@ export class Player {
     return this.ui.videoElement;
   };
 
-  /* c8 ignore start */
   // NOT IN USE.
   toggleVideoElement = () => {
     Utils.toggleTextTracks(this.ui, null);
@@ -297,7 +290,6 @@ export class Player {
     this.airplay.init();
     this.castSender.init();
   };
-  /* c8 ignore stop */
 
   detachMediaElement = async (retry: boolean) => {
     try {
@@ -353,16 +345,13 @@ export class Player {
       .then(() => {
         this.videoEvents.removeEvents();
         this.removeEvents();
-        /* c8 ignore start */
         if (!!document.pictureInPictureEnabled && !!document.pictureInPictureElement) {
           sessionStorage.removeItem('pip-enter');
           document.exitPictureInPicture().catch((e) => console.log(e));
         }
-        /* c8 ignore stop */
         this.ui.removeUI();
         this.isInitialized = false;
       })
-      /* c8 ignore next */
       .catch(() => {});
   };
 
@@ -454,14 +443,12 @@ export class Player {
     // Picture in Picture state.
     const showPIP = !!document.pictureInPictureEnabled;
     const isPIP = this.ui.videoElement === document.pictureInPictureElement;
-    /* c8 ignore start */
     if (showPIP) {
       this.ui.controlsPIP.innerHTML = isPIP
         ? Utils.Icons({ type: 'pip_exit' })
         : Utils.Icons({ type: 'pip_enter' });
       this.ui.controlsPIP.classList.remove('none');
     }
-    /* c8 ignore stop */
     this.setPlayerState({ showPIP, isPIP });
 
     // timer...

@@ -116,7 +116,6 @@ export const TextTrackLabels = {
   eng: 'English',
   en: 'English',
   und: 'English',
-  /* c8 ignore next */
 } as const;
 
 export enum BrowsersEnum {

@@ -151,11 +151,9 @@ export class UI {
       parent: this.containerWrapper,
       className: 'media-player',
     });
-    /* c8 ignore start */
     if (this.contextLogoUrl) {
       this.mainWrapper.oncontextmenu = this.mainWrapperContextMenu.bind(this);
     }
-    /* c8 ignore stop */
     this.mainWrapper.onclick = this.mainWrapperClick.bind(this);
     this.mainWrapper.onmouseenter = this.mainWrapperMouseEnter.bind(this);
     this.mainWrapper.onmousemove = this.mainWrapperMouseEnter.bind(this);
@@ -187,7 +185,6 @@ export class UI {
   };
 
   mainWrapperMouseEnter = () => {
-    /* c8 ignore next */
     if (this.showControlsTimer) clearTimeout(this.showControlsTimer);
     const playerState = this.player.getPlayerState();
     if (playerState.loaded && playerState.uiState !== 'error' && playerState.uiState !== 'ended') {
@@ -196,7 +193,6 @@ export class UI {
   };
 
   mainWrapperMouseLeave = () => {
-    /* c8 ignore next */
     if (this.showControlsTimer) clearTimeout(this.showControlsTimer);
     if (this.optionsMenuWrapper.classList.contains('flex')) return;
     this.showControlsTimer = setTimeout(() => {
@@ -212,17 +208,14 @@ export class UI {
     const { clientWidth: contextWidth, clientHeight: contextHeight } = this.contextMenu;
     const maxWidth = x + width - contextWidth - 5;
     const maxHeight = y + height - contextHeight - 5;
-    /* c8 ignore start */
     const top = clientY > maxHeight ? maxHeight : clientY;
     const left = clientX > maxWidth ? maxWidth : clientX;
-    /* c8 ignore stop */
     this.contextMenu.style.top = `${top}px`;
     this.contextMenu.style.left = `${left}px`;
     this.hideContextMenu(true);
   };
 
   hideContextMenu = (timer: boolean) => {
-    /* c8 ignore next */
     if (this.contextMenuTimer) clearTimeout(this.contextMenuTimer);
     if (timer) {
       this.contextMenuTimer = setTimeout(() => (this.contextMenu.style.display = `none`), 5 * 1000);
@@ -453,7 +446,6 @@ export class UI {
       this.create({
         tag: 'div',
         parent: ccMenuItemOff,
-        /* c8 ignore next */
         className: selected === null ? 'menu-select' : '',
       });
 
@@ -474,7 +466,6 @@ export class UI {
           Utils.setSelectedTextTrack(this, String(idx));
           sessionStorage.setItem(STORAGE_KEYS.CC_ID, String(idx));
         };
-        /* c8 ignore start */
         this.create({
           tag: 'div',
           parent: ccMenuItem,
@@ -486,7 +477,6 @@ export class UI {
           // @ts-ignore
           innerHTML: `<div>${TextTrackLabels[t.lang] || 'English'}</div>`,
         });
-        /* c8 ignore stop */
       });
     } else {
       Utils.toggleShowHide(this.optionsMenuWrapper, 'none');
@@ -972,7 +962,6 @@ export class UI {
     return this.videoElement;
   };
 
-  /* c8 ignore start */
   // casting ui
   addCastingUIElements = () => {
     if (!document.getElementById('media-player-casting-wrapper')) {
@@ -1076,5 +1065,4 @@ export class UI {
       innerHTML: Utils.Icons({ type: 'replay' }),
     });
   };
-  /* c8 ignore stop */
 }

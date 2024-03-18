@@ -44,11 +44,9 @@ export class HlsPlayer {
 
     this.player.attachMedia(video);
 
-    /* c8 ignore start */
     this.player.on(Hls.Events.MEDIA_ATTACHED, () => {
       this.player.loadSource(source.url ?? '');
     });
-    /* c8 ignore stop */
 
     this.addEvents();
 

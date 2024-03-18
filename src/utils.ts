@@ -79,7 +79,6 @@ export class Utils {
       return;
     }
 
-    /* c8 ignore next */
     if (!ui.player.playerState.loaded) return;
 
     const video = ui.videoElement;
@@ -99,9 +98,7 @@ export class Utils {
   }
 
   static seekTime(ui: UI, timeInSeconds: number) {
-    /* c8 ignore next */
     if (ui.player.playerState.isCasting) return;
-    /* c8 ignore next */
     if (!ui.player.playerState.loaded) return;
 
     const video = ui.videoElement;
@@ -112,9 +109,7 @@ export class Utils {
   }
 
   static togglePip(ui: UI) {
-    /* c8 ignore next */
     if (ui.player.playerState.isCasting) return;
-    /* c8 ignore next */
     if (!ui.player.playerState.loaded) return;
 
     const video = ui.videoElement;
@@ -130,9 +125,7 @@ export class Utils {
   }
 
   static toggleFullScreen(ui: UI) {
-    /* c8 ignore next */
     if (ui.player.playerState.isCasting) return;
-    /* c8 ignore next */
     if (!ui.player.playerState.loaded) return;
 
     const video = ui.videoElement;
@@ -174,7 +167,6 @@ export class Utils {
       return;
     }
 
-    /* c8 ignore next */
     if (!ui.player.playerState.loaded) return;
 
     ui.videoElement.currentTime = 0;
@@ -205,10 +197,8 @@ export class Utils {
     if (t.length === 3) {
       if (parseInt(t[0]) === 0) return `${t[1]}:${t[2]}`;
       if (parseInt(t[0]) > 0) return `${t[0]}:${t[1]}:${t[2]}`;
-      /* c8 ignore start */
     }
     return '00:00';
-    /* c8 ignore stop */
   }
 
   static getBrowser() {
@@ -419,7 +409,6 @@ export class Utils {
       const tracksData: Array<any> = Object.keys(tracks || {}).reduce((a: any, c: any) => {
         tracks[c].mode = 'hidden';
         return tracks[c].kind !== 'metadata' &&
-          /* c8 ignore next */
           !!Object.keys(tracks[c].cues || {}).length
           ? [
               ...a,
@@ -439,7 +428,6 @@ export class Utils {
         ui.player.setPlayerState({ textTracks: tracksData });
         ui.controlsCloseCaptionButton.classList.remove('none');
         const id = sessionStorage.getItem(STORAGE_KEYS.CC_ID);
-        /* c8 ignore next */
         if (id) this.setSelectedTextTrack(ui, id);
         this.setCloseCaptionButtonUI(ui);
       }
@@ -487,7 +475,6 @@ export class Utils {
   }
 
   static sliderColorValue(slider: HTMLInputElement) {
-    /* c8 ignore next */
     if (!slider) return;
     const value =
       ((Number(slider.value) - Number(slider.min)) / (Number(slider.max) - Number(slider.min))) *
@@ -519,7 +506,6 @@ export class Utils {
       let text: any[] = [];
       const cues = e?.target?.activeCues;
 
-      /* c8 ignore next */
       if (Object.keys(cues || {})?.length) {
         text = Object.keys(cues).reduce((a: any, c: any) => {
           return [...a, cues[c].text];

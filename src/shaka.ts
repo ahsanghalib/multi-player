@@ -96,11 +96,9 @@ export class ShakaPlayer {
       });
 
       this.player
-        /* c8 ignore next */
         .load(this.url ?? '', null, mimeType)
         .then(() => {
           video.play().catch(() => console.log());
-          /* c8 ignore next */
           video.currentTime = source.startTime ?? -1;
         })
         .catch(() => {});
@@ -249,7 +247,6 @@ export class ShakaPlayer {
   reload = async () => {
     if (this.url) {
       try {
-        /* c8 ignore next */
         await this.player.load(this.url || '');
         return Promise.resolve();
       } catch (e) {
