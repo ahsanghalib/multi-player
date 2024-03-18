@@ -1,5 +1,5 @@
-import { Utils } from "./utils";
-import { AirPlay } from "./airplay";
+import { AirPlay } from './airplay';
+import { Utils } from './utils';
 
 class AirplayTestClass extends AirPlay {
   constructor(ui: any) {
@@ -9,7 +9,7 @@ class AirplayTestClass extends AirPlay {
   webkitPlaybackTargetAvailabilityChangedEventExtended = (
     airplay: HTMLDivElement,
     video: any,
-    event: any
+    event: any,
   ) => {
     this.webkitPlaybackTargetAvailabilityChangedEvent(airplay, video)(event);
   };
@@ -18,13 +18,9 @@ class AirplayTestClass extends AirPlay {
     airplay: HTMLDivElement,
     isLive: boolean,
     volume: HTMLDivElement,
-    event: any
+    event: any,
   ) => {
-    this.webkitCurrentPlaybackTargetIsWirelessChangedEvent(
-      airplay,
-      isLive,
-      volume
-    )(event);
+    this.webkitCurrentPlaybackTargetIsWirelessChangedEvent(airplay, isLive, volume)(event);
   };
 }
 
@@ -39,8 +35,8 @@ const toggleShowHideMock = vi.fn();
 const setPlayerStateMock = vi.fn();
 const reloadPlayerMock = vi.fn(() => ({ catch: vi.fn() }));
 
-describe("AirPlay", () => {
-  test("init - not supported.", () => {
+describe('AirPlay', () => {
+  test('init - not supported.', () => {
     const airplay = new AirplayTestClass({});
 
     (window as any).WebKitPlaybackTargetAvailabilityEvent = false;
@@ -48,7 +44,7 @@ describe("AirPlay", () => {
     const originalGetBrowser = Utils.getBrowser;
     const originalIsLive = Utils.isLive;
 
-    Utils.getBrowser = getBrowserMock.mockReturnValue("chrome");
+    Utils.getBrowser = getBrowserMock.mockReturnValue('chrome');
     Utils.isLive = isLiveMock.mockReturnValue(false);
 
     airplay.init();
@@ -59,7 +55,7 @@ describe("AirPlay", () => {
     Utils.isLive = originalIsLive;
   });
 
-  test("init - supported", () => {
+  test('init - supported', () => {
     const airplay = new AirplayTestClass({
       videoElement: {
         addEventListener: addEventListenerMock,
@@ -73,7 +69,7 @@ describe("AirPlay", () => {
     const originalGetBrowser = Utils.getBrowser;
     const originalIsLive = Utils.isLive;
 
-    Utils.getBrowser = getBrowserMock.mockReturnValue("safari");
+    Utils.getBrowser = getBrowserMock.mockReturnValue('safari');
     Utils.isLive = isLiveMock.mockReturnValue(false);
 
     airplay.init();
@@ -85,11 +81,11 @@ describe("AirPlay", () => {
     Utils.isLive = originalIsLive;
   });
 
-  test("webkitPlaybackTargetAvailabilityChangedEvent - available", () => {
+  test('webkitPlaybackTargetAvailabilityChangedEvent - available', () => {
     const airplay = new AirplayTestClass({});
 
     const airplayDiv = {
-      innerHTML: "",
+      innerHTML: '',
       onclick: airplayDivOnClickMock,
       classList: {
         remove: airplayDivClassListRemoveMock,
@@ -101,31 +97,29 @@ describe("AirPlay", () => {
     };
 
     const eventMock = {
-      availability: "available",
+      availability: 'available',
     };
 
     airplay.webkitPlaybackTargetAvailabilityChangedEventExtended(
       airplayDiv as any,
       videoMock,
-      eventMock
+      eventMock,
     );
 
     expect(airplayDivOnClickMock).toHaveBeenCalledTimes(0);
     expect(airplayDivClassListRemoveMock).toHaveBeenCalledTimes(1);
-    expect(airplayDivClassListRemoveMock).toHaveBeenCalledWith("none");
-    expect(airplayDiv.innerHTML).toEqual(
-      Utils.Icons({ type: "airplay_enter" })
-    );
+    expect(airplayDivClassListRemoveMock).toHaveBeenCalledWith('none');
+    expect(airplayDiv.innerHTML).toEqual(Utils.Icons({ type: 'airplay_enter' }));
 
     airplayDiv.onclick();
     expect(webkitShowPlaybackTargetPickerMock).toHaveBeenCalledTimes(1);
   });
 
-  test("webkitPlaybackTargetAvailabilityChangedEvent - not available", () => {
+  test('webkitPlaybackTargetAvailabilityChangedEvent - not available', () => {
     const airplay = new AirplayTestClass({});
 
     const airplayDiv = {
-      innerHTML: Utils.Icons({ type: "airplay_enter" }),
+      innerHTML: Utils.Icons({ type: 'airplay_enter' }),
       classList: {
         add: airplayDivClassListAddMock,
       },
@@ -134,21 +128,21 @@ describe("AirPlay", () => {
     const videoMock = {};
 
     const eventMock = {
-      availability: "not-available",
+      availability: 'not-available',
     };
 
     airplay.webkitPlaybackTargetAvailabilityChangedEventExtended(
       airplayDiv as any,
       videoMock,
-      eventMock
+      eventMock,
     );
 
     expect(airplayDivClassListAddMock).toHaveBeenCalledTimes(1);
-    expect(airplayDivClassListAddMock).toHaveBeenCalledWith("none");
-    expect(airplayDiv.innerHTML).toEqual("");
+    expect(airplayDivClassListAddMock).toHaveBeenCalledWith('none');
+    expect(airplayDiv.innerHTML).toEqual('');
   });
 
-  test("webkitCurrentPlaybackTargetIsWirelessChangedEvent - connected", () => {
+  test('webkitCurrentPlaybackTargetIsWirelessChangedEvent - connected', () => {
     const airplay = new AirplayTestClass({
       player: {
         setPlayerState: setPlayerStateMock,
@@ -160,7 +154,7 @@ describe("AirPlay", () => {
     });
 
     const airplayDiv = {
-      innerHTML: Utils.Icons({ type: "airplay_enter" }),
+      innerHTML: Utils.Icons({ type: 'airplay_enter' }),
     };
 
     const volumeDiv = {};
@@ -168,7 +162,7 @@ describe("AirPlay", () => {
     const eventMock = {
       target: {
         remote: {
-          state: "connected",
+          state: 'connected',
         },
       },
     };
@@ -180,12 +174,12 @@ describe("AirPlay", () => {
       airplayDiv as any,
       true,
       volumeDiv as any,
-      eventMock
+      eventMock,
     );
 
-    expect(airplayDiv.innerHTML).toEqual(Utils.Icons({ type: "airplay_exit" }));
+    expect(airplayDiv.innerHTML).toEqual(Utils.Icons({ type: 'airplay_exit' }));
     expect(toggleShowHideMock).toHaveBeenCalledTimes(1);
-    expect(toggleShowHideMock).toHaveBeenCalledWith(volumeDiv, "none");
+    expect(toggleShowHideMock).toHaveBeenCalledWith(volumeDiv, 'none');
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
     expect(setPlayerStateMock).toHaveBeenCalledWith({ isAirplay: true });
     expect(reloadPlayerMock).toHaveBeenCalledTimes(1);
@@ -193,7 +187,7 @@ describe("AirPlay", () => {
     Utils.toggleShowHide = originalToggleShowHide;
   });
 
-  test("webkitCurrentPlaybackTargetIsWirelessChangedEvent - disconnected", () => {
+  test('webkitCurrentPlaybackTargetIsWirelessChangedEvent - disconnected', () => {
     const airplay = new AirplayTestClass({
       player: {
         setPlayerState: setPlayerStateMock,
@@ -205,7 +199,7 @@ describe("AirPlay", () => {
     });
 
     const airplayDiv = {
-      innerHTML: Utils.Icons({ type: "airplay_exit" }),
+      innerHTML: Utils.Icons({ type: 'airplay_exit' }),
     };
 
     const volumeDiv = {};
@@ -213,7 +207,7 @@ describe("AirPlay", () => {
     const eventMock = {
       target: {
         remote: {
-          state: "disconnected",
+          state: 'disconnected',
         },
       },
     };
@@ -225,14 +219,12 @@ describe("AirPlay", () => {
       airplayDiv as any,
       true,
       volumeDiv as any,
-      eventMock
+      eventMock,
     );
 
-    expect(airplayDiv.innerHTML).toEqual(
-      Utils.Icons({ type: "airplay_enter" })
-    );
+    expect(airplayDiv.innerHTML).toEqual(Utils.Icons({ type: 'airplay_enter' }));
     expect(toggleShowHideMock).toHaveBeenCalledTimes(1);
-    expect(toggleShowHideMock).toHaveBeenCalledWith(volumeDiv, "flex");
+    expect(toggleShowHideMock).toHaveBeenCalledWith(volumeDiv, 'flex');
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
     expect(setPlayerStateMock).toHaveBeenCalledWith({ isAirplay: false });
     expect(reloadPlayerMock).toHaveBeenCalledTimes(1);

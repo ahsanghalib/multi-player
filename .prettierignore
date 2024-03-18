@@ -1,0 +1,9 @@
+.git
+.husky
+.next
+.sanity
+.vercel
+node_modules
+public
+build
+coverage

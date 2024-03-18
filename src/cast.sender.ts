@@ -1,8 +1,8 @@
-import { BrowsersEnum, EventsEnum, STORAGE_KEYS } from "./types";
-import { UI } from "./ui";
-import { Utils } from "./utils";
+import { BrowsersEnum, EventsEnum, STORAGE_KEYS } from './types';
+import { UI } from './ui';
+import { Utils } from './utils';
 
-const MESSAGE_NAMESPACE = "urn:x-cast:com.multiplayer.app";
+const MESSAGE_NAMESPACE = 'urn:x-cast:com.multiplayer.app';
 
 export class CastingSender {
   ui: UI;
@@ -10,7 +10,7 @@ export class CastingSender {
   castReceiverId: string | null = null;
   hasReceivers = false;
   session: any = null;
-  receiverName = "";
+  receiverName = '';
   apiReady = false;
   isCasting = false;
   seekTime = -1;
@@ -18,7 +18,7 @@ export class CastingSender {
   isTextTrackVisible = false;
   loaded = false;
   stoppedForced = false;
-  type?: "channel" | "catchup" | "dvr" | "vod" | null = null;
+  type?: 'channel' | 'catchup' | 'dvr' | 'vod' | null = null;
 
   constructor(ui: UI) {
     this.ui = ui;
@@ -37,7 +37,7 @@ export class CastingSender {
       }
     };
 
-    window.addEventListener("unload", () => {
+    window.addEventListener('unload', () => {
       if (this.isCasting) {
         this.stopCasting();
       }
@@ -46,10 +46,7 @@ export class CastingSender {
   /* c8 ignore stop */
 
   init = () => {
-    if (
-      Utils.getBrowser() !== BrowsersEnum.CHROME &&
-      Utils.getBrowser() !== BrowsersEnum.EDGE
-    ) {
+    if (Utils.getBrowser() !== BrowsersEnum.CHROME && Utils.getBrowser() !== BrowsersEnum.EDGE) {
       return;
     }
 
@@ -57,9 +54,7 @@ export class CastingSender {
 
     this.castReceiverId = this.ui.player.config.castReceiverId;
 
-    /* c8 ignore next */
     if (!this.loaded) return;
-    /* c8 ignore next */
     if (!this.castReceiverId) return;
 
     this.apiReady = true;
@@ -70,20 +65,20 @@ export class CastingSender {
         [],
         null,
         this.androidReceiverCompatible,
-        null
+        null,
       );
 
       const apiConfig = new (window as any).chrome.cast.ApiConfig(
         sessionRequest,
         (session: any) => this.onSessionInitiated(session),
         (availability: any) => this.onReceiverStatusChange(availability),
-        "origin_scoped"
+        'origin_scoped',
       );
 
       (window as any).chrome.cast.initialize(
         apiConfig,
         () => this.onInitSuccess(),
-        (error: any) => this.onInitError(error)
+        (error: any) => this.onInitError(error),
       );
     }
   };
@@ -93,7 +88,7 @@ export class CastingSender {
   };
 
   onInitError = (error: any) => {
-    console.log("onInitError: ", error);
+    console.log('onInitError: ', error);
     this.hasReceivers = false;
     this.isCasting = false;
   };
@@ -101,43 +96,39 @@ export class CastingSender {
   onSessionInitiated = (session: any) => {
     this.session = session;
     this.session.addUpdateListener(this.onConnectionStatusChanged.bind(this));
-    this.session.addMessageListener(
-      MESSAGE_NAMESPACE,
-      (namespace: any, data: any) => this.onMessageReceived(namespace, data)
+    this.session.addMessageListener(MESSAGE_NAMESPACE, (namespace: any, data: any) =>
+      this.onMessageReceived(namespace, data),
     );
     this.onConnectionStatusChanged();
   };
 
   removeListeners = () => {
     if (this.session) {
-      this.session.removeUpdateListener(
-        this.onConnectionStatusChanged.bind(this)
-      );
-      this.session.removeMessageListener(
-        MESSAGE_NAMESPACE,
-        (namespace: any, data: any) => this.onMessageReceived(namespace, data)
+      this.session.removeUpdateListener(this.onConnectionStatusChanged.bind(this));
+      this.session.removeMessageListener(MESSAGE_NAMESPACE, (namespace: any, data: any) =>
+        this.onMessageReceived(namespace, data),
       );
     }
   };
 
   onReceiverStatusChange = (availability: any) => {
-    this.hasReceivers = availability === "available";
+    this.hasReceivers = availability === 'available';
     if (this.ui.player.isInitialized) {
       if (this.hasReceivers) {
         this.playerCastingButton.innerHTML = Utils.Icons({
-          type: "cast_enter",
+          type: 'cast_enter',
         });
-        this.playerCastingButton.classList.remove("none");
+        this.playerCastingButton.classList.remove('none');
         this.playerCastingButton.onclick = this.cast.bind(this);
       } else {
-        this.playerCastingButton.innerHTML = "";
-        this.playerCastingButton.classList.add("none");
+        this.playerCastingButton.innerHTML = '';
+        this.playerCastingButton.classList.add('none');
       }
     }
   };
 
   onConnectionStatusChanged = () => {
-    const connected = this.session && this.session.status === "connected";
+    const connected = this.session && this.session.status === 'connected';
 
     if (!this.isCasting && connected) {
       // connecting...
@@ -147,17 +138,15 @@ export class CastingSender {
       // discounting...
     }
 
-    this.seekTime = this.ui.player.isInitialized
-      ? this.ui.getVideoElement().currentTime
-      : -1;
+    this.seekTime = this.ui.player.isInitialized ? this.ui.getVideoElement().currentTime : -1;
     this.isCasting = connected;
-    this.receiverName = connected ? this.session.receiver.friendlyName : "";
+    this.receiverName = connected ? this.session.receiver.friendlyName : '';
 
     if (this.isCasting) {
       this.playerCastingButton.innerHTML = Utils.Icons({
-        type: "cast_exit",
+        type: 'cast_exit',
       });
-      this.ui.mainWrapper.classList.add("none");
+      this.ui.mainWrapper.classList.add('none');
       this.ui.player.removePlayer();
       setTimeout(() => {
         this.ui.player.setPlayerState({ isCasting: true });
@@ -168,7 +157,6 @@ export class CastingSender {
     } else {
       this.ui.player.setPlayerState({ isCasting: false });
       this.ui.removeCastingUIElements();
-      /* c8 ignore next */
       if (this.stoppedForced) return;
       this.ui.player
         .init({
@@ -195,12 +183,11 @@ export class CastingSender {
     this.ui.castingForwardButton.onclick = this.onForward.bind(this);
     this.ui.castingRewindButton.onclick = this.onRewind.bind(this);
     this.ui.castingRestartPlayButton.onclick = this.onRestartPlay.bind(this);
-    this.ui.castingCloseCaptionButton.onclick =
-      this.onTextTracksChange.bind(this);
+    this.ui.castingCloseCaptionButton.onclick = this.onTextTracksChange.bind(this);
   };
 
   onConnectionError = (error: any) => {
-    if (error?.code === "timeout") {
+    if (error?.code === 'timeout') {
       this.stopCasting();
     }
   };
@@ -208,14 +195,12 @@ export class CastingSender {
   stopCasting = () => {
     try {
       this.session.stop(
-        /* c8 ignore start */
         () => {
           this.stoppedForced = true;
         },
         () => {
           this.stoppedForced = true;
-        }
-        /* c8 ignore stop */
+        },
       );
     } catch (_err) {
       console.log();
@@ -224,18 +209,18 @@ export class CastingSender {
 
   cast = () => {
     if (!this.apiReady) {
-      console.log("error: ", "api is not ready.");
+      console.log('error: ', 'api is not ready.');
       return;
     }
 
     if (!this.hasReceivers) {
-      console.log("error: ", "no receivers.");
+      console.log('error: ', 'no receivers.');
       return;
     }
 
     (window as any).chrome.cast.requestSession(
       (session: any) => this.onSessionInitiated(session),
-      (error: any) => this.onConnectionError(error)
+      (error: any) => this.onConnectionError(error),
     );
   };
 
@@ -246,65 +231,62 @@ export class CastingSender {
       const { type, data } = msg;
 
       switch (type) {
-        case "info": {
+        case 'info': {
           const { currentTime } = data;
-          sessionStorage.setItem(
-            STORAGE_KEYS.VIDOE_CURRENT_TIME,
-            String(Math.floor(currentTime))
-          );
+          sessionStorage.setItem(STORAGE_KEYS.VIDOE_CURRENT_TIME, String(Math.floor(currentTime)));
           break;
         }
-        case "player_loaded": {
+        case 'player_loaded': {
           const { texts, variants } = data;
           /* c8 ignore next */
           this.ui.player.setPlayerState({ textTracks: texts || [] });
           /* c8 ignore next */
           this.ui.player.setPlayerState({ videoTracks: variants || [] });
           if (Array.isArray(texts) && texts.length) {
-            this.ui.castingCloseCaptionButton.classList.remove("none");
+            this.ui.castingCloseCaptionButton.classList.remove('none');
           }
           break;
         }
-        case "player": {
+        case 'player': {
           const { event, value } = data;
           switch (event) {
-            case "playing":
+            case 'playing':
               this.ui.player.setPlayerState({ isPlaying: value });
               this.ui.castingPlayPauseButton.innerHTML = value
-                ? Utils.Icons({ type: "pause" })
-                : Utils.Icons({ type: "play" });
+                ? Utils.Icons({ type: 'pause' })
+                : Utils.Icons({ type: 'play' });
               break;
-            case "mute":
+            case 'mute':
               this.ui.player.setPlayerState({ isMuted: value });
               this.ui.castingVolumeButtoon.innerHTML = value
-                ? Utils.Icons({ type: "volume_off" })
-                : Utils.Icons({ type: "volume_up" });
+                ? Utils.Icons({ type: 'volume_off' })
+                : Utils.Icons({ type: 'volume_up' });
               break;
-            case "text-tracks":
+            case 'text-tracks':
               this.isTextTrackVisible = value;
               this.ui.castingCloseCaptionButton.innerHTML = value
-                ? Utils.Icons({ type: "cc_enabled" })
-                : Utils.Icons({ type: "cc_disabled" });
+                ? Utils.Icons({ type: 'cc_enabled' })
+                : Utils.Icons({ type: 'cc_disabled' });
               break;
-            case "abort":
-            case "emptied":
-            case "ended":
-              this.ui.castingPlayPauseButton.classList.add("none");
-              this.ui.castingVolumeButtoon.classList.add("none");
-              this.ui.castingForwardButton.classList.add("none");
-              this.ui.castingRestartPlayButton.classList.add("none");
-              this.ui.castingRewindButton.classList.add("none");
-              this.ui.castingCloseCaptionButton.classList.add("none");
+            case 'abort':
+            case 'emptied':
+            case 'ended':
+              this.ui.castingPlayPauseButton.classList.add('none');
+              this.ui.castingVolumeButtoon.classList.add('none');
+              this.ui.castingForwardButton.classList.add('none');
+              this.ui.castingRestartPlayButton.classList.add('none');
+              this.ui.castingRewindButton.classList.add('none');
+              this.ui.castingCloseCaptionButton.classList.add('none');
               break;
-            case "canplaythrough":
-            case "loadeddata":
+            case 'canplaythrough':
+            case 'loadeddata':
               Utils.addEventCallback(this.ui, EventsEnum.LOADEDMETADATA);
-              this.ui.castingPlayPauseButton.classList.remove("none");
-              this.ui.castingVolumeButtoon.classList.remove("none");
-              if (this.type !== "channel") {
-                this.ui.castingForwardButton.classList.remove("none");
-                this.ui.castingRestartPlayButton.classList.remove("none");
-                this.ui.castingRewindButton.classList.remove("none");
+              this.ui.castingPlayPauseButton.classList.remove('none');
+              this.ui.castingVolumeButtoon.classList.remove('none');
+              if (this.type !== 'channel') {
+                this.ui.castingForwardButton.classList.remove('none');
+                this.ui.castingRestartPlayButton.classList.remove('none');
+                this.ui.castingRewindButton.classList.remove('none');
               }
               break;
             /* c8 ignore start */
@@ -318,7 +300,7 @@ export class CastingSender {
         /* c8 ignore stop */
       }
     } catch (e) {
-      console.log("onMessageReceived: ", "error in parse", e);
+      console.log('onMessageReceived: ', 'error in parse', e);
     }
   };
 
@@ -331,11 +313,11 @@ export class CastingSender {
           MESSAGE_NAMESPACE,
           serialized,
           () => {},
-          (e: any) => console.log("sendMessage error: ", e)
+          (e: any) => console.log('sendMessage error: ', e),
         );
         /* c8 ignore start */
       } catch (e) {
-        console.log("try sendMessage error", e);
+        console.log('try sendMessage error', e);
       }
       /* c8 ignore stop */
     }
@@ -343,9 +325,9 @@ export class CastingSender {
 
   onPlayPause = () => {
     this.sendMessage({
-      type: "player",
+      type: 'player',
       data: {
-        event: "playing",
+        event: 'playing',
         value: !this.ui.player.playerState.isPlaying,
       },
     });
@@ -358,9 +340,9 @@ export class CastingSender {
 
   onMuteUnMute = () => {
     this.sendMessage({
-      type: "player",
+      type: 'player',
       data: {
-        event: "mute",
+        event: 'mute',
         value: !this.ui.player.playerState.isMuted,
       },
     });
@@ -368,9 +350,9 @@ export class CastingSender {
 
   onForward = () => {
     this.sendMessage({
-      type: "player",
+      type: 'player',
       data: {
-        event: "forward",
+        event: 'forward',
         value: 10,
       },
     });
@@ -378,9 +360,9 @@ export class CastingSender {
 
   onRewind = () => {
     this.sendMessage({
-      type: "player",
+      type: 'player',
       data: {
-        event: "rewind",
+        event: 'rewind',
         value: 10,
       },
     });
@@ -388,9 +370,9 @@ export class CastingSender {
 
   onRestartPlay = () => {
     this.sendMessage({
-      type: "player",
+      type: 'player',
       data: {
-        event: "restart",
+        event: 'restart',
         value: true,
       },
     });
@@ -398,9 +380,9 @@ export class CastingSender {
 
   onTextTracksChange = () => {
     this.sendMessage({
-      type: "player",
+      type: 'player',
       data: {
-        event: "text-tracks",
+        event: 'text-tracks',
         value: !this.isTextTrackVisible,
       },
     });
@@ -412,7 +394,7 @@ export class CastingSender {
     vidgoToken,
     seekTime,
   }: {
-    type?: "channel" | "catchup" | "dvr" | "vod" | null;
+    type?: 'channel' | 'catchup' | 'dvr' | 'vod' | null;
     stream?:
       | Array<{
           type?: string;
@@ -433,7 +415,7 @@ export class CastingSender {
     seekTime?: number | null;
   }) => {
     this.sendMessage({
-      type: "stream",
+      type: 'stream',
       data: {
         type,
         stream,
@@ -454,7 +436,7 @@ export class CastingSender {
     logoUrl?: string | null;
   }) => {
     this.sendMessage({
-      type: "media_info",
+      type: 'media_info',
       data: {
         vidTitle,
         description,
@@ -465,7 +447,7 @@ export class CastingSender {
 
   sendRefreshToken = (token?: string) => {
     this.sendMessage({
-      type: "vidgo",
+      type: 'vidgo',
       data: { token },
     });
   };

@@ -1,10 +1,11 @@
-import muxjs from "mux.js";
-import hash from "object-hash";
-import { AirPlay } from "./airplay";
-import { CastingSender } from "./cast.sender";
-import { HlsPlayer } from "./hls";
-import { NativePlayer } from "./native";
-import { ShakaPlayer } from "./shaka";
+import muxjs from 'mux.js';
+import hash from 'object-hash';
+
+import { AirPlay } from './airplay';
+import { CastingSender } from './cast.sender';
+import { HlsPlayer } from './hls';
+import { NativePlayer } from './native';
+import { ShakaPlayer } from './shaka';
 import {
   BrowsersEnum,
   DRMEnums,
@@ -16,10 +17,10 @@ import {
   PlayersEnum,
   SETTINGS_SUB_MENU,
   STORAGE_KEYS,
-} from "./types";
-import { UI } from "./ui";
-import { Utils } from "./utils";
-import { VideoEvents } from "./video.events";
+} from './types';
+import { UI } from './ui';
+import { Utils } from './utils';
+import { VideoEvents } from './video.events';
 
 const defaultConfig: IConfig = {
   debug: false,
@@ -33,7 +34,7 @@ const defaultConfig: IConfig = {
 const defaultPlayerState: IPlayerState = {
   player: PlayersEnum.NONE,
   loaded: false,
-  uiState: "none",
+  uiState: 'none',
   textTracks: [],
   videoTracks: [],
   audioTracks: [],
@@ -77,7 +78,7 @@ export class Player {
   }> = [];
 
   static _isBrowser = (): boolean => {
-    return typeof window === "object";
+    return typeof window === 'object';
   };
 
   constructor() {
@@ -103,7 +104,7 @@ export class Player {
       }
       return Player._instance;
     } else {
-      throw new Error("Library only supported in browsers!");
+      throw new Error('Library only supported in browsers!');
     }
   };
 
@@ -187,8 +188,7 @@ export class Player {
 
       /* c8 ignore start */
       if (hashedSourceNew === hashedSourceOld) {
-        videoCurrentTime =
-          Number(sessionStorage.getItem(STORAGE_KEYS.VIDOE_CURRENT_TIME)) || -1;
+        videoCurrentTime = Number(sessionStorage.getItem(STORAGE_KEYS.VIDOE_CURRENT_TIME)) || -1;
       } else {
         sessionStorage.removeItem(STORAGE_KEYS.VIDOE_CURRENT_TIME);
       }
@@ -207,8 +207,7 @@ export class Player {
         this.source.drm?.drmType === DRMEnums.FAIRPLAY ||
         this.source.drm?.drmType === DRMEnums.WIDEVINE;
       const mimeType = await Utils.getMimeType(this.source.url);
-      const isM3U8 =
-        mimeType === MimeTypesEnum.M3U8_1 || mimeType === MimeTypesEnum.M3U8_2;
+      const isM3U8 = mimeType === MimeTypesEnum.M3U8_1 || mimeType === MimeTypesEnum.M3U8_2;
       const isMPD = mimeType === MimeTypesEnum.MPD;
       const isSafari = Utils.getBrowser() === BrowsersEnum.SAFARI;
       const useShaka = isSafari || isDRM || isMPD;
@@ -223,18 +222,14 @@ export class Player {
           this.source,
           this.config.debug,
           mimeType,
-          this.config.isVidgo
+          this.config.isVidgo,
         );
         return Promise.resolve();
       }
 
       if (useHLS) {
         this.setPlayerState({ player: PlayersEnum.HLS });
-        await this.hls.init(
-          this.ui.videoElement,
-          this.source,
-          this.config.debug
-        );
+        await this.hls.init(this.ui.videoElement, this.source, this.config.debug);
         return Promise.resolve();
       }
 
@@ -270,7 +265,7 @@ export class Player {
 
   setPlayerState = (state?: Partial<IPlayerState>) => {
     this.playerState = { ...defaultPlayerState, ...this.playerState, ...state };
-    if (typeof this.onPlayerStateChange === "function") {
+    if (typeof this.onPlayerStateChange === 'function') {
       this.onPlayerStateChange(this.playerState);
     }
   };
@@ -311,16 +306,16 @@ export class Player {
       }
 
       if (!retry) {
-        Utils.toggleShowHide(this.ui.controlsWrapper, "none");
+        Utils.toggleShowHide(this.ui.controlsWrapper, 'none');
         Utils.toggleOpacity(this.ui.controlsWrapper, false);
-        Utils.toggleShowHide(this.ui.optionsMenuWrapper, "none");
-        Utils.toggleShowHide(this.ui.controlsProgressBar, "none");
-        this.ui.controlsTimeText.innerText = "";
-        this.ui.controlsPIP.innerHTML = "";
-        this.ui.controlsPIP.classList.add("none");
-        this.ui.controlsCloseCaptionButton.classList.add("none");
+        Utils.toggleShowHide(this.ui.optionsMenuWrapper, 'none');
+        Utils.toggleShowHide(this.ui.controlsProgressBar, 'none');
+        this.ui.controlsTimeText.innerText = '';
+        this.ui.controlsPIP.innerHTML = '';
+        this.ui.controlsPIP.classList.add('none');
+        this.ui.controlsCloseCaptionButton.classList.add('none');
         this.ui.optionsMenuState = SETTINGS_SUB_MENU.NONE;
-        this.ui.optionsMenuWrapper.innerHTML = "";
+        this.ui.optionsMenuWrapper.innerHTML = '';
         Utils.resetRetryCounter();
       }
 
@@ -359,11 +354,8 @@ export class Player {
         this.videoEvents.removeEvents();
         this.removeEvents();
         /* c8 ignore start */
-        if (
-          !!document.pictureInPictureEnabled &&
-          !!document.pictureInPictureElement
-        ) {
-          sessionStorage.removeItem("pip-enter");
+        if (!!document.pictureInPictureEnabled && !!document.pictureInPictureElement) {
+          sessionStorage.removeItem('pip-enter');
           document.exitPictureInPicture().catch((e) => console.log(e));
         }
         /* c8 ignore stop */
@@ -375,18 +367,9 @@ export class Player {
   };
 
   removeEvents = () => {
-    document.removeEventListener(
-      "fullscreenchange",
-      this.fullScreenEvent.bind(this, this.ui)
-    );
-    document.removeEventListener(
-      "enterpictureinpicture",
-      this.enterPIPEvent.bind(this, this.ui)
-    );
-    document.removeEventListener(
-      "leavepictureinpicture",
-      this.leavePIPEvent.bind(this, this.ui)
-    );
+    document.removeEventListener('fullscreenchange', this.fullScreenEvent.bind(this, this.ui));
+    document.removeEventListener('enterpictureinpicture', this.enterPIPEvent.bind(this, this.ui));
+    document.removeEventListener('leavepictureinpicture', this.leavePIPEvent.bind(this, this.ui));
     clearInterval(this.stateTimer);
   };
 
@@ -459,18 +442,9 @@ export class Player {
 
   __windowOnLoad = () => {
     this.removeEvents();
-    document.addEventListener(
-      "fullscreenchange",
-      this.fullScreenEvent.bind(this, this.ui)
-    );
-    document.addEventListener(
-      "enterpictureinpicture",
-      this.enterPIPEvent.bind(this, this.ui)
-    );
-    document.addEventListener(
-      "leavepictureinpicture",
-      this.leavePIPEvent.bind(this, this.ui)
-    );
+    document.addEventListener('fullscreenchange', this.fullScreenEvent.bind(this, this.ui));
+    document.addEventListener('enterpictureinpicture', this.enterPIPEvent.bind(this, this.ui));
+    document.addEventListener('leavepictureinpicture', this.leavePIPEvent.bind(this, this.ui));
     this.__stateUpdater();
   };
 
@@ -483,9 +457,9 @@ export class Player {
     /* c8 ignore start */
     if (showPIP) {
       this.ui.controlsPIP.innerHTML = isPIP
-        ? Utils.Icons({ type: "pip_exit" })
-        : Utils.Icons({ type: "pip_enter" });
-      this.ui.controlsPIP.classList.remove("none");
+        ? Utils.Icons({ type: 'pip_exit' })
+        : Utils.Icons({ type: 'pip_enter' });
+      this.ui.controlsPIP.classList.remove('none');
     }
     /* c8 ignore stop */
     this.setPlayerState({ showPIP, isPIP });

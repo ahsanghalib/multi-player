@@ -1,7 +1,8 @@
-import { waitFor } from "@testing-library/dom";
-import { Player } from "./player";
-import { DRMEnums, IConfig, IPlayerState, ISource, PlayersEnum } from "./types";
-import { Utils } from "./utils";
+import { waitFor } from '@testing-library/dom';
+
+import { Player } from './player';
+import { DRMEnums, IConfig, IPlayerState, ISource, PlayersEnum } from './types';
+import { Utils } from './utils';
 
 const nativePlayerInit = vi.fn();
 const shakaPlayerInit = vi.fn();
@@ -28,35 +29,35 @@ const toggleWrappersMock = vi.fn();
 const reloadPlayerMock = vi.fn(() => ({ catch: vi.fn() }));
 const setSourceMock = vi.fn(() => ({ catch: vi.fn() }));
 
-describe("Player Class", () => {
+describe('Player Class', () => {
   beforeEach(() => {
     Player._instance = undefined;
   });
 
-  test("getInstance - okay", () => {
-    vi.spyOn(Player, "_isBrowser").mockReturnValue(true);
+  test('getInstance - okay', () => {
+    vi.spyOn(Player, '_isBrowser').mockReturnValue(true);
     const player = Player.getInstance();
     expect(Player._isBrowser).toHaveBeenCalled();
     expect(player).toBeInstanceOf(Player);
     expect((window as any).muxjs).not.toBeUndefined();
   });
 
-  test("getInstance - failed", () => {
-    vi.spyOn(Player, "_isBrowser").mockReturnValue(false);
+  test('getInstance - failed', () => {
+    vi.spyOn(Player, '_isBrowser').mockReturnValue(false);
     expect(() => Player.getInstance()).toThrowError();
   });
 
-  test("init - if no root element then return", async () => {
+  test('init - if no root element then return', async () => {
     const player = Player.getInstance();
 
-    vi.spyOn(player, "updateConfig");
-    vi.spyOn(player, "setSource");
-    vi.spyOn(player.castSender, "init");
-    vi.spyOn(player.ui, "setContainer");
-    vi.spyOn(player.videoEvents, "addEvents");
-    vi.spyOn(player.airplay, "init");
-    vi.spyOn(player, "__windowOnLoad");
-    vi.spyOn(Utils, "setCloseCaptionStyles");
+    vi.spyOn(player, 'updateConfig');
+    vi.spyOn(player, 'setSource');
+    vi.spyOn(player.castSender, 'init');
+    vi.spyOn(player.ui, 'setContainer');
+    vi.spyOn(player.videoEvents, 'addEvents');
+    vi.spyOn(player.airplay, 'init');
+    vi.spyOn(player, '__windowOnLoad');
+    vi.spyOn(Utils, 'setCloseCaptionStyles');
 
     const args = {
       elem: undefined as any,
@@ -84,29 +85,30 @@ describe("Player Class", () => {
     });
   });
 
-  test("init - success", async () => {
+  test('init - success', async () => {
     const player = Player.getInstance();
 
-    vi.spyOn(player, "updateConfig");
-    vi.spyOn(player, "setSource");
-    vi.spyOn(player.castSender, "init");
-    vi.spyOn(player.ui, "setContainer");
-    vi.spyOn(player.videoEvents, "addEvents");
-    vi.spyOn(player.airplay, "init");
-    vi.spyOn(player, "__windowOnLoad");
-    vi.spyOn(Utils, "setCloseCaptionStyles");
+    vi.spyOn(player, 'updateConfig');
+    vi.spyOn(player, 'setSource');
+    vi.spyOn(player.castSender, 'init');
+    vi.spyOn(player.ui, 'setContainer');
+    vi.spyOn(player.videoEvents, 'addEvents');
+    vi.spyOn(player.airplay, 'init');
+    vi.spyOn(player, '__windowOnLoad');
+    vi.spyOn(Utils, 'setCloseCaptionStyles');
 
     const args = {
-      elem: document.createElement("div"),
-      source: { url: "https://source.url" } as ISource,
+      elem: document.createElement('div'),
+      source: { url: 'https://source.url' } as ISource,
       config: {} as Partial<IConfig>,
-      contextLogoUrl: "https://context.logo.url",
+      contextLogoUrl: 'https://context.logo.url',
       onPauseCallback: () => {},
       onPlayCallback: () => {},
       onEnterPIPCallback: () => {},
       onLeavePIPCallback: () => {},
-      onPlayerStateChange: (_: IPlayerState) => {},
-      eventCallbacks: [{ event: "play" as any, callback: () => {} }],
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      onPlayerStateChange: (_state: IPlayerState) => {},
+      eventCallbacks: [{ event: 'play' as any, callback: () => {} }],
     };
 
     player.init({ ...args }).catch(() => {});
@@ -132,21 +134,21 @@ describe("Player Class", () => {
     });
   });
 
-  test("setSource - if source url null return", () => {
+  test('setSource - if source url null return', () => {
     const player = Player.getInstance();
     const source = {} as ISource;
 
-    vi.spyOn(Promise, "resolve");
+    vi.spyOn(Promise, 'resolve');
 
     player.setSource(source, false).catch(() => {});
 
     expect(Promise.resolve).toHaveBeenCalledTimes(1);
   });
 
-  test("setSource - native player", async () => {
+  test('setSource - native player', async () => {
     const player = Player.getInstance();
     const source = {
-      url: "https://source.mp4",
+      url: 'https://source.mp4',
       startTime: -1,
     } as ISource;
 
@@ -160,14 +162,14 @@ describe("Player Class", () => {
     });
   });
 
-  test("setSource - if casitng return", async () => {
+  test('setSource - if casitng return', async () => {
     const player = Player.getInstance();
     const source = {
-      url: "https://source.mp4",
+      url: 'https://source.mp4',
       startTime: -1,
     } as ISource;
 
-    const promiseResolve = vi.spyOn(Promise, "resolve");
+    const promiseResolve = vi.spyOn(Promise, 'resolve');
 
     player.setPlayerState({ isCasting: true });
 
@@ -179,13 +181,13 @@ describe("Player Class", () => {
     });
   });
 
-  test("setSource - shaka player", async () => {
+  test('setSource - shaka player', async () => {
     const player = Player.getInstance();
     const source = {
-      url: "https://source.mpd",
+      url: 'https://source.mpd',
       drm: {
         drmType: DRMEnums.WIDEVINE,
-        licenseUrl: "https://license.url",
+        licenseUrl: 'https://license.url',
       },
       startTime: -1,
     } as ISource;
@@ -200,10 +202,10 @@ describe("Player Class", () => {
     });
   });
 
-  test("setSource - shaka player", async () => {
+  test('setSource - shaka player', async () => {
     const player = Player.getInstance();
     const source = {
-      url: "https://source.m3u8",
+      url: 'https://source.m3u8',
       startTime: -1,
     } as ISource;
 
@@ -222,10 +224,10 @@ describe("Player Class", () => {
     });
   });
 
-  test("setSource - no player", async () => {
+  test('setSource - no player', async () => {
     const player = Player.getInstance();
     const source = {
-      url: "https://source.abc",
+      url: 'https://source.abc',
       startTime: -1,
     } as ISource;
 
@@ -241,10 +243,10 @@ describe("Player Class", () => {
     });
   });
 
-  test("getSource", () => {
+  test('getSource', () => {
     const player = Player.getInstance();
     const source = {
-      url: "https://source.m3u8",
+      url: 'https://source.m3u8',
     };
 
     player.source = source;
@@ -252,7 +254,7 @@ describe("Player Class", () => {
     expect(player.getSource()).toEqual(source);
   });
 
-  test("getConfig", () => {
+  test('getConfig', () => {
     const player = Player.getInstance();
     const config = {
       debug: true,
@@ -264,7 +266,7 @@ describe("Player Class", () => {
     expect(player.getConfig()).toEqual(config);
   });
 
-  test("updateConfig", () => {
+  test('updateConfig', () => {
     const player = Player.getInstance();
 
     player.updateConfig({ debug: true, isVidgo: false });
@@ -276,7 +278,7 @@ describe("Player Class", () => {
     });
   });
 
-  test("getPlayerState", () => {
+  test('getPlayerState', () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -287,7 +289,7 @@ describe("Player Class", () => {
     expect(player.getPlayerState()).toEqual(player.playerState);
   });
 
-  test("setPlayerState", () => {
+  test('setPlayerState', () => {
     const player = Player.getInstance();
     player.onPlayerStateChange = onPlayerStateChangeMock;
     player.setPlayerState({ isCasting: true });
@@ -298,7 +300,7 @@ describe("Player Class", () => {
     expect(onPlayerStateChangeMock).toHaveBeenCalledTimes(1);
   });
 
-  test("fullScreenEvent", () => {
+  test('fullScreenEvent', () => {
     const player = Player.getInstance();
 
     const original = Utils.fullScreenEvent;
@@ -310,7 +312,7 @@ describe("Player Class", () => {
     Utils.fullScreenEvent = original;
   });
 
-  test("enterPIPEvent", () => {
+  test('enterPIPEvent', () => {
     const player = Player.getInstance();
 
     const original = Utils.enterPIP;
@@ -322,7 +324,7 @@ describe("Player Class", () => {
     Utils.enterPIP = original;
   });
 
-  test("leavePIPEvent", () => {
+  test('leavePIPEvent', () => {
     const player = Player.getInstance();
 
     const origianl = Utils.leavePIP;
@@ -334,11 +336,11 @@ describe("Player Class", () => {
     Utils.leavePIP = origianl;
   });
 
-  test("getVideoElement", () => {
+  test('getVideoElement', () => {
     const player = Player.getInstance();
 
     const ui = {
-      videoElement: document.createElement("video"),
+      videoElement: document.createElement('video'),
     } as any;
 
     player.ui = ui as any;
@@ -348,7 +350,7 @@ describe("Player Class", () => {
     expect(player.getVideoElement()).toEqual(ui.videoElement);
   });
 
-  test("detachMediaElement - player none", async () => {
+  test('detachMediaElement - player none', async () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -367,7 +369,7 @@ describe("Player Class", () => {
     });
   });
 
-  test("detachMediaElement - retry false - shaka player", async () => {
+  test('detachMediaElement - retry false - shaka player', async () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -376,12 +378,12 @@ describe("Player Class", () => {
     };
 
     player.ui = {
-      controlsTimeText: { innerText: "" },
-      controlsPIP: { innerHTML: "", classList: { add: vi.fn() } },
+      controlsTimeText: { innerText: '' },
+      controlsPIP: { innerHTML: '', classList: { add: vi.fn() } },
       controlsCloseCaptionButton: { classList: { add: vi.fn() } },
-      optionsMenuState: "",
+      optionsMenuState: '',
       optionsMenuWrapper: {
-        innerHTML: "",
+        innerHTML: '',
       },
     } as any;
 
@@ -421,7 +423,7 @@ describe("Player Class", () => {
     Utils.toggleTextTracks = originalToggleTextTracks;
   });
 
-  test("detachMediaElement - retry true hls player", async () => {
+  test('detachMediaElement - retry true hls player', async () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -450,7 +452,7 @@ describe("Player Class", () => {
     Utils.toggleTextTracks = originalToggleTextTracks;
   });
 
-  test("detachMediaElement - retry true native player", async () => {
+  test('detachMediaElement - retry true native player', async () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -479,7 +481,7 @@ describe("Player Class", () => {
     Utils.toggleTextTracks = originalToggleTextTracks;
   });
 
-  test("detachMediaElement - rejected", async () => {
+  test('detachMediaElement - rejected', async () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -502,13 +504,13 @@ describe("Player Class", () => {
     });
   });
 
-  test("removePlayer", () => {
+  test('removePlayer', () => {
     const player = Player.getInstance();
     player.removePlayer();
     expect(player.isInitialized).toBe(false);
   });
 
-  test("removePlayer - isIntialized", async () => {
+  test('removePlayer - isIntialized', async () => {
     const player = Player.getInstance();
 
     player.isInitialized = true;
@@ -519,14 +521,14 @@ describe("Player Class", () => {
     };
 
     player.ui = {
-      videoElement: document.createElement("video"),
+      videoElement: document.createElement('video'),
       removeUI: removeUIMock,
-      controlsTimeText: { innerText: "" },
-      controlsPIP: { innerHTML: "", classList: { add: vi.fn() } },
+      controlsTimeText: { innerText: '' },
+      controlsPIP: { innerHTML: '', classList: { add: vi.fn() } },
       controlsCloseCaptionButton: { classList: { add: vi.fn() } },
-      optionsMenuState: "",
+      optionsMenuState: '',
       optionsMenuWrapper: {
-        innerHTML: "",
+        innerHTML: '',
       },
     } as any;
 
@@ -561,7 +563,7 @@ describe("Player Class", () => {
     Utils.toggleTextTracks = originalToggleTextTracks;
   });
 
-  test("unmount - isCasting", () => {
+  test('unmount - isCasting', () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -581,7 +583,7 @@ describe("Player Class", () => {
     expect(player.isInitialized).toBe(false);
   });
 
-  test("unmount", () => {
+  test('unmount', () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -600,7 +602,7 @@ describe("Player Class", () => {
     expect(player.isInitialized).toBe(true);
   });
 
-  test("reloadPlayer - resolved if player shaka", async () => {
+  test('reloadPlayer - resolved if player shaka', async () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -630,7 +632,7 @@ describe("Player Class", () => {
     Utils.delay = original;
   });
 
-  test("reloadPlayer - resolved if player not shaka", async () => {
+  test('reloadPlayer - resolved if player not shaka', async () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -660,7 +662,7 @@ describe("Player Class", () => {
     Utils.delay = original;
   });
 
-  test("reloadPlayer - rejected shaka", async () => {
+  test('reloadPlayer - rejected shaka', async () => {
     const player = Player.getInstance();
 
     player.playerState = {
@@ -690,7 +692,7 @@ describe("Player Class", () => {
     Utils.delay = original;
   });
 
-  test("retry", () => {
+  test('retry', () => {
     const player = Player.getInstance();
 
     const original = Utils.toggleWrappers;
@@ -706,7 +708,7 @@ describe("Player Class", () => {
     Utils.toggleWrappers = original;
   });
 
-  test("retry - hard true", () => {
+  test('retry - hard true', () => {
     const player = Player.getInstance();
 
     const original = Utils.toggleWrappers;
@@ -724,7 +726,7 @@ describe("Player Class", () => {
     Utils.toggleWrappers = original;
   });
 
-  test("onTogglePlayPause", () => {
+  test('onTogglePlayPause', () => {
     const player = Player.getInstance();
 
     const mock = vi.fn(() => ({ catch: vi.fn() }));
@@ -738,7 +740,7 @@ describe("Player Class", () => {
     Utils.togglePlayPause = original;
   });
 
-  test("onToggleMuteUnMute", () => {
+  test('onToggleMuteUnMute', () => {
     const player = Player.getInstance();
 
     const mock = vi.fn();
@@ -752,7 +754,7 @@ describe("Player Class", () => {
     Utils.toggleMuteUnMute = original;
   });
 
-  test("onToggleForwardRewind", () => {
+  test('onToggleForwardRewind', () => {
     const player = Player.getInstance();
 
     const mock = vi.fn();
@@ -766,7 +768,7 @@ describe("Player Class", () => {
     Utils.toggleForwardRewind = original;
   });
 
-  test("onSeekTime", () => {
+  test('onSeekTime', () => {
     const player = Player.getInstance();
 
     const mock = vi.fn();
@@ -780,7 +782,7 @@ describe("Player Class", () => {
     Utils.seekTime = original;
   });
 
-  test("onTogglePip", () => {
+  test('onTogglePip', () => {
     const player = Player.getInstance();
 
     const mock = vi.fn();
@@ -794,7 +796,7 @@ describe("Player Class", () => {
     Utils.togglePip = original;
   });
 
-  test("onToggleFullScreen", () => {
+  test('onToggleFullScreen', () => {
     const player = Player.getInstance();
 
     const mock = vi.fn();
@@ -808,7 +810,7 @@ describe("Player Class", () => {
     Utils.toggleFullScreen = original;
   });
 
-  test("onEndedReplay", () => {
+  test('onEndedReplay', () => {
     const player = Player.getInstance();
 
     const mock = vi.fn();

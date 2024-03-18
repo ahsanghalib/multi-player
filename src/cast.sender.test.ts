@@ -1,7 +1,8 @@
-import { waitFor } from "@testing-library/dom";
-import { CastingSender } from "./cast.sender";
-import { STORAGE_KEYS } from "./types";
-import { Utils } from "./utils";
+import { waitFor } from '@testing-library/dom';
+
+import { CastingSender } from './cast.sender';
+import { STORAGE_KEYS } from './types';
+import { Utils } from './utils';
 
 const SessionRequestMock = vi.fn();
 const ApiConfigMock = vi.fn();
@@ -28,17 +29,17 @@ const sendMessageMock = vi.fn();
 const onPlayCallbackMock = vi.fn();
 const onPauseCallbackMock = vi.fn();
 
-describe("CastingSender", () => {
-  test("init - if not valid browser", () => {
+describe('CastingSender', () => {
+  test('init - if not valid browser', () => {
     const sender = new CastingSender({
       player: {
         config: {
-          castReceiverId: "id",
+          castReceiverId: 'id',
         },
       },
     } as any);
 
-    Utils.getBrowser = vi.fn().mockReturnValue("safari");
+    Utils.getBrowser = vi.fn().mockReturnValue('safari');
 
     sender.init();
 
@@ -49,16 +50,16 @@ describe("CastingSender", () => {
     expect(initializeMock).toHaveBeenCalledTimes(0);
   });
 
-  test("init - if valid browser chrome", () => {
+  test('init - if valid browser chrome', () => {
     const sender = new CastingSender({
       player: {
         config: {
-          castReceiverId: "id",
+          castReceiverId: 'id',
         },
       },
     } as any);
 
-    Utils.getBrowser = vi.fn().mockReturnValue("chrome");
+    Utils.getBrowser = vi.fn().mockReturnValue('chrome');
 
     sender.loaded = true;
 
@@ -72,23 +73,23 @@ describe("CastingSender", () => {
 
     sender.init();
 
-    expect(sender.castReceiverId).toBe("id");
+    expect(sender.castReceiverId).toBe('id');
     expect(sender.apiReady).toBe(true);
     expect(SessionRequestMock).toHaveBeenCalledTimes(1);
     expect(ApiConfigMock).toHaveBeenCalledTimes(1);
     expect(initializeMock).toHaveBeenCalledTimes(1);
   });
 
-  test("init - if valid browser edge", () => {
+  test('init - if valid browser edge', () => {
     const sender = new CastingSender({
       player: {
         config: {
-          castReceiverId: "id",
+          castReceiverId: 'id',
         },
       },
     } as any);
 
-    Utils.getBrowser = vi.fn().mockReturnValue("edge");
+    Utils.getBrowser = vi.fn().mockReturnValue('edge');
 
     sender.loaded = true;
 
@@ -102,30 +103,30 @@ describe("CastingSender", () => {
 
     sender.init();
 
-    expect(sender.castReceiverId).toBe("id");
+    expect(sender.castReceiverId).toBe('id');
     expect(sender.apiReady).toBe(true);
     expect(SessionRequestMock).toHaveBeenCalledTimes(1);
     expect(ApiConfigMock).toHaveBeenCalledTimes(1);
     expect(initializeMock).toHaveBeenCalledTimes(1);
   });
 
-  test("onInitSuccess", () => {
-    vi.spyOn(console, "log").mockImplementation(() => {});
+  test('onInitSuccess', () => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
     const sender = new CastingSender({} as any);
     sender.onInitSuccess();
     expect(console.log).toHaveBeenCalledTimes(1);
   });
 
-  test("onInitError", () => {
-    vi.spyOn(console, "log").mockImplementation(() => {});
+  test('onInitError', () => {
+    vi.spyOn(console, 'log').mockImplementation(() => {});
     const sender = new CastingSender({} as any);
-    sender.onInitError("error");
+    sender.onInitError('error');
     expect(console.log).toHaveBeenCalledTimes(1);
     expect(sender.hasReceivers).toBe(false);
     expect(sender.isCasting).toBe(false);
   });
 
-  test("onSessionInitiated", () => {
+  test('onSessionInitiated', () => {
     const sender = new CastingSender({} as any);
 
     sender.onConnectionStatusChanged = onConnectionStatusChangedMock;
@@ -140,7 +141,7 @@ describe("CastingSender", () => {
     expect(onConnectionStatusChangedMock).toHaveBeenCalledTimes(1);
   });
 
-  test("removeListeners", () => {
+  test('removeListeners', () => {
     const sender = new CastingSender({} as any);
 
     sender.session = {
@@ -154,7 +155,7 @@ describe("CastingSender", () => {
     expect(removeMessageListenerMock).toHaveBeenCalledTimes(1);
   });
 
-  test("onReceiverStatusChange - hasReceivers true", () => {
+  test('onReceiverStatusChange - hasReceivers true', () => {
     const sender = new CastingSender({
       player: {
         isInitialized: true,
@@ -162,26 +163,26 @@ describe("CastingSender", () => {
     } as any);
 
     sender.playerCastingButton = {
-      innerHTML: "",
+      innerHTML: '',
       classList: {
         remove: classListRemoveMock,
       },
       onclick: castingButtonOnClickMock,
     } as any;
 
-    sender.onReceiverStatusChange("available");
+    sender.onReceiverStatusChange('available');
 
     expect(sender.hasReceivers).toBe(true);
     expect(sender.isCasting).toBe(false);
     expect(sender.playerCastingButton.innerHTML).toEqual(
       Utils.Icons({
-        type: "cast_enter",
-      })
+        type: 'cast_enter',
+      }),
     );
     expect(classListRemoveMock).toHaveBeenCalledTimes(1);
   });
 
-  test("onReceiverStatusChange - hasReceivers false", () => {
+  test('onReceiverStatusChange - hasReceivers false', () => {
     const sender = new CastingSender({
       player: {
         isInitialized: true,
@@ -190,7 +191,7 @@ describe("CastingSender", () => {
 
     sender.playerCastingButton = {
       innerHTML: Utils.Icons({
-        type: "cast_enter",
+        type: 'cast_enter',
       }),
       classList: {
         add: classListAddMock,
@@ -198,15 +199,15 @@ describe("CastingSender", () => {
       onclick: castingButtonOnClickMock,
     } as any;
 
-    sender.onReceiverStatusChange("not-available");
+    sender.onReceiverStatusChange('not-available');
 
     expect(sender.hasReceivers).toBe(false);
     expect(sender.isCasting).toBe(false);
-    expect(sender.playerCastingButton.innerHTML).toEqual("");
+    expect(sender.playerCastingButton.innerHTML).toEqual('');
     expect(classListAddMock).toHaveBeenCalledTimes(1);
   });
 
-  test("onConnectionStatusChanged - connected", async () => {
+  test('onConnectionStatusChanged - connected', async () => {
     const sender = new CastingSender({
       addCastingUIElements: addCastingUIElementsMock,
       player: {
@@ -225,14 +226,14 @@ describe("CastingSender", () => {
     } as any);
 
     sender.session = {
-      status: "connected",
+      status: 'connected',
       receiver: {
-        friendlyName: "receiver",
+        friendlyName: 'receiver',
       },
     };
 
     sender.playerCastingButton = {
-      innerHTML: "",
+      innerHTML: '',
     } as any;
 
     const originalCastingUIBinds = sender.CastingUIBinds;
@@ -242,12 +243,12 @@ describe("CastingSender", () => {
 
     expect(sender.isCasting).toBe(true);
     expect(sender.seekTime).toBe(100);
-    expect(sender.receiverName).toBe("receiver");
+    expect(sender.receiverName).toBe('receiver');
 
     expect(sender.playerCastingButton.innerHTML).toEqual(
       Utils.Icons({
-        type: "cast_exit",
-      })
+        type: 'cast_exit',
+      }),
     );
     expect(classListAddMock).toHaveBeenCalledTimes(1);
     expect(removePlayerMock).toHaveBeenCalledTimes(1);
@@ -262,7 +263,7 @@ describe("CastingSender", () => {
     sender.CastingUIBinds = originalCastingUIBinds;
   });
 
-  test("onConnectionStatusChanged - not connected", async () => {
+  test('onConnectionStatusChanged - not connected', async () => {
     const sender = new CastingSender({
       addCastingUIElements: addCastingUIElementsMock,
       removeCastingUIElements: removeCastingUIElementsMock,
@@ -285,23 +286,23 @@ describe("CastingSender", () => {
     sender.isCasting = true;
 
     sender.session = {
-      status: "not_connected",
+      status: 'not_connected',
       receiver: {
-        friendlyName: "receiver",
+        friendlyName: 'receiver',
       },
     };
 
     sender.playerCastingButton = {
-      innerHTML: "",
+      innerHTML: '',
     } as any;
 
     sender.onConnectionStatusChanged();
 
     expect(sender.isCasting).toBe(false);
     expect(sender.seekTime).toBe(-1);
-    expect(sender.receiverName).toBe("");
+    expect(sender.receiverName).toBe('');
 
-    expect(sender.playerCastingButton.innerHTML).toEqual("");
+    expect(sender.playerCastingButton.innerHTML).toEqual('');
     expect(classListAddMock).toHaveBeenCalledTimes(0);
     expect(removePlayerMock).toHaveBeenCalledTimes(0);
 
@@ -310,10 +311,10 @@ describe("CastingSender", () => {
     expect(removeCastingUIElementsMock).toHaveBeenCalledTimes(1);
   });
 
-  test("CastingUIBinds", () => {
+  test('CastingUIBinds', () => {
     const sender = new CastingSender({
       castingTitle: {
-        innerHTML: "",
+        innerHTML: '',
       },
       castingRemotePlaybackButton: {
         onclick: vi.fn(),
@@ -341,20 +342,20 @@ describe("CastingSender", () => {
     sender.CastingUIBinds();
   });
 
-  test("onConnectionError", () => {
+  test('onConnectionError', () => {
     const sender = new CastingSender({} as any);
 
     const originalStopCasting = sender.stopCasting;
     sender.stopCasting = stopCastingMock;
 
-    sender.onConnectionError({ code: "timeout" });
+    sender.onConnectionError({ code: 'timeout' });
 
     expect(stopCastingMock).toHaveBeenCalledTimes(1);
 
     sender.stopCasting = originalStopCasting;
   });
 
-  test("stopCasting", () => {
+  test('stopCasting', () => {
     const sender = new CastingSender({} as any);
     sender.session = {
       stop: sessionStopMock,
@@ -363,26 +364,26 @@ describe("CastingSender", () => {
     expect(sessionStopMock).toHaveBeenCalledTimes(1);
   });
 
-  test("stopCasting - error", () => {
+  test('stopCasting - error', () => {
     const sender = new CastingSender({} as any);
     sender.stopCasting();
     expect(console.log).toHaveBeenCalledTimes(1);
   });
 
-  test("cast - api not ready", () => {
+  test('cast - api not ready', () => {
     const sender = new CastingSender({} as any);
     sender.cast();
     expect(console.log).toHaveBeenCalledTimes(1);
   });
 
-  test("cast - not have receivers", () => {
+  test('cast - not have receivers', () => {
     const sender = new CastingSender({} as any);
     sender.apiReady = true;
     sender.cast();
     expect(console.log).toHaveBeenCalledTimes(1);
   });
 
-  test("cast - when apiReady & hasReceivers", () => {
+  test('cast - when apiReady & hasReceivers', () => {
     const sender = new CastingSender({} as any);
     sender.apiReady = true;
     sender.hasReceivers = true;
@@ -399,26 +400,26 @@ describe("CastingSender", () => {
     expect(requestSessionMock).toHaveBeenCalledTimes(1);
   });
 
-  test("onMessageReceived - error", () => {
+  test('onMessageReceived - error', () => {
     const sender = new CastingSender({} as any);
     sender.onMessageReceived(null, null);
     expect(console.log).toHaveBeenCalledTimes(1);
   });
 
-  test("onMessageReceived - info", () => {
+  test('onMessageReceived - info', () => {
     const sender = new CastingSender({} as any);
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "info",
+        type: 'info',
         data: { currentTime: 100.1234 },
-      })
+      }),
     );
     expect(console.log).toHaveBeenCalledTimes(0);
-    expect(sessionStorage.getItem(STORAGE_KEYS.VIDOE_CURRENT_TIME)).toBe("100");
+    expect(sessionStorage.getItem(STORAGE_KEYS.VIDOE_CURRENT_TIME)).toBe('100');
   });
 
-  test("onMessageReceived - player_loaded", () => {
+  test('onMessageReceived - player_loaded', () => {
     const sender = new CastingSender({
       player: {
         setPlayerState: setPlayerStateMock,
@@ -432,160 +433,152 @@ describe("CastingSender", () => {
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player_loaded",
-        data: { texts: ["text"], variants: [] },
-      })
+        type: 'player_loaded',
+        data: { texts: ['text'], variants: [] },
+      }),
     );
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(2);
     expect(classListRemoveMock).toHaveBeenCalledTimes(1);
   });
 
-  test("onMessageReceived - player - playing true", () => {
+  test('onMessageReceived - player - playing true', () => {
     const sender = new CastingSender({
       player: {
         setPlayerState: setPlayerStateMock,
       },
       castingPlayPauseButton: {
-        innerHTMl: "",
+        innerHTMl: '',
       },
     } as any);
 
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "playing", value: true },
-      })
+        type: 'player',
+        data: { event: 'playing', value: true },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-    expect(sender.ui.castingPlayPauseButton.innerHTML).toEqual(
-      Utils.Icons({ type: "pause" })
-    );
+    expect(sender.ui.castingPlayPauseButton.innerHTML).toEqual(Utils.Icons({ type: 'pause' }));
   });
 
-  test("onMessageReceived - player - playing false", () => {
+  test('onMessageReceived - player - playing false', () => {
     const sender = new CastingSender({
       player: {
         setPlayerState: setPlayerStateMock,
       },
       castingPlayPauseButton: {
-        innerHTMl: "",
+        innerHTMl: '',
       },
     } as any);
 
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "playing", value: false },
-      })
+        type: 'player',
+        data: { event: 'playing', value: false },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-    expect(sender.ui.castingPlayPauseButton.innerHTML).toEqual(
-      Utils.Icons({ type: "play" })
-    );
+    expect(sender.ui.castingPlayPauseButton.innerHTML).toEqual(Utils.Icons({ type: 'play' }));
   });
 
-  test("onMessageReceived - player - mute true", () => {
+  test('onMessageReceived - player - mute true', () => {
     const sender = new CastingSender({
       player: {
         setPlayerState: setPlayerStateMock,
       },
       castingVolumeButtoon: {
-        innerHTMl: "",
+        innerHTMl: '',
       },
     } as any);
 
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "mute", value: true },
-      })
+        type: 'player',
+        data: { event: 'mute', value: true },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-    expect(sender.ui.castingVolumeButtoon.innerHTML).toEqual(
-      Utils.Icons({ type: "volume_off" })
-    );
+    expect(sender.ui.castingVolumeButtoon.innerHTML).toEqual(Utils.Icons({ type: 'volume_off' }));
   });
 
-  test("onMessageReceived - player - mute false", () => {
+  test('onMessageReceived - player - mute false', () => {
     const sender = new CastingSender({
       player: {
         setPlayerState: setPlayerStateMock,
       },
       castingVolumeButtoon: {
-        innerHTMl: "",
+        innerHTMl: '',
       },
     } as any);
 
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "mute", value: false },
-      })
+        type: 'player',
+        data: { event: 'mute', value: false },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-    expect(sender.ui.castingVolumeButtoon.innerHTML).toEqual(
-      Utils.Icons({ type: "volume_up" })
-    );
+    expect(sender.ui.castingVolumeButtoon.innerHTML).toEqual(Utils.Icons({ type: 'volume_up' }));
   });
 
-  test("onMessageReceived - player - text-tracks true", () => {
+  test('onMessageReceived - player - text-tracks true', () => {
     const sender = new CastingSender({
       castingCloseCaptionButton: {
-        innerHTMl: "",
+        innerHTMl: '',
       },
     } as any);
 
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "text-tracks", value: true },
-      })
+        type: 'player',
+        data: { event: 'text-tracks', value: true },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(sender.ui.castingCloseCaptionButton.innerHTML).toEqual(
-      Utils.Icons({ type: "cc_enabled" })
+      Utils.Icons({ type: 'cc_enabled' }),
     );
     expect(sender.isTextTrackVisible).toBe(true);
   });
 
-  test("onMessageReceived - player - text-tracks false", () => {
+  test('onMessageReceived - player - text-tracks false', () => {
     const sender = new CastingSender({
       castingCloseCaptionButton: {
-        innerHTMl: "",
+        innerHTMl: '',
       },
     } as any);
 
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "text-tracks", value: false },
-      })
+        type: 'player',
+        data: { event: 'text-tracks', value: false },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(sender.ui.castingCloseCaptionButton.innerHTML).toEqual(
-      Utils.Icons({ type: "cc_disabled" })
+      Utils.Icons({ type: 'cc_disabled' }),
     );
     expect(sender.isTextTrackVisible).toBe(false);
   });
 
-  test("onMessageReceived - player - abort", () => {
+  test('onMessageReceived - player - abort', () => {
     const sender = new CastingSender({
       castingPlayPauseButton: {
         classList: {
@@ -622,9 +615,9 @@ describe("CastingSender", () => {
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "abort" },
-      })
+        type: 'player',
+        data: { event: 'abort' },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
@@ -633,9 +626,9 @@ describe("CastingSender", () => {
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "emptied" },
-      })
+        type: 'player',
+        data: { event: 'emptied' },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
@@ -644,16 +637,16 @@ describe("CastingSender", () => {
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "ended" },
-      })
+        type: 'player',
+        data: { event: 'ended' },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(classListAddMock).toHaveBeenCalledTimes(18);
   });
 
-  test("onMessageReceived - player - canplaythrough type !== channel", () => {
+  test('onMessageReceived - player - canplaythrough type !== channel', () => {
     const sender = new CastingSender({
       castingPlayPauseButton: {
         classList: {
@@ -688,9 +681,9 @@ describe("CastingSender", () => {
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "canplaythrough" },
-      })
+        type: 'player',
+        data: { event: 'canplaythrough' },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
@@ -700,7 +693,7 @@ describe("CastingSender", () => {
     Utils.addEventCallback = originalAddEventsCallback;
   });
 
-  test("onMessageReceived - player - canplaythrough type === channel", () => {
+  test('onMessageReceived - player - canplaythrough type === channel', () => {
     const sender = new CastingSender({
       castingPlayPauseButton: {
         classList: {
@@ -732,14 +725,14 @@ describe("CastingSender", () => {
     const originalAddEventsCallback = Utils.addEventCallback;
     Utils.addEventCallback = addEventCallbackMock;
 
-    sender.type = "channel";
+    sender.type = 'channel';
 
     sender.onMessageReceived(
       null,
       JSON.stringify({
-        type: "player",
-        data: { event: "canplaythrough" },
-      })
+        type: 'player',
+        data: { event: 'canplaythrough' },
+      }),
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
@@ -749,20 +742,20 @@ describe("CastingSender", () => {
     Utils.addEventCallback = originalAddEventsCallback;
   });
 
-  test("sendMessage", () => {
+  test('sendMessage', () => {
     const sender = new CastingSender({} as any);
     sender.isCasting = true;
     sender.session = {
       sendMessage: sendMessageMock,
     };
 
-    sender.sendMessage({ type: "player", data: { event: "play" } });
+    sender.sendMessage({ type: 'player', data: { event: 'play' } });
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(sendMessageMock).toHaveBeenCalledTimes(1);
   });
 
-  test("onPlayPause - isPlaying true", () => {
+  test('onPlayPause - isPlaying true', () => {
     const sender = new CastingSender({
       player: {
         playerState: {
@@ -785,7 +778,7 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("onPlayPause - isPlaying false", () => {
+  test('onPlayPause - isPlaying false', () => {
     const sender = new CastingSender({
       player: {
         playerState: {
@@ -808,7 +801,7 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("onMuteUnMute", () => {
+  test('onMuteUnMute', () => {
     const sender = new CastingSender({
       player: {
         playerState: {
@@ -827,7 +820,7 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("onForward", () => {
+  test('onForward', () => {
     const sender = new CastingSender({} as any);
 
     const originalSendMessage = sender.sendMessage;
@@ -840,7 +833,7 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("onRewind", () => {
+  test('onRewind', () => {
     const sender = new CastingSender({} as any);
 
     const originalSendMessage = sender.sendMessage;
@@ -853,7 +846,7 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("onRestartPlay", () => {
+  test('onRestartPlay', () => {
     const sender = new CastingSender({} as any);
 
     const originalSendMessage = sender.sendMessage;
@@ -866,7 +859,7 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("onTextTracksChange", () => {
+  test('onTextTracksChange', () => {
     const sender = new CastingSender({} as any);
 
     sender.isTextTrackVisible = true;
@@ -881,7 +874,7 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("sendSourceInfo", () => {
+  test('sendSourceInfo', () => {
     const sender = new CastingSender({} as any);
 
     sender.type = undefined;
@@ -901,7 +894,7 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("sendMediaInfo", () => {
+  test('sendMediaInfo', () => {
     const sender = new CastingSender({} as any);
 
     const originalSendMessage = sender.sendMessage;
@@ -918,13 +911,13 @@ describe("CastingSender", () => {
     sender.sendMessage = originalSendMessage;
   });
 
-  test("sendRefreshToken", () => {
+  test('sendRefreshToken', () => {
     const sender = new CastingSender({} as any);
 
     const originalSendMessage = sender.sendMessage;
     sender.sendMessage = sendMessageMock;
 
-    sender.sendRefreshToken("token");
+    sender.sendRefreshToken('token');
 
     expect(sendMessageMock).toHaveBeenCalledTimes(1);
 

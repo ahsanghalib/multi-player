@@ -1,8 +1,9 @@
-import Shaka from "shaka-player/dist/shaka-player.compiled.debug";
-import { ShakaPlayer } from "./shaka";
-import { DRMEnums, ISource } from "./types";
-import { Utils } from "./utils";
-import { waitFor } from "@testing-library/dom";
+import { waitFor } from '@testing-library/dom';
+import Shaka from 'shaka-player/dist/shaka-player.compiled.debug';
+
+import { ShakaPlayer } from './shaka';
+import { DRMEnums, ISource } from './types';
+import { Utils } from './utils';
 
 const isBrowserSupportedMock = vi.fn();
 const isLiveMock = vi.fn();
@@ -32,10 +33,9 @@ const removeEventListenerMock = vi.fn();
 const toggleWrappersMock = vi.fn();
 const getPlayerStateMock = vi.fn();
 
-describe("Shaka Player", () => {
-  test("not supported", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(false);
+describe('Shaka Player', () => {
+  test('not supported', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(false);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
@@ -43,9 +43,8 @@ describe("Shaka Player", () => {
     expect(isBrowserSupportedMock).toHaveBeenCalledTimes(1);
   });
 
-  test("is supported", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('is supported', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
@@ -53,9 +52,8 @@ describe("Shaka Player", () => {
     expect(isBrowserSupportedMock).toHaveBeenCalledTimes(1);
   });
 
-  test("is live", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('is live', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
@@ -64,25 +62,23 @@ describe("Shaka Player", () => {
     expect(shakaPlayer.isLive()).toBe(true);
   });
 
-  test("init - not supported", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(false);
+  test('init - not supported', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(false);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.init({} as any, {} as any, false, "", false).catch(() => {});
+    shakaPlayer.init({} as any, {} as any, false, '', false).catch(() => {});
 
     expect(shakaPlayer.isSupported).toBe(false);
     expect(console.log).toHaveBeenCalledTimes(1);
   });
 
-  test("init - supported", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('init - supported', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
     (Shaka as any).log.setLevel = ShakaLogsetLevelMock;
 
     const originalGetBrowser = Utils.getBrowser;
-    Utils.getBrowser = getBrowserMock.mockReturnValue("chrome");
+    Utils.getBrowser = getBrowserMock.mockReturnValue('chrome');
 
     const originalHasHeaders = Utils.hasHeader;
     Utils.hasHeader = hasHeadersMock;
@@ -99,21 +95,15 @@ describe("Shaka Player", () => {
     shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
 
     shakaPlayer
-      .init(
-        {} as any,
-        { url: "https://source.url" } as ISource,
-        false,
-        "",
-        false
-      )
+      .init({} as any, { url: 'https://source.url' } as ISource, false, '', false)
       .catch(() => {});
 
     await waitFor(() => {
       expect(attachMockResolved).toHaveBeenCalledTimes(1);
       // expect(addEventsMock).toHaveBeenCalledTimes(1);
       expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: "shaka" });
-      expect(shakaPlayer.url).toBe("https://source.url");
+      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: 'shaka' });
+      expect(shakaPlayer.url).toBe('https://source.url');
       expect(resetConfigurationMock).toHaveBeenCalledTimes(1);
       expect(getNetworkingEngineMock).toHaveBeenCalledTimes(2);
       expect(ShakaLogsetLevelMock).toHaveBeenCalledTimes(1);
@@ -123,13 +113,12 @@ describe("Shaka Player", () => {
     Utils.hasHeader = originalHasHeaders;
   });
 
-  test("init - rejected", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('init - rejected', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
     (Shaka as any).log.setLevel = ShakaLogsetLevelMock;
 
     const originalGetBrowser = Utils.getBrowser;
-    Utils.getBrowser = getBrowserMock.mockReturnValue("chrome");
+    Utils.getBrowser = getBrowserMock.mockReturnValue('chrome');
 
     const originalHasHeaders = Utils.hasHeader;
     Utils.hasHeader = hasHeadersMock;
@@ -147,20 +136,14 @@ describe("Shaka Player", () => {
     shakaPlayer.player.configure = playerConfigureMock;
 
     shakaPlayer
-      .init(
-        {} as any,
-        { url: "https://source.url" } as ISource,
-        false,
-        "",
-        false
-      )
+      .init({} as any, { url: 'https://source.url' } as ISource, false, '', false)
       .catch(() => {});
 
     await waitFor(() => {
       expect(attachMockRejected).toHaveBeenCalledTimes(1);
       expect(addEventsMock).toHaveBeenCalledTimes(0);
       expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: "none" });
+      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: 'none' });
       expect(shakaPlayer.url).toBeUndefined();
       expect(resetConfigurationMock).toHaveBeenCalledTimes(0);
       expect(getNetworkingEngineMock).toHaveBeenCalledTimes(0);
@@ -171,9 +154,8 @@ describe("Shaka Player", () => {
     Utils.hasHeader = originalHasHeaders;
   });
 
-  test("init - widevine", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('init - widevine', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
     (Shaka as any).log.setLevel = ShakaLogsetLevelMock;
 
     const originalGetBrowser = Utils.getBrowser;
@@ -203,25 +185,25 @@ describe("Shaka Player", () => {
           currentTime: 0,
         } as any,
         {
-          url: "https://source.url",
+          url: 'https://source.url',
           drm: {
             drmType: DRMEnums.WIDEVINE,
-            licenseUrl: "license.url",
-            certicateUrl: "certificate.url",
-            licenseHeader: { x: "y" },
+            licenseUrl: 'license.url',
+            certicateUrl: 'certificate.url',
+            licenseHeader: { x: 'y' },
           },
         } as ISource,
         false,
-        "",
-        false
+        '',
+        false,
       )
       .catch(() => {});
 
     await waitFor(() => {
       expect(attachMockResolved).toHaveBeenCalledTimes(1);
       expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: "shaka" });
-      expect(shakaPlayer.url).toBe("https://source.url");
+      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: 'shaka' });
+      expect(shakaPlayer.url).toBe('https://source.url');
       expect(basicDrmConfigsMock).toHaveBeenCalledTimes(1);
       expect(buydrmWidevineRequestFilterMock).toHaveBeenCalledTimes(1);
       expect(playerConfigureMock).toHaveBeenCalledTimes(1);
@@ -231,13 +213,12 @@ describe("Shaka Player", () => {
     Utils.hasHeader = originalHasHeaders;
   });
 
-  test("init - fairplay - isVidgo", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('init - fairplay - isVidgo', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
     (Shaka as any).log.setLevel = ShakaLogsetLevelMock;
 
     const originalGetBrowser = Utils.getBrowser;
-    Utils.getBrowser = getBrowserMock.mockReturnValue("safari");
+    Utils.getBrowser = getBrowserMock.mockReturnValue('safari');
 
     const originalHasHeaders = Utils.hasHeader;
     Utils.hasHeader = hasHeadersMock.mockReturnValue(true);
@@ -263,25 +244,25 @@ describe("Shaka Player", () => {
           currentTime: 0,
         } as any,
         {
-          url: "https://source.url",
+          url: 'https://source.url',
           drm: {
             drmType: DRMEnums.FAIRPLAY,
-            licenseUrl: "license.url",
-            certicateUrl: "certificate.url",
-            licenseHeader: { x: "y" },
+            licenseUrl: 'license.url',
+            certicateUrl: 'certificate.url',
+            licenseHeader: { x: 'y' },
           },
         } as ISource,
         false,
-        "",
-        true
+        '',
+        true,
       )
       .catch(() => {});
 
     await waitFor(() => {
       expect(attachMockResolved).toHaveBeenCalledTimes(1);
       expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: "shaka" });
-      expect(shakaPlayer.url).toBe("https://source.url");
+      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: 'shaka' });
+      expect(shakaPlayer.url).toBe('https://source.url');
       expect(basicDrmConfigsMock).toHaveBeenCalledTimes(1);
       expect(vidgoResponseFilterMock).toHaveBeenCalledTimes(1);
       expect(playerConfigureMock).toHaveBeenCalledTimes(1);
@@ -291,13 +272,12 @@ describe("Shaka Player", () => {
     Utils.hasHeader = originalHasHeaders;
   });
 
-  test("init - fairplay - hasHeaders", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('init - fairplay - hasHeaders', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
     (Shaka as any).log.setLevel = ShakaLogsetLevelMock;
 
     const originalGetBrowser = Utils.getBrowser;
-    Utils.getBrowser = getBrowserMock.mockReturnValue("safari");
+    Utils.getBrowser = getBrowserMock.mockReturnValue('safari');
 
     const originalHasHeaders = Utils.hasHeader;
     Utils.hasHeader = hasHeadersMock.mockReturnValue(true);
@@ -324,25 +304,25 @@ describe("Shaka Player", () => {
           currentTime: 0,
         } as any,
         {
-          url: "https://source.url",
+          url: 'https://source.url',
           drm: {
             drmType: DRMEnums.FAIRPLAY,
-            licenseUrl: "license.url",
-            certicateUrl: "certificate.url",
-            licenseHeader: { x: "y" },
+            licenseUrl: 'license.url',
+            certicateUrl: 'certificate.url',
+            licenseHeader: { x: 'y' },
           },
         } as ISource,
         false,
-        "",
-        false
+        '',
+        false,
       )
       .catch(() => {});
 
     await waitFor(() => {
       expect(attachMockResolved).toHaveBeenCalledTimes(1);
       expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: "shaka" });
-      expect(shakaPlayer.url).toBe("https://source.url");
+      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: 'shaka' });
+      expect(shakaPlayer.url).toBe('https://source.url');
       expect(basicDrmConfigsMock).toHaveBeenCalledTimes(1);
       expect(buydrmFairplayRequestFilterMock).toHaveBeenCalledTimes(1);
       expect(buyDrmFairplayResponseFilterMock).toHaveBeenCalledTimes(1);
@@ -353,13 +333,12 @@ describe("Shaka Player", () => {
     Utils.hasHeader = originalHasHeaders;
   });
 
-  test("init - fairplay ", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('init - fairplay ', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
     (Shaka as any).log.setLevel = ShakaLogsetLevelMock;
 
     const originalGetBrowser = Utils.getBrowser;
-    Utils.getBrowser = getBrowserMock.mockReturnValue("safari");
+    Utils.getBrowser = getBrowserMock.mockReturnValue('safari');
 
     const originalHasHeaders = Utils.hasHeader;
     Utils.hasHeader = hasHeadersMock.mockReturnValue(false);
@@ -386,24 +365,24 @@ describe("Shaka Player", () => {
           currentTime: 0,
         } as any,
         {
-          url: "https://source.url",
+          url: 'https://source.url',
           drm: {
             drmType: DRMEnums.FAIRPLAY,
-            licenseUrl: "license.url",
-            certicateUrl: "certificate.url",
+            licenseUrl: 'license.url',
+            certicateUrl: 'certificate.url',
           },
         } as ISource,
         false,
-        "",
-        false
+        '',
+        false,
       )
       .catch(() => {});
 
     await waitFor(() => {
       expect(attachMockResolved).toHaveBeenCalledTimes(1);
       expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: "shaka" });
-      expect(shakaPlayer.url).toBe("https://source.url");
+      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: 'shaka' });
+      expect(shakaPlayer.url).toBe('https://source.url');
       expect(basicDrmConfigsMock).toHaveBeenCalledTimes(1);
       expect(buydrmFairplayRequestFilterMock).toHaveBeenCalledTimes(0);
       expect(buyDrmFairplayResponseFilterMock).toHaveBeenCalledTimes(0);
@@ -416,13 +395,12 @@ describe("Shaka Player", () => {
     Utils.hasHeader = originalHasHeaders;
   });
 
-  test("init - play & curren time ", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('init - play & curren time ', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
     (Shaka as any).log.setLevel = ShakaLogsetLevelMock;
 
     const originalGetBrowser = Utils.getBrowser;
-    Utils.getBrowser = getBrowserMock.mockReturnValue("safari");
+    Utils.getBrowser = getBrowserMock.mockReturnValue('safari');
 
     const originalHasHeaders = Utils.hasHeader;
     Utils.hasHeader = hasHeadersMock.mockReturnValue(false);
@@ -452,25 +430,25 @@ describe("Shaka Player", () => {
       .init(
         video,
         {
-          url: "https://source.url",
+          url: 'https://source.url',
           drm: {
             drmType: DRMEnums.FAIRPLAY,
-            licenseUrl: "license.url",
-            certicateUrl: "certificate.url",
+            licenseUrl: 'license.url',
+            certicateUrl: 'certificate.url',
           },
           startTime: 10,
         } as ISource,
         false,
-        "",
-        false
+        '',
+        false,
       )
       .catch(() => {});
 
     await waitFor(() => {
       expect(attachMockResolved).toHaveBeenCalledTimes(1);
       expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: "shaka" });
-      expect(shakaPlayer.url).toBe("https://source.url");
+      expect(setPlayerStateMock).toHaveBeenCalledWith({ player: 'shaka' });
+      expect(shakaPlayer.url).toBe('https://source.url');
       expect(basicDrmConfigsMock).toHaveBeenCalledTimes(1);
       expect(buydrmFairplayRequestFilterMock).toHaveBeenCalledTimes(0);
       expect(buyDrmFairplayResponseFilterMock).toHaveBeenCalledTimes(0);
@@ -486,25 +464,23 @@ describe("Shaka Player", () => {
     Utils.hasHeader = originalHasHeaders;
   });
 
-  test("buydrmWidevineRequestFilter", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('buydrmWidevineRequestFilter', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.getNetworkingEngine =
-      getNetworkingEngineMock.mockReturnValue({
-        registerRequestFilter: registerRequestFilterMock,
-        registerResponseFilter: registerResponseFilterMock,
-      });
+    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
+      registerRequestFilter: registerRequestFilterMock,
+      registerResponseFilter: registerResponseFilterMock,
+    });
 
     shakaPlayer.buydrmWidevineRequestFilter({
-      url: "https://source.url",
+      url: 'https://source.url',
       drm: {
         drmType: DRMEnums.WIDEVINE,
-        licenseUrl: "license.url",
-        certicateUrl: "certificate.url",
-        licenseHeader: { x: "y" },
+        licenseUrl: 'license.url',
+        certicateUrl: 'certificate.url',
+        licenseHeader: { x: 'y' },
       },
     } as ISource);
 
@@ -513,25 +489,23 @@ describe("Shaka Player", () => {
     expect(registerResponseFilterMock).toHaveBeenCalledTimes(0);
   });
 
-  test("buydrmFairplayRequestFilter", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('buydrmFairplayRequestFilter', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.getNetworkingEngine =
-      getNetworkingEngineMock.mockReturnValue({
-        registerRequestFilter: registerRequestFilterMock,
-        registerResponseFilter: registerResponseFilterMock,
-      });
+    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
+      registerRequestFilter: registerRequestFilterMock,
+      registerResponseFilter: registerResponseFilterMock,
+    });
 
     shakaPlayer.buydrmFairplayRequestFilter({
-      url: "https://source.url",
+      url: 'https://source.url',
       drm: {
         drmType: DRMEnums.FAIRPLAY,
-        licenseUrl: "license.url",
-        certicateUrl: "certificate.url",
-        licenseHeader: { x: "y" },
+        licenseUrl: 'license.url',
+        certicateUrl: 'certificate.url',
+        licenseHeader: { x: 'y' },
       },
     } as ISource);
 
@@ -540,17 +514,15 @@ describe("Shaka Player", () => {
     expect(registerResponseFilterMock).toHaveBeenCalledTimes(0);
   });
 
-  test("buyDrmFairplayResponseFilter", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('buyDrmFairplayResponseFilter', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.getNetworkingEngine =
-      getNetworkingEngineMock.mockReturnValue({
-        registerRequestFilter: registerRequestFilterMock,
-        registerResponseFilter: registerResponseFilterMock,
-      });
+    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
+      registerRequestFilter: registerRequestFilterMock,
+      registerResponseFilter: registerResponseFilterMock,
+    });
 
     shakaPlayer.buyDrmFairplayResponseFilter();
 
@@ -559,17 +531,15 @@ describe("Shaka Player", () => {
     expect(registerResponseFilterMock).toHaveBeenCalledTimes(1);
   });
 
-  test("vidgoResponseFilter", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('vidgoResponseFilter', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.getNetworkingEngine =
-      getNetworkingEngineMock.mockReturnValue({
-        registerRequestFilter: registerRequestFilterMock,
-        registerResponseFilter: registerResponseFilterMock,
-      });
+    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
+      registerRequestFilter: registerRequestFilterMock,
+      registerResponseFilter: registerResponseFilterMock,
+    });
 
     shakaPlayer.vidgoResponseFilter();
 
@@ -578,19 +548,18 @@ describe("Shaka Player", () => {
     expect(registerResponseFilterMock).toHaveBeenCalledTimes(1);
   });
 
-  test("buydrmWidevineRequestFilterImpl", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('buydrmWidevineRequestFilterImpl', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
     const source = {
-      url: "https://source.url",
+      url: 'https://source.url',
       drm: {
         drmType: DRMEnums.WIDEVINE,
-        licenseUrl: "license.url",
-        certicateUrl: "certificate.url",
-        licenseHeader: { x: "y" },
+        licenseUrl: 'license.url',
+        certicateUrl: 'certificate.url',
+        licenseHeader: { x: 'y' },
       },
     } as ISource;
 
@@ -607,45 +576,42 @@ describe("Shaka Player", () => {
     });
   });
 
-  test("buydrmFairplayRequestFilterImpl", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('buydrmFairplayRequestFilterImpl', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
     const source = {
-      url: "https://source.url",
+      url: 'https://source.url',
       drm: {
         drmType: DRMEnums.FAIRPLAY,
-        licenseUrl: "license.url",
-        certicateUrl: "certificate.url",
-        licenseHeader: { x: "y" },
+        licenseUrl: 'license.url',
+        certicateUrl: 'certificate.url',
+        licenseHeader: { x: 'y' },
       },
     } as ISource;
 
     const filter = shakaPlayer.buydrmFairplayRequestFilterImpl(source);
 
     const type = Shaka.net.NetworkingEngine.RequestType.LICENSE;
-    const req = { headers: {}, body: "body" } as any;
+    const req = { headers: {}, body: 'body' } as any;
 
     const originalPayload = new Uint8Array(req.body as any);
-    const base64Payload =
-      Shaka.util.Uint8ArrayUtils.toStandardBase64(originalPayload);
+    const base64Payload = Shaka.util.Uint8ArrayUtils.toStandardBase64(originalPayload);
     const params = `spc=${base64Payload}&assetId=${null}`;
 
     filter(type, req) as any;
 
     expect(req.headers).toEqual({
       ...req.headers,
-      "Content-Type": "application/x-www-form-urlencoded",
+      'Content-Type': 'application/x-www-form-urlencoded',
       ...source.drm?.licenseHeader,
     });
     expect(req.body).toEqual(Shaka.util.StringUtils.toUTF8(params));
   });
 
-  test("buyDrmFairplayResponseFilterImpl", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('buyDrmFairplayResponseFilterImpl', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
@@ -653,7 +619,7 @@ describe("Shaka Player", () => {
 
     const type = Shaka.net.NetworkingEngine.RequestType.LICENSE;
 
-    const body = "<ckc>data</ckc>";
+    const body = '<ckc>data</ckc>';
     const bodyBuf = new ArrayBuffer(body.length);
     const bodyBufView = new Uint8Array(bodyBuf);
     for (let i = 0; i < body.length; i++) {
@@ -664,14 +630,11 @@ describe("Shaka Player", () => {
 
     filter(type, resp) as any;
 
-    expect(resp.data).toEqual(
-      Shaka.util.Uint8ArrayUtils.fromBase64("data").buffer
-    );
+    expect(resp.data).toEqual(Shaka.util.Uint8ArrayUtils.fromBase64('data').buffer);
   });
 
-  test("vidgoResponseFilterImpl", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('vidgoResponseFilterImpl', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
@@ -679,17 +642,15 @@ describe("Shaka Player", () => {
 
     const type = Shaka.net.NetworkingEngine.RequestType.LICENSE;
 
-    const body = JSON.stringify({ ckc: "data" });
+    const body = JSON.stringify({ ckc: 'data' });
     const bodyBuf = new ArrayBuffer(body.length);
     const bodyBufView = new Uint8Array(bodyBuf);
     for (let i = 0; i < body.length; i++) {
       bodyBufView[i] = body.charCodeAt(i);
     }
 
-    const jsonResp = JSON.parse(
-      String.fromCharCode.apply(null, new Uint8Array(bodyBuf) as any)
-    );
-    const raw = Buffer.from(jsonResp.ckc, "base64");
+    const jsonResp = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(bodyBuf) as any));
+    const raw = Buffer.from(jsonResp.ckc, 'base64');
     const rawLength = raw.length;
     const data = new Uint8Array(new ArrayBuffer(rawLength));
     for (let i = 0; i < rawLength; i += 1) {
@@ -703,19 +664,18 @@ describe("Shaka Player", () => {
     expect(resp.data).toEqual(data);
   });
 
-  test("basicDrmConfigs - widevine", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('basicDrmConfigs - widevine', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
     const source = {
-      url: "https://source.url",
+      url: 'https://source.url',
       drm: {
         drmType: DRMEnums.WIDEVINE,
-        licenseUrl: "license.url",
-        certicateUrl: "certificate.url",
-        licenseHeader: { x: "y" },
+        licenseUrl: 'license.url',
+        certicateUrl: 'certificate.url',
+        licenseHeader: { x: 'y' },
       },
     } as ISource;
 
@@ -724,31 +684,30 @@ describe("Shaka Player", () => {
     expect(configs).toEqual({
       drm: {
         servers: {
-          "com.widevine.alpha": source.drm?.licenseUrl,
+          'com.widevine.alpha': source.drm?.licenseUrl,
         },
         advanced: {
-          "com.widevine.alpha": {
-            videoRobustness: "SW_SECURE_CRYPTO",
-            audioRobustness: "SW_SECURE_CRYPTO",
+          'com.widevine.alpha': {
+            videoRobustness: 'SW_SECURE_CRYPTO',
+            audioRobustness: 'SW_SECURE_CRYPTO',
           },
         },
       },
     });
   });
 
-  test("basicDrmConfigs - lagacyFairplay", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('basicDrmConfigs - lagacyFairplay', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
     const source = {
-      url: "https://source.url",
+      url: 'https://source.url',
       drm: {
         drmType: DRMEnums.FAIRPLAY,
-        licenseUrl: "license.url",
-        certicateUrl: "certificate.url",
-        licenseHeader: { x: "y" },
+        licenseUrl: 'license.url',
+        certicateUrl: 'certificate.url',
+        licenseHeader: { x: 'y' },
       },
     } as ISource;
 
@@ -757,10 +716,10 @@ describe("Shaka Player", () => {
     expect(configs).toEqual({
       drm: {
         servers: {
-          "com.apple.fps.1_0": source.drm?.licenseUrl,
+          'com.apple.fps.1_0': source.drm?.licenseUrl,
         },
         advanced: {
-          "com.apple.fps.1_0": {
+          'com.apple.fps.1_0': {
             serverCertificateUri: source.drm?.certicateUrl,
           },
         },
@@ -768,34 +727,34 @@ describe("Shaka Player", () => {
     });
   });
 
-  test("basicDrmConfigs - fairplay", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('basicDrmConfigs - fairplay', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
     const source = {
-      url: "https://source.url",
+      url: 'https://source.url',
       drm: {
         drmType: DRMEnums.FAIRPLAY,
-        licenseUrl: "license.url",
-        certicateUrl: "certificate.url",
-        licenseHeader: { x: "y" },
+        licenseUrl: 'license.url',
+        certicateUrl: 'certificate.url',
+        licenseHeader: { x: 'y' },
       },
     } as ISource;
 
     const configs = shakaPlayer.basicDrmConfigs(source, false);
 
     const initDataTransformMock = vi.fn();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     configs.drm!.initDataTransform = initDataTransformMock;
 
     expect(configs).toEqual({
       drm: {
         servers: {
-          "com.apple.fps": source.drm?.licenseUrl,
+          'com.apple.fps': source.drm?.licenseUrl,
         },
         advanced: {
-          "com.apple.fps": {
+          'com.apple.fps': {
             serverCertificateUri: source.drm?.certicateUrl,
           },
         },
@@ -804,14 +763,13 @@ describe("Shaka Player", () => {
     });
   });
 
-  test("basicDrmConfigs - null", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('basicDrmConfigs - null', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
     const source = {
-      url: "https://source.url",
+      url: 'https://source.url',
       drm: {},
     } as ISource;
 
@@ -820,53 +778,44 @@ describe("Shaka Player", () => {
     expect(configs).toEqual({});
   });
 
-  test("initDataTransformImpl - if not skd", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('initDataTransformImpl - if not skd', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    const initDataTransform = shakaPlayer.initDataTransformImpl(
-      new ArrayBuffer(0),
-      "",
-      { serverCertificate: new ArrayBuffer(0) }
-    );
+    const initDataTransform = shakaPlayer.initDataTransformImpl(new ArrayBuffer(0), '', {
+      serverCertificate: new ArrayBuffer(0),
+    });
 
     expect(initDataTransform).toEqual(new ArrayBuffer(0));
   });
 
-  test("initDataTransformImpl - if skd", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('initDataTransformImpl - if skd', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    const contentId = Shaka.util.FairPlayUtils.defaultGetContentId(
-      new ArrayBuffer(10)
-    );
+    const contentId = Shaka.util.FairPlayUtils.defaultGetContentId(new ArrayBuffer(10));
 
     const expected = Shaka.util.FairPlayUtils.initDataTransform(
       new ArrayBuffer(10),
       contentId,
-      new ArrayBuffer(10)
+      new ArrayBuffer(10),
     );
 
-    const initDataTransform = shakaPlayer.initDataTransformImpl(
-      new ArrayBuffer(10),
-      "skd",
-      { serverCertificate: new ArrayBuffer(10) }
-    );
+    const initDataTransform = shakaPlayer.initDataTransformImpl(new ArrayBuffer(10), 'skd', {
+      serverCertificate: new ArrayBuffer(10),
+    });
 
     expect(initDataTransform).toEqual(expected);
   });
 
-  test("reload", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('reload', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.url = "https://source.url";
+    shakaPlayer.url = 'https://source.url';
     shakaPlayer.player.load = playerLoadResolveMock;
 
     shakaPlayer.reload();
@@ -874,16 +823,15 @@ describe("Shaka Player", () => {
     expect(playerLoadResolveMock).toHaveBeenCalledTimes(1);
   });
 
-  test("reload - error", async () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('reload - error', async () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const originalFatelErrorRetry = Utils.fatelErrorRetry;
     Utils.fatelErrorRetry = fatelErrorRetryMock;
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.url = "https://source.url";
+    shakaPlayer.url = 'https://source.url';
     shakaPlayer.player.load = playerLoadResolveMock.mockRejectedValue(true);
 
     shakaPlayer.reload().catch(() => {});
@@ -897,9 +845,8 @@ describe("Shaka Player", () => {
     Utils.fatelErrorRetry = originalFatelErrorRetry;
   });
 
-  test("destroy", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('destroy', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
@@ -910,9 +857,8 @@ describe("Shaka Player", () => {
     expect(shakaPlayer.player.detach).toHaveBeenCalledTimes(1);
   });
 
-  test("addEvents", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('addEvents', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
@@ -925,9 +871,8 @@ describe("Shaka Player", () => {
     expect(addEventListenerMock).toHaveBeenCalledTimes(3);
   });
 
-  test("removeEvents", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('removeEvents', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
@@ -938,9 +883,8 @@ describe("Shaka Player", () => {
     expect(removeEventListenerMock).toHaveBeenCalledTimes(3);
   });
 
-  test("shakaBufferingEvent - buffering", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('shakaBufferingEvent - buffering', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const originalToggleWrappers = Utils.toggleWrappers;
     Utils.toggleWrappers = toggleWrappersMock;
@@ -966,9 +910,8 @@ describe("Shaka Player", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("shakaBufferingEvent - not buffering", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('shakaBufferingEvent - not buffering', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const originalToggleWrappers = Utils.toggleWrappers;
     Utils.toggleWrappers = toggleWrappersMock;
@@ -994,9 +937,8 @@ describe("Shaka Player", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("shakaErrorEvent", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('shakaErrorEvent', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const originalFatelErrorRetry = Utils.fatelErrorRetry;
     Utils.fatelErrorRetry = fatelErrorRetryMock;
@@ -1011,9 +953,8 @@ describe("Shaka Player", () => {
     Utils.fatelErrorRetry = originalFatelErrorRetry;
   });
 
-  test("shakaStallDetectedEvent", () => {
-    Shaka.Player.isBrowserSupported =
-      isBrowserSupportedMock.mockReturnValue(true);
+  test('shakaStallDetectedEvent', () => {
+    Shaka.Player.isBrowserSupported = isBrowserSupportedMock.mockReturnValue(true);
 
     const originalToggleWrappers = Utils.toggleWrappers;
     Utils.toggleWrappers = toggleWrappersMock;

@@ -1,25 +1,25 @@
-import { NativePlayer } from "./native";
-import { ISource } from "./types";
+import { NativePlayer } from './native';
+import { ISource } from './types';
 
 const videoLoadMock = vi.fn();
 
-describe("native player", () => {
-  test("init", () => {
+describe('native player', () => {
+  test('init', () => {
     const native = new NativePlayer({} as any);
-    const video = document.createElement("video");
+    const video = document.createElement('video');
     const source: ISource = {
-      url: "https://test.com",
+      url: 'https://test.com',
     };
 
     native.init(video, source);
 
-    expect(video.src).toBe("https://test.com");
+    expect(video.src).toBe('https://test.com');
   });
 
-  test("destroy", () => {
+  test('destroy', () => {
     const native = new NativePlayer({
       videoElement: {
-        src: "https://test.com",
+        src: 'https://test.com',
         load: videoLoadMock,
       },
     } as any);

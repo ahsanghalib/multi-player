@@ -1,13 +1,8 @@
-import {
-  BrowsersEnum,
-  DRMEnums,
-  ISource,
-  PlayersEnum,
-  ShakaEventsEnum,
-} from "./types";
-import { UI } from "./ui";
-import { Utils } from "./utils";
-import Shaka from "shaka-player/dist/shaka-player.compiled.debug";
+import Shaka from 'shaka-player/dist/shaka-player.compiled.debug';
+
+import { BrowsersEnum, DRMEnums, ISource, PlayersEnum, ShakaEventsEnum } from './types';
+import { UI } from './ui';
+import { Utils } from './utils';
 
 export class ShakaPlayer {
   ui: UI;
@@ -35,11 +30,11 @@ export class ShakaPlayer {
     source: ISource,
     debug: boolean,
     mimeType: string,
-    isVidgo: boolean
+    isVidgo: boolean,
   ) => {
     try {
       if (!this.isSupported) {
-        console.log("Shaka not supported");
+        console.log('Shaka not supported');
         return;
       }
 
@@ -54,7 +49,7 @@ export class ShakaPlayer {
       const isSafari = Utils.getBrowser() === BrowsersEnum.SAFARI;
 
       (Shaka as any).log.setLevel(
-        debug ? (Shaka as any).log.Level.DEBUG : (Shaka as any).log.Level.NONE
+        debug ? (Shaka as any).log.Level.DEBUG : (Shaka as any).log.Level.NONE,
       );
 
       this.player.resetConfiguration();
@@ -102,7 +97,7 @@ export class ShakaPlayer {
 
       this.player
         /* c8 ignore next */
-        .load(this.url ?? "", null, mimeType)
+        .load(this.url ?? '', null, mimeType)
         .then(() => {
           video.play().catch(() => console.log());
           /* c8 ignore next */
@@ -110,7 +105,7 @@ export class ShakaPlayer {
         })
         .catch(() => {});
     } catch (e) {
-      console.log("shaka-init-error", e);
+      console.log('shaka-init-error', e);
       this.ui.player.setPlayerState({ player: PlayersEnum.NONE });
       return Promise.reject();
     }
@@ -137,10 +132,7 @@ export class ShakaPlayer {
   };
 
   buydrmWidevineRequestFilterImpl = (source: ISource): any => {
-    return (
-      type: shaka.net.NetworkingEngine.RequestType,
-      req: shaka.extern.Request
-    ): any => {
+    return (type: shaka.net.NetworkingEngine.RequestType, req: shaka.extern.Request): any => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         req.headers = {
           ...req.headers,
@@ -151,18 +143,14 @@ export class ShakaPlayer {
   };
 
   buydrmFairplayRequestFilterImpl = (source: ISource) => {
-    return (
-      type: shaka.net.NetworkingEngine.RequestType,
-      req: shaka.extern.Request
-    ): any => {
+    return (type: shaka.net.NetworkingEngine.RequestType, req: shaka.extern.Request): any => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         const originalPayload = new Uint8Array(req.body as any);
-        const base64Payload =
-          Shaka.util.Uint8ArrayUtils.toStandardBase64(originalPayload);
+        const base64Payload = Shaka.util.Uint8ArrayUtils.toStandardBase64(originalPayload);
         const params = `spc=${base64Payload}&assetId=${this.contentId}`;
         req.headers = {
           ...req.headers,
-          "Content-Type": "application/x-www-form-urlencoded",
+          'Content-Type': 'application/x-www-form-urlencoded',
           ...source.drm?.licenseHeader,
         };
         req.body = Shaka.util.StringUtils.toUTF8(params);
@@ -171,14 +159,11 @@ export class ShakaPlayer {
   };
 
   buyDrmFairplayResponseFilterImpl = () => {
-    return (
-      type: shaka.net.NetworkingEngine.RequestType,
-      resp: shaka.extern.Response
-    ): any => {
+    return (type: shaka.net.NetworkingEngine.RequestType, resp: shaka.extern.Response): any => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         let txt = Shaka.util.StringUtils.fromUTF8(resp.data);
         txt = txt.trim();
-        if (txt.startsWith("<ckc>") && txt.endsWith("</ckc>")) {
+        if (txt.startsWith('<ckc>') && txt.endsWith('</ckc>')) {
           txt = txt.slice(5, -6);
         }
         resp.data = Shaka.util.Uint8ArrayUtils.fromBase64(txt).buffer;
@@ -187,18 +172,12 @@ export class ShakaPlayer {
   };
 
   vidgoResponseFilterImpl = () => {
-    return (
-      type: shaka.net.NetworkingEngine.RequestType,
-      resp: shaka.extern.Response
-    ): any => {
+    return (type: shaka.net.NetworkingEngine.RequestType, resp: shaka.extern.Response): any => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         const jsonResp = JSON.parse(
-          String.fromCharCode.apply(
-            null,
-            new Uint8Array(resp.data as any) as any
-          )
+          String.fromCharCode.apply(null, new Uint8Array(resp.data as any) as any),
         );
-        const raw = Buffer.from(jsonResp.ckc, "base64");
+        const raw = Buffer.from(jsonResp.ckc, 'base64');
         const rawLength = raw.length;
         const data = new Uint8Array(new ArrayBuffer(rawLength));
         for (let i = 0; i < rawLength; i += 1) {
@@ -210,14 +189,10 @@ export class ShakaPlayer {
   };
 
   initDataTransformImpl = (initData: any, initDataType: any, drmInfo: any) => {
-    if (initDataType !== "skd") return initData;
+    if (initDataType !== 'skd') return initData;
     this.contentId = Shaka.util.FairPlayUtils.defaultGetContentId(initData);
     const cert = drmInfo.serverCertificate;
-    return Shaka.util.FairPlayUtils.initDataTransform(
-      initData,
-      this.contentId,
-      cert
-    );
+    return Shaka.util.FairPlayUtils.initDataTransform(initData, this.contentId, cert);
   };
 
   basicDrmConfigs = (source: ISource, lagacyFairplay = true) => {
@@ -225,12 +200,12 @@ export class ShakaPlayer {
       return {
         drm: {
           servers: {
-            "com.widevine.alpha": source.drm?.licenseUrl,
+            'com.widevine.alpha': source.drm?.licenseUrl,
           },
           advanced: {
-            "com.widevine.alpha": {
-              videoRobustness: "SW_SECURE_CRYPTO",
-              audioRobustness: "SW_SECURE_CRYPTO",
+            'com.widevine.alpha': {
+              videoRobustness: 'SW_SECURE_CRYPTO',
+              audioRobustness: 'SW_SECURE_CRYPTO',
             },
           },
         },
@@ -242,10 +217,10 @@ export class ShakaPlayer {
         return {
           drm: {
             servers: {
-              "com.apple.fps.1_0": source.drm?.licenseUrl,
+              'com.apple.fps.1_0': source.drm?.licenseUrl,
             },
             advanced: {
-              "com.apple.fps.1_0": {
+              'com.apple.fps.1_0': {
                 serverCertificateUri: source.drm?.certicateUrl,
               },
             },
@@ -256,10 +231,10 @@ export class ShakaPlayer {
       return {
         drm: {
           servers: {
-            "com.apple.fps": source.drm?.licenseUrl,
+            'com.apple.fps': source.drm?.licenseUrl,
           },
           advanced: {
-            "com.apple.fps": {
+            'com.apple.fps': {
               serverCertificateUri: source.drm?.certicateUrl,
             },
           },
@@ -275,7 +250,7 @@ export class ShakaPlayer {
     if (this.url) {
       try {
         /* c8 ignore next */
-        await this.player.load(this.url || "");
+        await this.player.load(this.url || '');
         return Promise.resolve();
       } catch (e) {
         Utils.fatelErrorRetry(this.ui);
@@ -291,32 +266,20 @@ export class ShakaPlayer {
 
   addEvents = () => {
     this.removeEvents();
-    this.player.addEventListener(
-      ShakaEventsEnum.BUFFERING,
-      this.shakaBufferingEvent.bind(this)
-    );
-    this.player.addEventListener(
-      ShakaEventsEnum.ERROR,
-      this.shakaErrorEvent.bind(this)
-    );
+    this.player.addEventListener(ShakaEventsEnum.BUFFERING, this.shakaBufferingEvent.bind(this));
+    this.player.addEventListener(ShakaEventsEnum.ERROR, this.shakaErrorEvent.bind(this));
     this.player.addEventListener(
       ShakaEventsEnum.STALL_DETECTED,
-      this.shakaStallDetectedEvent.bind(this)
+      this.shakaStallDetectedEvent.bind(this),
     );
   };
 
   removeEvents = () => {
-    this.player.removeEventListener(
-      ShakaEventsEnum.BUFFERING,
-      this.shakaBufferingEvent.bind(this)
-    );
-    this.player.removeEventListener(
-      ShakaEventsEnum.ERROR,
-      this.shakaErrorEvent.bind(this)
-    );
+    this.player.removeEventListener(ShakaEventsEnum.BUFFERING, this.shakaBufferingEvent.bind(this));
+    this.player.removeEventListener(ShakaEventsEnum.ERROR, this.shakaErrorEvent.bind(this));
     this.player.removeEventListener(
       ShakaEventsEnum.STALL_DETECTED,
-      this.shakaStallDetectedEvent.bind(this)
+      this.shakaStallDetectedEvent.bind(this),
     );
   };
 
@@ -331,7 +294,7 @@ export class ShakaPlayer {
   };
 
   shakaErrorEvent = (d: any) => {
-    console.log("shaka-error-event", d);
+    console.log('shaka-error-event', d);
     Utils.fatelErrorRetry(this.ui);
   };
 

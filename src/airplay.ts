@@ -1,6 +1,6 @@
-import { BrowsersEnum } from "./types";
-import { UI } from "./ui";
-import { Utils } from "./utils";
+import { BrowsersEnum } from './types';
+import { UI } from './ui';
+import { Utils } from './utils';
 
 export class AirPlay {
   private ui: UI;
@@ -11,23 +11,23 @@ export class AirPlay {
 
   protected webkitPlaybackTargetAvailabilityChangedEvent = (
     airplay: HTMLDivElement,
-    video: any
+    video: any,
   ) => {
     return (event: any) => {
       switch (event?.availability) {
-        case "available":
+        case 'available':
           airplay.innerHTML = Utils.Icons({
-            type: "airplay_enter",
+            type: 'airplay_enter',
           });
-          airplay.classList.remove("none");
+          airplay.classList.remove('none');
           airplay.onclick = () => {
             video.webkitShowPlaybackTargetPicker();
           };
           break;
-        case "not-available":
+        case 'not-available':
         default:
-          airplay.innerHTML = "";
-          airplay.classList.add("none");
+          airplay.innerHTML = '';
+          airplay.classList.add('none');
           break;
       }
     };
@@ -36,24 +36,24 @@ export class AirPlay {
   protected webkitCurrentPlaybackTargetIsWirelessChangedEvent = (
     airplay: HTMLDivElement,
     isLive: boolean,
-    volume: HTMLDivElement
+    volume: HTMLDivElement,
   ) => {
     return (event: any) => {
       const state = event?.target?.remote?.state;
-      if (state === "connected") {
+      if (state === 'connected') {
         airplay.innerHTML = Utils.Icons({
-          type: "airplay_exit",
+          type: 'airplay_exit',
         });
-        Utils.toggleShowHide(volume, "none");
+        Utils.toggleShowHide(volume, 'none');
         this.ui.player.setPlayerState({ isAirplay: true });
         if (this.ui.player.playerState.isPlaying && isLive) {
           this.ui.player.reloadPlayer().catch(() => console.log());
         }
-      } else if (state === "disconnected") {
+      } else if (state === 'disconnected') {
         airplay.innerHTML = Utils.Icons({
-          type: "airplay_enter",
+          type: 'airplay_enter',
         });
-        Utils.toggleShowHide(volume, "flex");
+        Utils.toggleShowHide(volume, 'flex');
         this.ui.player.setPlayerState({ isAirplay: false });
         if (this.ui.player.playerState.isPlaying && isLive) {
           this.ui.player.reloadPlayer().catch(() => console.log());
@@ -76,20 +76,16 @@ export class AirPlay {
         this.webkitPlaybackTargetAvailabilityChangedEvent(airplay, video);
 
       const webkitCurrentPlaybackTargetIsWirelessChanged =
-        this.webkitCurrentPlaybackTargetIsWirelessChangedEvent(
-          airplay,
-          isLive,
-          volume
-        );
+        this.webkitCurrentPlaybackTargetIsWirelessChangedEvent(airplay, isLive, volume);
 
       video.addEventListener(
-        "webkitplaybacktargetavailabilitychanged",
-        webkitPlaybackTargetAvailabilityChanged
+        'webkitplaybacktargetavailabilitychanged',
+        webkitPlaybackTargetAvailabilityChanged,
       );
 
       video.addEventListener(
-        "webkitcurrentplaybacktargetiswirelesschanged",
-        webkitCurrentPlaybackTargetIsWirelessChanged
+        'webkitcurrentplaybacktargetiswirelesschanged',
+        webkitCurrentPlaybackTargetIsWirelessChanged,
       );
     }
   };

@@ -59,12 +59,12 @@ export enum MimeTypesEnum {
   AAC = 'audio/aac',
   FLAC = 'audio/flac',
   WAV = 'audio/wav',
-  NONE = 'none'
+  NONE = 'none',
 }
 
 export enum DRMEnums {
   WIDEVINE = 'widevine',
-  FAIRPLAY = 'fairplay'
+  FAIRPLAY = 'fairplay',
 }
 
 export enum PlayersEnum {
@@ -72,7 +72,7 @@ export enum PlayersEnum {
   HLS = 'hls',
   NATIVE = 'native',
   YOUTUBE = 'youtube',
-  NONE = 'none'
+  NONE = 'none',
 }
 
 export enum EventsEnum {
@@ -103,19 +103,19 @@ export enum EventsEnum {
   TEXTTRACKS = 'texttracks',
   VIDEOTRACKS = 'videotracks',
   AUDIOTRACKS = 'audiotracks',
-  ENCRYPTED = 'encrypted'
+  ENCRYPTED = 'encrypted',
 }
 
 export enum ShakaEventsEnum {
   BUFFERING = 'buffering',
   ERROR = 'error',
-  STALL_DETECTED = 'stalldetected'
+  STALL_DETECTED = 'stalldetected',
 }
 
 export const TextTrackLabels = {
   eng: 'English',
   en: 'English',
-  und: 'English'
+  und: 'English',
   /* c8 ignore next */
 } as const;
 
@@ -126,7 +126,7 @@ export enum BrowsersEnum {
   EDGE = 'edge',
   OPERA = 'opera',
   IE = 'ie',
-  UNKNOWN = 'unkown'
+  UNKNOWN = 'unkown',
 }
 
 export enum SETTINGS_SUB_MENU {
@@ -137,16 +137,16 @@ export enum SETTINGS_SUB_MENU {
   TEXT_SIZE = 'textSize',
   TEXT_COLOR = 'textColor',
   BG_COLOR = 'bgColor',
-  BG_OPACITY = 'bgOpacity'
+  BG_OPACITY = 'bgOpacity',
 }
 
 export const SETTINGS_CC_TEXT_SIZE = {
-  Default: 'default',
+  'Default': 'default',
   '50%': 0.5,
   '75%': 0.75,
   '100%': 1,
   '150%': 1.5,
-  '200%': 2
+  '200%': 2,
 };
 
 export const SETTINGS_CC_COLORS = {
@@ -158,20 +158,20 @@ export const SETTINGS_CC_COLORS = {
   Green: '0, 128, 0',
   Cyan: '0, 255, 255',
   Blue: '0, 0, 255',
-  Red: '255, 0, 0'
+  Red: '255, 0, 0',
 };
 
 export const SETTINGS_CC_OPACITY = {
-  Default: 'default',
+  'Default': 'default',
   '25%': 0.2,
   '50%': 0.4,
   '75%': 0.6,
-  '100%': 0.8
+  '100%': 0.8,
 };
 
 export enum STORAGE_KEYS {
   CC_ID = 'closeCaptionID',
   CC_STYLES = 'closeCaptionStyles',
   IS_FULL_SCREEN = 'isFullScreen',
-  VIDOE_CURRENT_TIME = 'videoCurrentTime'
+  VIDOE_CURRENT_TIME = 'videoCurrentTime',
 }

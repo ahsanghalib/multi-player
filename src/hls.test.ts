@@ -1,7 +1,8 @@
-import Hls from "hls.js/dist/hls.min";
-import { HlsPlayer } from "./hls";
-import { ISource } from "./types";
-import { Utils } from "./utils";
+import Hls from 'hls.js/dist/hls.min';
+
+import { HlsPlayer } from './hls';
+import { ISource } from './types';
+import { Utils } from './utils';
 
 const addEventsMock = vi.fn();
 const isSupportedMock = vi.fn();
@@ -15,8 +16,8 @@ const playerRemoveAllListenersMock = vi.fn();
 const toggleWrappersMock = vi.fn();
 const fatelErrorRetryMock = vi.fn();
 
-describe("hls player", () => {
-  test("init - not supported", () => {
+describe('hls player', () => {
+  test('init - not supported', () => {
     const hlsPlayer = new HlsPlayer({} as any);
 
     const originalAddEvents = hlsPlayer.addEvents;
@@ -28,7 +29,7 @@ describe("hls player", () => {
     hlsPlayer.init({} as any, {} as any, false).catch(() => {});
 
     expect(console.error).toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalledWith("HLS not supported.");
+    expect(console.error).toHaveBeenCalledWith('HLS not supported.');
     expect(addEventsMock).not.toHaveBeenCalled();
     expect(hlsPlayer.player).toBeNull();
 
@@ -36,7 +37,7 @@ describe("hls player", () => {
     Hls.isSupported = originalHlsIsSupported;
   });
 
-  test("init - supported", () => {
+  test('init - supported', () => {
     const hlsPlayer = new HlsPlayer({} as any);
 
     const originalAddEvents = hlsPlayer.addEvents;
@@ -45,9 +46,7 @@ describe("hls player", () => {
     const originalHlsIsSupported = Hls.isSupported;
     Hls.isSupported = isSupportedMock.mockImplementation(() => true);
 
-    hlsPlayer
-      .init({} as any, { url: "https://source.url" } as ISource, false)
-      .catch(() => {});
+    hlsPlayer.init({} as any, { url: 'https://source.url' } as ISource, false).catch(() => {});
 
     expect(console.error).not.toHaveBeenCalled();
     expect(hlsPlayer.player).not.toBeNull();
@@ -57,7 +56,7 @@ describe("hls player", () => {
     Hls.isSupported = originalHlsIsSupported;
   });
 
-  test("init - supported", async () => {
+  test('init - supported', async () => {
     const hlsPlayer = new HlsPlayer({} as any);
 
     const originalHlsIsSupported = Hls.isSupported;
@@ -67,9 +66,7 @@ describe("hls player", () => {
 
     hlsPlayer.player.attachMedia = attachMediaMock;
 
-    hlsPlayer
-      .init({} as any, { url: "https://source.url" } as ISource, false)
-      .catch(() => {});
+    hlsPlayer.init({} as any, { url: 'https://source.url' } as ISource, false).catch(() => {});
 
     expect(console.error).not.toHaveBeenCalled();
     expect(hlsPlayer.player).not.toBeNull();
@@ -79,7 +76,7 @@ describe("hls player", () => {
     hlsPlayer.player = null;
   });
 
-  test("destroy", async () => {
+  test('destroy', async () => {
     const hlsPlayer = new HlsPlayer({} as any);
     hlsPlayer.player = new Hls({} as any);
 
@@ -97,7 +94,7 @@ describe("hls player", () => {
     hlsPlayer.player = null;
   });
 
-  test("startLoad", () => {
+  test('startLoad', () => {
     const hlsPlayer = new HlsPlayer({} as any);
     hlsPlayer.isHlsStopped = true;
     hlsPlayer.player = new Hls({} as any);
@@ -117,7 +114,7 @@ describe("hls player", () => {
     expect(hlsPlayer.isHlsStopped).toBeFalsy();
   });
 
-  test("stopLoad", () => {
+  test('stopLoad', () => {
     const hlsPlayer = new HlsPlayer({} as any);
     hlsPlayer.isHlsStopped = false;
     hlsPlayer.player = new Hls({} as any);
@@ -130,7 +127,7 @@ describe("hls player", () => {
     expect(hlsPlayer.isHlsStopped).toBeTruthy();
   });
 
-  test("addEvents", () => {
+  test('addEvents', () => {
     const hlsPlayer = new HlsPlayer({} as any);
     hlsPlayer.player = new Hls({} as any);
 
@@ -139,13 +136,10 @@ describe("hls player", () => {
     hlsPlayer.addEvents();
 
     expect(playerONMock).toHaveBeenCalledTimes(1);
-    expect(playerONMock).toHaveBeenCalledWith(
-      Hls.Events.ERROR,
-      expect.any(Function)
-    );
+    expect(playerONMock).toHaveBeenCalledWith(Hls.Events.ERROR, expect.any(Function));
   });
 
-  test("removeEvents", () => {
+  test('removeEvents', () => {
     const hlsPlayer = new HlsPlayer({} as any);
     hlsPlayer.player = new Hls({} as any);
 
@@ -156,17 +150,17 @@ describe("hls player", () => {
     expect(playerRemoveAllListenersMock).toHaveBeenCalledTimes(1);
   });
 
-  test("errorEvent - not fatal", () => {
+  test('errorEvent - not fatal', () => {
     const hlsPlayer = new HlsPlayer({} as any);
 
     Utils.toggleWrappers = toggleWrappersMock;
 
-    hlsPlayer.errorEvent({} as any, { details: "bufferStalledError" });
+    hlsPlayer.errorEvent({} as any, { details: 'bufferStalledError' });
 
     expect(toggleWrappersMock).toHaveBeenCalledTimes(1);
   });
 
-  test("errorEvent - fatal", () => {
+  test('errorEvent - fatal', () => {
     const hlsPlayer = new HlsPlayer({} as any);
 
     Utils.fatelErrorRetry = fatelErrorRetryMock;

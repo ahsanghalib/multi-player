@@ -1,6 +1,6 @@
-import { STORAGE_KEYS } from "./types";
-import { Utils } from "./utils";
-import { VideoEvents } from "./video.events";
+import { STORAGE_KEYS } from './types';
+import { Utils } from './utils';
+import { VideoEvents } from './video.events';
 
 const removeEventsMock = vi.fn();
 const removeEventListenerMock = vi.fn();
@@ -31,8 +31,8 @@ const videoPlayRejectedMock = vi.fn(() => ({
   catch: vi.fn(),
 }));
 
-describe("VideoEvents", () => {
-  test("addEvents", () => {
+describe('VideoEvents', () => {
+  test('addEvents', () => {
     const videoEvents = new VideoEvents({
       videoElement: {
         addEventListener: addEventsListenerMock,
@@ -50,7 +50,7 @@ describe("VideoEvents", () => {
     videoEvents.removeEvents = originalRemoveEvents;
   });
 
-  test("removeEvents", () => {
+  test('removeEvents', () => {
     const videoEvents = new VideoEvents({
       videoElement: {
         removeEventListener: removeEventListenerMock,
@@ -62,7 +62,7 @@ describe("VideoEvents", () => {
     expect(removeEventListenerMock).toHaveBeenCalledTimes(22);
   });
 
-  test("getConfig", () => {
+  test('getConfig', () => {
     const videoEvents = new VideoEvents({
       player: {
         getConfig: playergetConfigMock,
@@ -74,7 +74,7 @@ describe("VideoEvents", () => {
     expect(playergetConfigMock).toHaveBeenCalledTimes(1);
   });
 
-  test("abortEvent", () => {
+  test('abortEvent', () => {
     const videoEvents = new VideoEvents({
       player: {
         getConfig: vi.fn().mockReturnValue({
@@ -95,7 +95,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("canPlayEvent", () => {
+  test('canPlayEvent', () => {
     const videoEvents = new VideoEvents({
       player: {
         getConfig: vi.fn().mockReturnValue({
@@ -116,7 +116,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("canPlayThroughEvent", () => {
+  test('canPlayThroughEvent', () => {
     const videoEvents = new VideoEvents({
       player: {
         getConfig: vi.fn().mockReturnValue({
@@ -137,7 +137,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("durationChangeEvent", () => {
+  test('durationChangeEvent', () => {
     const videoEvents = new VideoEvents({
       player: {
         getConfig: vi.fn().mockReturnValue({
@@ -158,18 +158,18 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("emptiedEvent", () => {
+  test('emptiedEvent', () => {
     const ui = {
       player: {
         playerState: {
-          player: "hls",
+          player: 'hls',
         },
         setPlayerState: setPlayerStateMock,
         getConfig: vi.fn().mockReturnValue({
           debug: true,
         }),
         getPlayerState: vi.fn().mockReturnValue({
-          uiState: "error",
+          uiState: 'error',
         }),
       },
     };
@@ -198,7 +198,7 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("endedEvent", () => {
+  test('endedEvent', () => {
     const ui = {
       player: {
         getConfig: vi.fn().mockReturnValue({
@@ -230,7 +230,7 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("errorEvent", () => {
+  test('errorEvent', () => {
     const ui = {
       player: {
         getConfig: vi.fn().mockReturnValue({
@@ -259,7 +259,7 @@ describe("VideoEvents", () => {
     Utils.fatelErrorRetry = originalFatelErrorRetry;
   });
 
-  test("loadedDataEvent", () => {
+  test('loadedDataEvent', () => {
     const ui = {
       videoElement: {
         buffered: {
@@ -302,7 +302,7 @@ describe("VideoEvents", () => {
     expect(addEventCallbackMock).toHaveBeenCalledTimes(1);
     expect(resetRetryCounterMock).toHaveBeenCalledTimes(1);
     expect(toggleShowHideMock).toHaveBeenCalledTimes(1);
-    expect(toggleShowHideMock).toHaveBeenCalledWith(undefined, "flex");
+    expect(toggleShowHideMock).toHaveBeenCalledWith(undefined, 'flex');
     expect(toggleOpacityMock).toHaveBeenCalledTimes(1);
     expect(toggleOpacityMock).toHaveBeenCalledWith(undefined, false);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
@@ -322,7 +322,7 @@ describe("VideoEvents", () => {
     videoEvents.volumeChangeEvent = originalVolumeChangeEvent;
   });
 
-  test("loadedMetadataEvent", () => {
+  test('loadedMetadataEvent', () => {
     const ui = {
       videoElement: {
         play: videoPlayMock,
@@ -349,7 +349,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("loadedMetadataEvent - rejected", () => {
+  test('loadedMetadataEvent - rejected', () => {
     const ui = {
       videoElement: {
         play: videoPlayRejectedMock,
@@ -376,7 +376,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("loadStartEvent", () => {
+  test('loadStartEvent', () => {
     const ui = {
       player: {
         setPlayerState: setPlayerStateMock,
@@ -411,10 +411,10 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("pauseEvent", () => {
+  test('pauseEvent', () => {
     const ui = {
       controlsPlayPauseButton: {
-        innerHTML: "",
+        innerHTML: '',
       },
       player: {
         setPlayerState: setPlayerStateMock,
@@ -441,14 +441,12 @@ describe("VideoEvents", () => {
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
     expect(setPlayerStateMock).toHaveBeenCalledWith({ isPlaying: false });
     expect(onPauseCallbackMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsPlayPauseButton.innerHTML).toBe(
-      Utils.Icons({ type: "play" })
-    );
+    expect(ui.controlsPlayPauseButton.innerHTML).toBe(Utils.Icons({ type: 'play' }));
 
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("playEvent", () => {
+  test('playEvent', () => {
     const ui = {
       player: {
         onPlayCallback: onPlayCallbackMock,
@@ -481,10 +479,10 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("playingEvent", () => {
+  test('playingEvent', () => {
     const ui = {
       controlsPlayPauseButton: {
-        innerHTML: "",
+        innerHTML: '',
       },
       player: {
         setPlayerState: setPlayerStateMock,
@@ -513,9 +511,7 @@ describe("VideoEvents", () => {
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
     expect(setPlayerStateMock).toHaveBeenCalledWith({ isPlaying: true });
     expect(toggleWrappersMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsPlayPauseButton.innerHTML).toBe(
-      Utils.Icons({ type: "pause" })
-    );
+    expect(ui.controlsPlayPauseButton.innerHTML).toBe(Utils.Icons({ type: 'pause' }));
     expect(resetRetryCounterMock).toHaveBeenCalledTimes(1);
 
     Utils.addEventCallback = originalAddEventCallback;
@@ -523,7 +519,7 @@ describe("VideoEvents", () => {
     Utils.resetRetryCounter = originalResetRetryCounter;
   });
 
-  test("progressEvent - user paused", () => {
+  test('progressEvent - user paused', () => {
     const ui = {
       player: {
         playerState: {
@@ -550,7 +546,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("progressEvent - time updated", () => {
+  test('progressEvent - time updated', () => {
     const ui = {
       player: {
         playerState: {
@@ -581,7 +577,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("progressEvent - user not paused & progress counter is between 6 & 10", () => {
+  test('progressEvent - user not paused & progress counter is between 6 & 10', () => {
     const ui = {
       videoElement: {
         currentTime: 5,
@@ -591,7 +587,7 @@ describe("VideoEvents", () => {
         },
       },
       controlsPlayPauseButton: {
-        innerHTML: "",
+        innerHTML: '',
       },
       player: {
         playerState: {
@@ -622,7 +618,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("progressEvent - user not paused & progress counter is greater then 10", () => {
+  test('progressEvent - user not paused & progress counter is greater then 10', () => {
     const ui = {
       player: {
         reloadPlayer: reloadPlayerMock,
@@ -654,7 +650,7 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("rateChangeEvent", () => {
+  test('rateChangeEvent', () => {
     const ui = {
       player: {
         getConfig: vi.fn().mockReturnValue({
@@ -682,7 +678,7 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("seekedEvent - isPlaying true", () => {
+  test('seekedEvent - isPlaying true', () => {
     const ui = {
       player: {
         playerState: {
@@ -713,7 +709,7 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("seekedEvent - isPlaying false", () => {
+  test('seekedEvent - isPlaying false', () => {
     const ui = {
       videoElement: {
         play: videoPlayMock,
@@ -754,7 +750,7 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("seekingEvent - isPlaying true", () => {
+  test('seekingEvent - isPlaying true', () => {
     const ui = {
       player: {
         hls: {
@@ -792,7 +788,7 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("seekingEvent - isPlaying false", () => {
+  test('seekingEvent - isPlaying false', () => {
     const ui = {
       player: {
         hls: {
@@ -830,7 +826,7 @@ describe("VideoEvents", () => {
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("stalledEvent", () => {
+  test('stalledEvent', () => {
     const ui = {
       videoElement: {
         buffered: {
@@ -879,7 +875,7 @@ describe("VideoEvents", () => {
     Utils.isLive = originalIsLive;
   });
 
-  test("suspendEvent", () => {
+  test('suspendEvent', () => {
     const ui = {
       player: {
         getConfig: vi.fn().mockReturnValue({
@@ -902,10 +898,10 @@ describe("VideoEvents", () => {
     Utils.addEventCallback = originalAddEventCallback;
   });
 
-  test("timeUpdateEvent - isLive true", () => {
+  test('timeUpdateEvent - isLive true', () => {
     const ui = {
       controlsTimeText: {
-        innerText: "",
+        innerText: '',
       },
       videoElement: {
         currentTime: 10,
@@ -945,7 +941,7 @@ describe("VideoEvents", () => {
     expect(toggleShowHideMock).toHaveBeenCalledTimes(1);
     expect(videoEvents.timeUpdated).toBe(true);
     expect(isLiveMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsTimeText.innerText).toBe("Live");
+    expect(ui.controlsTimeText.innerText).toBe('Live');
 
     Utils.addEventCallback = originalAddEventCallback;
     Utils.toggleWrappers = originalToggleWrappers;
@@ -953,15 +949,15 @@ describe("VideoEvents", () => {
     Utils.toggleShowHide = originalToggleShowHide;
   });
 
-  test("timeUpdateEvent - isLive false", () => {
+  test('timeUpdateEvent - isLive false', () => {
     const ui = {
       controlsProgressRangeInput: {
-        value: "",
-        max: "",
-        min: "",
+        value: '',
+        max: '',
+        min: '',
       },
       controlsTimeText: {
-        innerText: "",
+        innerText: '',
       },
       videoElement: {
         currentTime: 10,
@@ -1004,11 +1000,11 @@ describe("VideoEvents", () => {
     expect(toggleShowHideMock).toHaveBeenCalledTimes(1);
     expect(videoEvents.timeUpdated).toBe(true);
     expect(isLiveMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsTimeText.innerText).toBe("00:10 / 01:40");
-    expect(sessionStorage.getItem(STORAGE_KEYS.VIDOE_CURRENT_TIME)).toBe("10");
+    expect(ui.controlsTimeText.innerText).toBe('00:10 / 01:40');
+    expect(sessionStorage.getItem(STORAGE_KEYS.VIDOE_CURRENT_TIME)).toBe('10');
     expect(sliderColorValueMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsProgressRangeInput.value).toBe("10");
-    expect(ui.controlsProgressRangeInput.max).toBe("100");
+    expect(ui.controlsProgressRangeInput.value).toBe('10');
+    expect(ui.controlsProgressRangeInput.max).toBe('100');
 
     Utils.addEventCallback = originalAddEventCallback;
     Utils.toggleWrappers = originalToggleWrappers;
@@ -1017,10 +1013,10 @@ describe("VideoEvents", () => {
     Utils.sliderColorValue = originalSliderColorValue;
   });
 
-  test("timeUpdateEvent - isLive false & duration null & current time null", () => {
+  test('timeUpdateEvent - isLive false & duration null & current time null', () => {
     const ui = {
       controlsTimeText: {
-        innerText: "",
+        innerText: '',
       },
       videoElement: {
         currentTime: null,
@@ -1056,21 +1052,21 @@ describe("VideoEvents", () => {
     expect(toggleWrappersMock).toHaveBeenCalledTimes(1);
     expect(videoEvents.timeUpdated).toBe(true);
     expect(isLiveMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsTimeText.innerText).toBe("");
+    expect(ui.controlsTimeText.innerText).toBe('');
 
     Utils.addEventCallback = originalAddEventCallback;
     Utils.isLive = originalIsLive;
     Utils.toggleWrappers = originalToggleWrappers;
   });
 
-  test("volumeChangeEvent - isMuted true", () => {
+  test('volumeChangeEvent - isMuted true', () => {
     const ui = {
-      volumeSliderValue: "",
+      volumeSliderValue: '',
       controlsVolumeRangeInput: {
-        value: "",
+        value: '',
       },
       controlsVolumeButton: {
-        innerHTML: "",
+        innerHTML: '',
       },
       videoElement: {
         muted: true,
@@ -1097,11 +1093,9 @@ describe("VideoEvents", () => {
     expect(console.log).toHaveBeenCalledTimes(1);
     expect(addEventCallbackMock).toHaveBeenCalledTimes(1);
     expect(sliderColorValueMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsVolumeRangeInput.value).toBe("0");
-    expect(ui.volumeSliderValue).toBe("0");
-    expect(ui.controlsVolumeButton.innerHTML).toBe(
-      Utils.Icons({ type: "volume_off" })
-    );
+    expect(ui.controlsVolumeRangeInput.value).toBe('0');
+    expect(ui.volumeSliderValue).toBe('0');
+    expect(ui.controlsVolumeButton.innerHTML).toBe(Utils.Icons({ type: 'volume_off' }));
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
     expect(setPlayerStateMock).toHaveBeenCalledWith({ isMuted: true });
 
@@ -1109,14 +1103,14 @@ describe("VideoEvents", () => {
     Utils.sliderColorValue = originalSliderColorValue;
   });
 
-  test("volumeChangeEvent - isMuted false volume > 0.5", () => {
+  test('volumeChangeEvent - isMuted false volume > 0.5', () => {
     const ui = {
-      volumeSliderValue: "",
+      volumeSliderValue: '',
       controlsVolumeRangeInput: {
-        value: "",
+        value: '',
       },
       controlsVolumeButton: {
-        innerHTML: "",
+        innerHTML: '',
       },
       videoElement: {
         muted: false,
@@ -1144,11 +1138,9 @@ describe("VideoEvents", () => {
     expect(console.log).toHaveBeenCalledTimes(1);
     expect(addEventCallbackMock).toHaveBeenCalledTimes(1);
     expect(sliderColorValueMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsVolumeRangeInput.value).toBe("0.6");
-    expect(ui.volumeSliderValue).toBe("0.6");
-    expect(ui.controlsVolumeButton.innerHTML).toBe(
-      Utils.Icons({ type: "volume_up" })
-    );
+    expect(ui.controlsVolumeRangeInput.value).toBe('0.6');
+    expect(ui.volumeSliderValue).toBe('0.6');
+    expect(ui.controlsVolumeButton.innerHTML).toBe(Utils.Icons({ type: 'volume_up' }));
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
     expect(setPlayerStateMock).toHaveBeenCalledWith({ isMuted: false });
 
@@ -1156,14 +1148,14 @@ describe("VideoEvents", () => {
     Utils.sliderColorValue = originalSliderColorValue;
   });
 
-  test("volumeChangeEvent - isMuted false volume <= 0.5", () => {
+  test('volumeChangeEvent - isMuted false volume <= 0.5', () => {
     const ui = {
-      volumeSliderValue: "",
+      volumeSliderValue: '',
       controlsVolumeRangeInput: {
-        value: "",
+        value: '',
       },
       controlsVolumeButton: {
-        innerHTML: "",
+        innerHTML: '',
       },
       videoElement: {
         muted: false,
@@ -1191,11 +1183,9 @@ describe("VideoEvents", () => {
     expect(console.log).toHaveBeenCalledTimes(1);
     expect(addEventCallbackMock).toHaveBeenCalledTimes(1);
     expect(sliderColorValueMock).toHaveBeenCalledTimes(1);
-    expect(ui.controlsVolumeRangeInput.value).toBe("0.5");
-    expect(ui.volumeSliderValue).toBe("0.5");
-    expect(ui.controlsVolumeButton.innerHTML).toBe(
-      Utils.Icons({ type: "volume_down" })
-    );
+    expect(ui.controlsVolumeRangeInput.value).toBe('0.5');
+    expect(ui.volumeSliderValue).toBe('0.5');
+    expect(ui.controlsVolumeButton.innerHTML).toBe(Utils.Icons({ type: 'volume_down' }));
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
     expect(setPlayerStateMock).toHaveBeenCalledWith({ isMuted: false });
 
@@ -1203,7 +1193,7 @@ describe("VideoEvents", () => {
     Utils.sliderColorValue = originalSliderColorValue;
   });
 
-  test("waitingEvent", () => {
+  test('waitingEvent', () => {
     const ui = {
       player: {
         getConfig: vi.fn().mockReturnValue({

@@ -1,7 +1,8 @@
-import Hls from "hls.js/dist/hls.min";
-import { ISource } from "./types";
-import { UI } from "./ui";
-import { Utils } from "./utils";
+import Hls from 'hls.js/dist/hls.min';
+
+import { ISource } from './types';
+import { UI } from './ui';
+import { Utils } from './utils';
 
 export class HlsPlayer {
   private ui: UI;
@@ -14,7 +15,7 @@ export class HlsPlayer {
 
   init = async (video: HTMLVideoElement, source: ISource, debug: boolean) => {
     if (!Hls.isSupported()) {
-      console.error("HLS not supported.");
+      console.error('HLS not supported.');
       return Promise.reject();
     }
 
@@ -45,7 +46,7 @@ export class HlsPlayer {
 
     /* c8 ignore start */
     this.player.on(Hls.Events.MEDIA_ATTACHED, () => {
-      this.player.loadSource(source.url ?? "");
+      this.player.loadSource(source.url ?? '');
     });
     /* c8 ignore stop */
 
@@ -91,8 +92,8 @@ export class HlsPlayer {
   };
 
   errorEvent = (e: any, d: any) => {
-    console.log("hls-error", e, d);
-    if (d?.details === "bufferStalledError") {
+    console.log('hls-error', e, d);
+    if (d?.details === 'bufferStalledError') {
       Utils.toggleWrappers({ ui: this.ui, loading: true });
     }
 
