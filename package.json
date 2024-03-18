@@ -25,13 +25,11 @@
   "scripts": {
     "clean": "rm -rf dist build package temp docs",
     "tsc": "tsc -p tsconfig.json",
-    "build": "./scripts/build.js",
-    "build:types": "tsc --build tsconfig-lib.json && api-extractor run --local",
-    "build:all": "yarn clean && yarn build && yarn build:types",
+    "build": "yarn clean && ./scripts/build.js",
     "dev": "./scripts/dev.js",
     "watch": "./scripts/watch.js",
     "test": "vitest",
-    "release": "yarn build:all && npm publish",
+    "release": "yarn build && npm publish",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,md}\""
   },
@@ -48,6 +46,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-unused-imports": "^3.1.0",
     "happy-dom": "^13.9.0",
+    "npm-dts": "^1.3.12",
     "prettier": "^3.2.5",
     "sass": "^1.72.0",
     "string_decoder": "^1.3.0",
@@ -58,7 +57,6 @@
     "vitest-dom": "^0.1.1"
   },
   "dependencies": {
-    "@microsoft/api-extractor": "^7.34.0",
     "hls.js": "1.2.9",
     "mux.js": "5.14.1",
     "object-hash": "^3.0.0",
