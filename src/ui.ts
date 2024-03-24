@@ -285,7 +285,6 @@ export class UI {
     this.addControlsPlayPauseButton(first);
     this.addVolumeControls(first);
     this.addControlsTimeText(first);
-
     this.addControlsRemovePlayback(second);
     this.addControlsPIP(second);
     this.addControlsCloseCaptionButton(second);
@@ -335,7 +334,6 @@ export class UI {
     this.controlsVolumeRangeInput.max = '1';
     this.controlsVolumeRangeInput.step = 'any';
     this.controlsVolumeRangeInput.value = this.volumeSliderValue;
-
     this.controlsVolumeRangeInput.oninput = (e: any) => Utils.onVolumeSliderChange(this, e);
   };
 

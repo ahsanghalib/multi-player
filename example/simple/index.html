@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../dist/index.css" />
+    <title>Multi Player Test</title>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script type="module">
+      import player from '../../dist/index.js';
+      const elem = document.getElementById('container');
+
+      player.init({
+        elem,
+        source: {
+          url: 'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8',
+        },
+        config: {
+          debug: true,
+        },
+      });
+    </script>
+  </body>
+</html>
