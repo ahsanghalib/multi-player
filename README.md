@@ -14,6 +14,31 @@ streams.
 
 Check demo folder. Open in StackBlitz.
 
+```
+player.init({
+    elem: containerRef.current,
+    source: { ...source, startTime: startPosition },
+    contextLogoUrl: '/logo.png',
+    config: { debug: false, castReceiverId: '1110A70D' },
+    onPlayCallback: onVideoResumed,
+    onPauseCallback: onVideoPaused,
+    onPlayerStateChange: setPlayerState,
+    onLeavePIPCallback,
+    onEnterPIPCallback,
+    // callbacks for player events to intercept.
+    eventCallbacks: [
+      {
+        event: 'LOADEDMETADATA',
+        callback: updatePlayTimer
+      },
+      {
+        event: 'TIMEUPDATE',
+        callback: updatePlayTimer
+      }
+    ]
+  }).catch(() => {});
+```
+
 ## Features
 
 It play simple video formats & m3u8 streams & mpd streams, both DRM & NON-DRM.
