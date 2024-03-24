@@ -39,6 +39,62 @@ player.init({
   }).catch(() => {});
 ```
 
+## Install
+
+This repo is available via jsDeliver. If using React or any other library you can add following
+lines in index.html file
+
+```
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.css"
+  />
+  <script
+    src="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.js"
+    type="module"
+  ></script>
+
+```
+
+this will expose `mplayer` object to via windows
+
+```
+window.mplayer.init({...})
+```
+
+or to use directly in html file.
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.css"
+    />
+    <title>Multi Player Test</title>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script type="module">
+      import mplayer from 'https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.js';
+      mplayer.init({
+        elem: document.getElementById('container'),
+        source: {
+          url: 'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8',
+        },
+        config: {
+          debug: true,
+        },
+      });
+    </script>
+  </body>
+</html>
+```
+
 ## Features
 
 It play simple video formats & m3u8 streams & mpd streams, both DRM & NON-DRM.
