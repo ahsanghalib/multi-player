@@ -10,7 +10,7 @@ play all types of streams with minimal configs.
 Purpose of this repo is to help using mulitple media libaries to play different types of video
 streams.
 
-## Install
+## Demo
 
 Check demo folder. Open in StackBlitz.
 
