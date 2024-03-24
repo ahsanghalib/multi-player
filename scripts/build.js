@@ -15,7 +15,7 @@ new Generator({
 build({
   plugins: [sassPlugin()],
   logLevel: 'info',
-  entryPoints: ['src/index.ts', 'src/player.scss'],
+  entryPoints: ['src/index.ts', 'src/index.scss'],
   bundle: true,
   minify: true,
   splitting: true,
