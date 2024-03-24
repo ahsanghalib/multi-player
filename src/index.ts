@@ -23,3 +23,5 @@ const player = {
 };
 
 export { player as default, DRMEnums };
+
+(window as any).mplayer = player;
