@@ -6,7 +6,7 @@ import { Utils } from './utils';
 
 export class ShakaPlayer {
   ui: UI;
-  player: shaka.Player;
+  player: shaka.Player | null = null;
   isSupported = false;
   contentId: string | null = null;
   url?: string = undefined;
@@ -22,7 +22,7 @@ export class ShakaPlayer {
   }
 
   isLive = () => {
-    return this.player.isLive();
+    return this.player?.isLive();
   };
 
   init = async (
@@ -40,7 +40,7 @@ export class ShakaPlayer {
 
       Utils.urlCheck(source);
 
-      await this.player.attach(video);
+      await this.player?.attach(video);
 
       this.ui.player.setPlayerState({ player: PlayersEnum.SHAKA });
 
@@ -52,9 +52,9 @@ export class ShakaPlayer {
         debug ? (Shaka as any).log.Level.DEBUG : (Shaka as any).log.Level.NONE,
       );
 
-      this.player.resetConfiguration();
-      this.player.getNetworkingEngine()?.clearAllResponseFilters();
-      this.player.getNetworkingEngine()?.clearAllRequestFilters();
+      this.player?.resetConfiguration();
+      this.player?.getNetworkingEngine()?.clearAllResponseFilters();
+      this.player?.getNetworkingEngine()?.clearAllRequestFilters();
 
       this.addEvents();
 
@@ -66,7 +66,7 @@ export class ShakaPlayer {
         if (isVidgo) {
           drmConfig = this.basicDrmConfigs(source);
           this.vidgoResponseFilter();
-        } else if (hasHeader) {
+        } else if (hasHeader || source?.drm?.requireBase64Encoding) {
           drmConfig = this.basicDrmConfigs(source, false);
           this.buydrmFairplayRequestFilter(source);
           this.buyDrmFairplayResponseFilter();
@@ -80,7 +80,7 @@ export class ShakaPlayer {
         }
       }
 
-      this.player.configure({
+      this.player?.configure({
         streaming: {
           alwaysStreamText: true,
           autoLowLatencyMode: true,
@@ -96,7 +96,7 @@ export class ShakaPlayer {
       });
 
       this.player
-        .load(this.url ?? '', null, mimeType)
+        ?.load(this.url ?? '', null, mimeType)
         .then(() => {
           video.play().catch(() => console.log());
           video.currentTime = source.startTime ?? -1;
@@ -111,26 +111,26 @@ export class ShakaPlayer {
 
   buydrmWidevineRequestFilter = (source: ISource) => {
     const filter = this.buydrmWidevineRequestFilterImpl(source);
-    this.player.getNetworkingEngine()?.registerRequestFilter(filter);
+    this.player?.getNetworkingEngine()?.registerRequestFilter(filter);
   };
 
   buydrmFairplayRequestFilter = (source: ISource) => {
     const filter = this.buydrmFairplayRequestFilterImpl(source);
-    this.player.getNetworkingEngine()?.registerRequestFilter(filter);
+    this.player?.getNetworkingEngine()?.registerRequestFilter(filter);
   };
 
   buyDrmFairplayResponseFilter = () => {
     const filter = this.buyDrmFairplayResponseFilterImpl();
-    this.player.getNetworkingEngine()?.registerResponseFilter(filter);
+    this.player?.getNetworkingEngine()?.registerResponseFilter(filter);
   };
 
   vidgoResponseFilter = () => {
     const filter = this.vidgoResponseFilterImpl();
-    this.player.getNetworkingEngine()?.registerResponseFilter(filter);
+    this.player?.getNetworkingEngine()?.registerResponseFilter(filter);
   };
 
-  buydrmWidevineRequestFilterImpl = (source: ISource): any => {
-    return (type: shaka.net.NetworkingEngine.RequestType, req: shaka.extern.Request): any => {
+  buydrmWidevineRequestFilterImpl = (source: ISource) => {
+    return (type: Shaka.net.NetworkingEngine.RequestType, req: Shaka.extern.Request) => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         req.headers = {
           ...req.headers,
@@ -141,7 +141,7 @@ export class ShakaPlayer {
   };
 
   buydrmFairplayRequestFilterImpl = (source: ISource) => {
-    return (type: shaka.net.NetworkingEngine.RequestType, req: shaka.extern.Request): any => {
+    return (type: Shaka.net.NetworkingEngine.RequestType, req: Shaka.extern.Request) => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         const originalPayload = new Uint8Array(req.body as any);
         const base64Payload = Shaka.util.Uint8ArrayUtils.toStandardBase64(originalPayload);
@@ -157,7 +157,7 @@ export class ShakaPlayer {
   };
 
   buyDrmFairplayResponseFilterImpl = () => {
-    return (type: shaka.net.NetworkingEngine.RequestType, resp: shaka.extern.Response): any => {
+    return (type: Shaka.net.NetworkingEngine.RequestType, resp: Shaka.extern.Response) => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         let txt = Shaka.util.StringUtils.fromUTF8(resp.data);
         txt = txt.trim();
@@ -170,7 +170,7 @@ export class ShakaPlayer {
   };
 
   vidgoResponseFilterImpl = () => {
-    return (type: shaka.net.NetworkingEngine.RequestType, resp: shaka.extern.Response): any => {
+    return (type: Shaka.net.NetworkingEngine.RequestType, resp: Shaka.extern.Response) => {
       if (type === Shaka.net.NetworkingEngine.RequestType.LICENSE) {
         const jsonResp = JSON.parse(
           String.fromCharCode.apply(null, new Uint8Array(resp.data as any) as any),
@@ -247,7 +247,7 @@ export class ShakaPlayer {
   reload = async () => {
     if (this.url) {
       try {
-        await this.player.load(this.url || '');
+        await this.player?.load(this.url || '');
         return Promise.resolve();
       } catch (e) {
         Utils.fatelErrorRetry(this.ui);
@@ -257,24 +257,27 @@ export class ShakaPlayer {
   };
 
   destroy = async () => {
-    await this.player.detach();
+    await this.player?.detach();
     return Promise.resolve();
   };
 
   addEvents = () => {
     this.removeEvents();
-    this.player.addEventListener(ShakaEventsEnum.BUFFERING, this.shakaBufferingEvent.bind(this));
-    this.player.addEventListener(ShakaEventsEnum.ERROR, this.shakaErrorEvent.bind(this));
-    this.player.addEventListener(
+    this.player?.addEventListener(ShakaEventsEnum.BUFFERING, this.shakaBufferingEvent.bind(this));
+    this.player?.addEventListener(ShakaEventsEnum.ERROR, this.shakaErrorEvent.bind(this));
+    this.player?.addEventListener(
       ShakaEventsEnum.STALL_DETECTED,
       this.shakaStallDetectedEvent.bind(this),
     );
   };
 
   removeEvents = () => {
-    this.player.removeEventListener(ShakaEventsEnum.BUFFERING, this.shakaBufferingEvent.bind(this));
-    this.player.removeEventListener(ShakaEventsEnum.ERROR, this.shakaErrorEvent.bind(this));
-    this.player.removeEventListener(
+    this.player?.removeEventListener(
+      ShakaEventsEnum.BUFFERING,
+      this.shakaBufferingEvent.bind(this),
+    );
+    this.player?.removeEventListener(ShakaEventsEnum.ERROR, this.shakaErrorEvent.bind(this));
+    this.player?.removeEventListener(
       ShakaEventsEnum.STALL_DETECTED,
       this.shakaStallDetectedEvent.bind(this),
     );

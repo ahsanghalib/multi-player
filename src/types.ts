@@ -3,6 +3,7 @@ export interface IDrm {
   licenseUrl: string;
   certicateUrl?: string;
   licenseHeader?: Record<string, string>;
+  requireBase64Encoding?: boolean;
 }
 
 export interface ISource {
