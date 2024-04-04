@@ -4,23 +4,61 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.css"
-    />
+    <link rel="stylesheet" href="../dist/index.css" />
     <title>Multi Player Test</title>
+    <style>
+      .slider-input {
+        appearance: none;
+        -webkit-appearance: none;
+        position: relative;
+        vertical-align: middle;
+        width: 100px;
+        height: 10px;
+        border-radius: 10px;
+        background: hsl(0, 0%, 80%);
+        box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.6);
+        overflow: hidden;
+      }
+
+      .slider-input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        /* creating a custom design */
+        height: 10px;
+        width: 10px;
+        background-color: #fff;
+        border-radius: 50%;
+        border: 2px solid #f50;
+        /*  slider progress trick  */
+        box-shadow: -407px 0 0 400px #f50;
+      }
+
+      .slider-input:active::-webkit-slider-thumb,
+      .slider-input:active::slider-thumb {
+        border: 0px solid hsl(0, 0%, 80%);
+        transition-duration: 0.1;
+      }
+    </style>
   </head>
   <body>
-    <div id="container"></div>
+    <div id="container" style="max-width: 800px; width: 100%; height: 100%"></div>
+    <div class="slider">
+      <input id="slider-input" class="slider-input" type="range" min="0" value="0" max="100" />
+    </div>
+
     <script type="module">
-      import mplayer from 'https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.js';
+      // import mplayer from 'https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1/dist/index.js';
+
+      import mpplayer from '../dist/index.js';
+
       mplayer.init({
         elem: document.getElementById('container'),
         source: {
-          url: 'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8',
+          // url: 'https://stream.ads.ottera.tv/playlist.m3u8?network_id=1044&live=1&avod=1',
+          url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
         },
         config: {
-          debug: true,
+          debug: false,
         },
       });
     </script>
