@@ -3,6 +3,7 @@ import {
   BrowsersEnum,
   EventsEnum,
   ISource,
+  KEYBOARD_CODES,
   MimeTypesEnum,
   SETTINGS_CC_COLORS,
   SETTINGS_CC_OPACITY,
@@ -18,6 +19,7 @@ export class Utils {
   static checkTextTracksTimer: NodeJS.Timeout | null = null;
 
   static async togglePlayPause(ui: UI) {
+    ui.isContainerFocused = true;
     if (ui.player.playerState.isCasting) {
       ui.player.castSender.onPlayPause();
       return;
@@ -54,6 +56,7 @@ export class Utils {
   }
 
   static toggleMuteUnMute(ui: UI) {
+    ui.isContainerFocused = true;
     if (ui.player.playerState.isCasting) {
       ui.player.castSender.onMuteUnMute();
       return;
@@ -89,15 +92,22 @@ export class Utils {
 
       if (ct >= 0 && dt >= 0) {
         if (forward) {
-          video.currentTime = Math.min(ct + 30, dt);
+          const v = Math.min(ct + 30, dt);
+          ui.progressSliderValue = String(v);
+          ui.controlsProgressRangeInput.value = String(v);
+          video.currentTime = v;
           return;
         }
-        video.currentTime = Math.max(0, ct - 15);
+        const v = Math.max(ct - 15, 0);
+        ui.progressSliderValue = String(v);
+        ui.controlsProgressRangeInput.value = String(v);
+        video.currentTime = v;
       }
     }
   }
 
   static seekTime(ui: UI, timeInSeconds: number) {
+    ui.isContainerFocused = true;
     if (ui.player.playerState.isCasting) return;
     if (!ui.player.playerState.loaded) return;
 
@@ -109,6 +119,7 @@ export class Utils {
   }
 
   static togglePip(ui: UI) {
+    ui.isContainerFocused = true;
     if (ui.player.playerState.isCasting) return;
     if (!ui.player.playerState.loaded) return;
 
@@ -125,6 +136,7 @@ export class Utils {
   }
 
   static toggleFullScreen(ui: UI) {
+    ui.isContainerFocused = true;
     if (ui.player.playerState.isCasting) return;
     if (!ui.player.playerState.loaded) return;
 
@@ -162,6 +174,7 @@ export class Utils {
   }
 
   static onEndedReplay(ui: UI) {
+    ui.isContainerFocused = true;
     if (ui.player.playerState.isCasting) {
       ui.player.castSender.onRestartPlay();
       return;
@@ -680,6 +693,40 @@ export class Utils {
       if (idx !== -1) {
         const call = ui.player.eventCallbacks[idx];
         if (typeof call.callback === 'function') call.callback();
+      }
+    }
+  };
+
+  static keyDownEvents = (ui: UI, event: any) => {
+    if (ui.isContainerFocused) {
+      if (event?.code === KEYBOARD_CODES.SPACE_KEY) {
+        this.togglePlayPause(ui);
+      }
+      if (event?.code === KEYBOARD_CODES.ARROW_UP_KEY) {
+        if (ui.player.playerState.isCasting) {
+          ui.player.castSender.onMuteUnMute();
+          return;
+        }
+        const currentVolume = Number(Number(ui.volumeSliderValue).toFixed(1));
+        if (currentVolume < 1) {
+          this.onVolumeSliderChange(ui, { target: { value: currentVolume + 0.1 } });
+        }
+      }
+      if (event?.code === KEYBOARD_CODES.ARROW_DOWN_KEY) {
+        if (ui.player.playerState.isCasting) {
+          ui.player.castSender.onMuteUnMute();
+          return;
+        }
+        const currentVolume = Number(Number(ui.volumeSliderValue).toFixed(1));
+        if (currentVolume > 0) {
+          this.onVolumeSliderChange(ui, { target: { value: currentVolume - 0.1 } });
+        }
+      }
+      if (event?.code === KEYBOARD_CODES.ARROW_LEFT_KEY) {
+        this.toggleForwardRewind(ui, false);
+      }
+      if (event?.code === KEYBOARD_CODES.ARROW_RIGHT_KEY) {
+        this.toggleForwardRewind(ui, true);
       }
     }
   };

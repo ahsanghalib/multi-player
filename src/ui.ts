@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { width } from 'happy-dom/lib/PropertySymbol';
 import { Player } from './player';
 import {
   SETTINGS_CC_COLORS,
@@ -62,6 +63,8 @@ export class UI {
   isCastingUIAdded = false;
 
   optionsMenuState = SETTINGS_SUB_MENU.NONE;
+  containerFocusCounter = 0;
+  isContainerFocused = false;
 
   constructor() {
     /* don't need any initialization here */
@@ -71,6 +74,16 @@ export class UI {
     this.player = player;
     this.container = elem;
     this.container.style.backgroundColor = '#000';
+    this.container.tabIndex = -1;
+    // this.container.onfocus = () => {
+    //   if (this.containerFocusCounter === 1) this.isContainerFocused = true;
+    //   this.containerFocusCounter += 1;
+    //   console.log('container onfocus');
+    // };
+    this.container.onblur = () => {
+      this.isContainerFocused = false;
+      console.log('container onblur');
+    };
     this.contextLogoUrl = contextLogoUrl;
     this.addContainerWrapper();
     if (!this.isElementsAdded) this.addElements();
@@ -334,6 +347,10 @@ export class UI {
     this.controlsVolumeRangeInput.max = '1';
     this.controlsVolumeRangeInput.step = 'any';
     this.controlsVolumeRangeInput.value = this.volumeSliderValue;
+    this.controlsVolumeRangeInput.onclick = () => {
+      this.container.focus();
+      this.isContainerFocused = true;
+    };
     this.controlsVolumeRangeInput.oninput = (e: any) => Utils.onVolumeSliderChange(this, e);
   };
 
@@ -361,6 +378,10 @@ export class UI {
     this.controlsProgressRangeInput.step = 'any';
     this.controlsProgressRangeInput.value = this.progressSliderValue;
 
+    this.controlsProgressRangeInput.onclick = () => {
+      this.container.focus();
+      this.isContainerFocused = true;
+    };
     this.controlsProgressRangeInput.oninput = (e: any) => Utils.onVideoProgressChange(this, e);
   };
 
@@ -917,6 +938,10 @@ export class UI {
     this.videoElement.setAttribute('airplay', 'allow');
     this.videoElement.oncontextmenu = this.videoElementContextMenu.bind(this);
     this.videoElement.onclick = async () => {
+      if (!this.isContainerFocused) {
+        this.isContainerFocused = true;
+        return;
+      }
       await Utils.togglePlayPause(this);
     };
   };

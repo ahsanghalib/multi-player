@@ -359,6 +359,7 @@ export class Player {
     document.removeEventListener('fullscreenchange', this.fullScreenEvent.bind(this, this.ui));
     document.removeEventListener('enterpictureinpicture', this.enterPIPEvent.bind(this, this.ui));
     document.removeEventListener('leavepictureinpicture', this.leavePIPEvent.bind(this, this.ui));
+    document.removeEventListener('keydown', Utils.keyDownEvents.bind(this, this.ui));
     clearInterval(this.stateTimer);
   };
 
@@ -434,6 +435,7 @@ export class Player {
     document.addEventListener('fullscreenchange', this.fullScreenEvent.bind(this, this.ui));
     document.addEventListener('enterpictureinpicture', this.enterPIPEvent.bind(this, this.ui));
     document.addEventListener('leavepictureinpicture', this.leavePIPEvent.bind(this, this.ui));
+    document.addEventListener('keydown', Utils.keyDownEvents.bind(this, this.ui));
     this.__stateUpdater();
   };
 

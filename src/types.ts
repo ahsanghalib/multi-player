@@ -175,3 +175,12 @@ export enum STORAGE_KEYS {
   IS_FULL_SCREEN = 'isFullScreen',
   VIDOE_CURRENT_TIME = 'videoCurrentTime',
 }
+
+export enum KEYBOARD_CODES {
+  SPACE_KEY = 'Space',
+  ARROW_UP_KEY = 'ArrowUp',
+  ARROW_DOWN_KEY = 'ArrowDown',
+  ARROW_LEFT_KEY = 'ArrowLeft',
+  ARROW_RIGHT_KEY = 'ArrowRight',
+  MUTE_KEY = 'KeyM',
+}
