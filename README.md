@@ -73,14 +73,14 @@ or to use directly in html file.
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.css"
+      href="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player/dist/index.css"
     />
     <title>Multi Player Test</title>
   </head>
   <body>
     <div id="container"></div>
     <script type="module">
-      import mplayer from 'https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.js';
+      import mplayer from 'https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player/dist/index.js';
       mplayer.init({
         elem: document.getElementById('container'),
         source: {
