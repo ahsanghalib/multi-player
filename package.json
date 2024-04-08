@@ -26,7 +26,7 @@
     "clean": "rm -rf dist build package temp docs",
     "tsc": "tsc -p tsconfig.json",
     "build": "yarn clean && ./scripts/build.js",
-    "dev": "serve demo",
+    "dev": "serve .",
     "dev:lib": "./scripts/dev.js",
     "watch": "./scripts/watch.js",
     "test": "vitest",
