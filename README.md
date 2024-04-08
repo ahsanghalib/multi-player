@@ -47,10 +47,10 @@ lines in index.html file
 ```
   <link
     rel="stylesheet"
-    href="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.css"
+    href="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player/dist/index.css"
   />
   <script
-    src="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1.0/dist/index.js"
+    src="https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player/dist/index.js"
     type="module"
   ></script>
 
