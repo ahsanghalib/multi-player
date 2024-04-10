@@ -593,7 +593,6 @@ declare module 'multi-players/ui' {
       isElementsAdded: boolean;
       isCastingUIAdded: boolean;
       optionsMenuState: SETTINGS_SUB_MENU;
-      containerFocusCounter: number;
       isContainerFocused: boolean;
       constructor();
       setContainer: (player: Player, elem: HTMLDivElement, contextLogoUrl?: string, videoPosterUrl?: string) => void;
