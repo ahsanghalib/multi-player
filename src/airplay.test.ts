@@ -7,20 +7,20 @@ class AirplayTestClass extends AirPlay {
   }
 
   webkitPlaybackTargetAvailabilityChangedEventExtended = (
-    airplay: HTMLDivElement,
-    video: any,
     event: any,
+    airplay?: HTMLDivElement,
+    video?: any,
   ) => {
     this.webkitPlaybackTargetAvailabilityChangedEvent(airplay, video)(event);
   };
 
   webkitCurrentPlaybackTargetIsWirelessChangedEventExtended = (
-    airplay: HTMLDivElement,
     isLive: boolean,
-    volume: HTMLDivElement,
     event: any,
+    airplay?: HTMLDivElement,
+    volume?: HTMLDivElement,
   ) => {
-    this.webkitCurrentPlaybackTargetIsWirelessChangedEvent(airplay, isLive, volume)(event);
+    this.webkitCurrentPlaybackTargetIsWirelessChangedEvent(isLive, airplay, volume)(event);
   };
 }
 
@@ -101,9 +101,9 @@ describe('AirPlay', () => {
     };
 
     airplay.webkitPlaybackTargetAvailabilityChangedEventExtended(
+      eventMock,
       airplayDiv as any,
       videoMock,
-      eventMock,
     );
 
     expect(airplayDivOnClickMock).toHaveBeenCalledTimes(0);
@@ -132,9 +132,9 @@ describe('AirPlay', () => {
     };
 
     airplay.webkitPlaybackTargetAvailabilityChangedEventExtended(
+      eventMock,
       airplayDiv as any,
       videoMock,
-      eventMock,
     );
 
     expect(airplayDivClassListAddMock).toHaveBeenCalledTimes(1);
@@ -171,10 +171,10 @@ describe('AirPlay', () => {
     Utils.toggleShowHide = toggleShowHideMock;
 
     airplay.webkitCurrentPlaybackTargetIsWirelessChangedEventExtended(
-      airplayDiv as any,
       true,
-      volumeDiv as any,
       eventMock,
+      airplayDiv as any,
+      volumeDiv as any,
     );
 
     expect(airplayDiv.innerHTML).toEqual(Utils.Icons({ type: 'airplay_exit' }));
@@ -216,10 +216,10 @@ describe('AirPlay', () => {
     Utils.toggleShowHide = toggleShowHideMock;
 
     airplay.webkitCurrentPlaybackTargetIsWirelessChangedEventExtended(
-      airplayDiv as any,
       true,
-      volumeDiv as any,
       eventMock,
+      airplayDiv as any,
+      volumeDiv as any,
     );
 
     expect(airplayDiv.innerHTML).toEqual(Utils.Icons({ type: 'airplay_enter' }));

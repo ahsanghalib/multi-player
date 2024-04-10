@@ -80,7 +80,7 @@ describe('UI Class', () => {
 
     expect(ui.player).toBe(player);
     expect(ui.container).toBe(elem);
-    expect(ui.container.style.backgroundColor).toBe('#000');
+    expect(ui.container?.style.backgroundColor).toBe('#000');
     expect(ui.contextLogoUrl).toBe('');
     expect(addContainerWrapperMock).toHaveBeenCalledTimes(1);
     expect(addElementsMock).toHaveBeenCalledTimes(1);
@@ -138,7 +138,7 @@ describe('UI Class', () => {
     ui.removeUI();
 
     expect(ui.isElementsAdded).toBe(false);
-    expect(ui.mainWrapper.remove).toHaveBeenCalledTimes(0);
+    expect(ui.mainWrapper?.remove).toHaveBeenCalledTimes(0);
   });
 
   test('removeUI - isElementsAdded true', () => {
@@ -153,7 +153,7 @@ describe('UI Class', () => {
     ui.removeUI();
 
     expect(ui.isElementsAdded).toBe(false);
-    expect(ui.mainWrapper.remove).toHaveBeenCalledTimes(1);
+    expect(ui.mainWrapper?.remove).toHaveBeenCalledTimes(1);
   });
 
   test('removeCastingUIElements - isCastingUIAdded false', () => {
@@ -170,7 +170,7 @@ describe('UI Class', () => {
 
     expect(ui.isElementsAdded).toBe(false);
     expect(ui.isCastingUIAdded).toBe(false);
-    expect(ui.castingWrapper.remove).toHaveBeenCalledTimes(0);
+    expect(ui.castingWrapper?.remove).toHaveBeenCalledTimes(0);
   });
 
   test('removeCastingUIElements - isCastingUIAdded true', () => {
@@ -187,7 +187,7 @@ describe('UI Class', () => {
 
     expect(ui.isElementsAdded).toBe(false);
     expect(ui.isCastingUIAdded).toBe(false);
-    expect(ui.castingWrapper.remove).toHaveBeenCalledTimes(1);
+    expect(ui.castingWrapper?.remove).toHaveBeenCalledTimes(1);
   });
 
   test('removeAllUI - isElementsAdded false', () => {
@@ -204,7 +204,7 @@ describe('UI Class', () => {
 
     expect(ui.isElementsAdded).toBe(false);
     expect(ui.isCastingUIAdded).toBe(false);
-    expect(ui.containerWrapper.remove).toHaveBeenCalledTimes(0);
+    expect(ui.containerWrapper?.remove).toHaveBeenCalledTimes(0);
   });
 
   test('removeAllUI - isElementsAdded true', () => {
@@ -221,7 +221,7 @@ describe('UI Class', () => {
 
     expect(ui.isElementsAdded).toBe(false);
     expect(ui.isCastingUIAdded).toBe(false);
-    expect(ui.containerWrapper.remove).toHaveBeenCalledTimes(1);
+    expect(ui.containerWrapper?.remove).toHaveBeenCalledTimes(1);
   });
 
   test('create', () => {
@@ -262,9 +262,9 @@ describe('UI Class', () => {
     ui.addContainerWrapper();
 
     expect(ui.containerWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.containerWrapper.className).toBe('wrapper');
-    expect(ui.containerWrapper.id).toBe('media-player-main-wrappper');
-    expect(ui.containerWrapper.parentElement).toBe(ui.container);
+    expect(ui.containerWrapper?.className).toBe('wrapper');
+    expect(ui.containerWrapper?.id).toBe('media-player-main-wrappper');
+    expect(ui.containerWrapper?.parentElement).toBe(ui.container);
   });
 
   test('addMainWrapper', () => {
@@ -275,8 +275,8 @@ describe('UI Class', () => {
     ui.addMainWrapper();
 
     expect(ui.mainWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.mainWrapper.className).toBe('media-player');
-    expect(ui.mainWrapper.parentElement).toBe(ui.containerWrapper);
+    expect(ui.mainWrapper?.className).toBe('media-player');
+    expect(ui.mainWrapper?.parentElement).toBe(ui.containerWrapper);
   });
 
   test('addMediaDiv', () => {
@@ -287,8 +287,8 @@ describe('UI Class', () => {
     ui.addMediaDiv();
 
     expect(ui.media).toBeInstanceOf(HTMLDivElement);
-    expect(ui.media.className).toBe('media');
-    expect(ui.media.parentElement).toBe(ui.wrapper);
+    expect(ui.media?.className).toBe('media');
+    expect(ui.media?.parentElement).toBe(ui.wrapper);
   });
 
   test('addWrapperDiv', () => {
@@ -299,8 +299,8 @@ describe('UI Class', () => {
     ui.addWrapperDiv();
 
     expect(ui.wrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.wrapper.className).toBe('wrapper');
-    expect(ui.wrapper.parentElement).toBe(ui.mainWrapper);
+    expect(ui.wrapper?.className).toBe('wrapper');
+    expect(ui.wrapper?.parentElement).toBe(ui.mainWrapper);
   });
 
   test('addAspectRatio', () => {
@@ -432,8 +432,8 @@ describe('UI Class', () => {
     ui.addCloseCaptionContainer();
 
     expect(ui.closeCaptionsContainer).toBeInstanceOf(HTMLDivElement);
-    expect(ui.closeCaptionsContainer.className).toBe('close-captions-container');
-    expect(ui.closeCaptionsContainer.parentElement).toBe(ui.wrapper);
+    expect(ui.closeCaptionsContainer?.className).toBe('close-captions-container');
+    expect(ui.closeCaptionsContainer?.parentElement).toBe(ui.wrapper);
   });
 
   test('addLoaderWrapper', () => {
@@ -444,8 +444,8 @@ describe('UI Class', () => {
     ui.addLoaderWrapper();
 
     expect(ui.loaderWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.loaderWrapper.className).toBe('loader-wrapper');
-    expect(ui.loaderWrapper.parentElement).toBe(ui.wrapper);
+    expect(ui.loaderWrapper?.className).toBe('loader-wrapper');
+    expect(ui.loaderWrapper?.parentElement).toBe(ui.wrapper);
   });
 
   test('addEndedWrapper', () => {
@@ -459,13 +459,13 @@ describe('UI Class', () => {
     ui.addEndedWrapper();
 
     expect(ui.endedWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.endedWrapper.className).toBe('ended-wrapper');
-    expect(ui.endedWrapper.parentElement).toBe(ui.wrapper);
+    expect(ui.endedWrapper?.className).toBe('ended-wrapper');
+    expect(ui.endedWrapper?.parentElement).toBe(ui.wrapper);
     expect(ui.replayButton).toBeInstanceOf(HTMLDivElement);
-    expect(ui.replayButton.className).toBe('icons');
-    expect(ui.replayButton.parentElement).toBe(ui.endedWrapper);
+    expect(ui.replayButton?.className).toBe('icons');
+    expect(ui.replayButton?.parentElement).toBe(ui.endedWrapper);
 
-    fireEvent.click(ui.endedWrapper);
+    if (ui.endedWrapper) fireEvent.click(ui.endedWrapper);
 
     expect(onEndedReplayMock).toHaveBeenCalledTimes(1);
 
@@ -489,8 +489,8 @@ describe('UI Class', () => {
     ui.addControlsWrapper();
 
     expect(ui.controlsWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsWrapper.className).toBe('controls-wrapper none');
-    expect(ui.controlsWrapper.parentElement).toBe(ui.wrapper);
+    expect(ui.controlsWrapper?.className).toBe('controls-wrapper none');
+    expect(ui.controlsWrapper?.parentElement).toBe(ui.wrapper);
 
     expect(addControlsPlayPauseButtonMock).toHaveBeenCalledTimes(1);
     expect(addVolumeControlsMock).toHaveBeenCalledTimes(1);
@@ -513,10 +513,10 @@ describe('UI Class', () => {
     ui.addControlsPlayPauseButton(parent);
 
     expect(ui.controlsPlayPauseButton).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsPlayPauseButton.className).toBe('icons');
-    expect(ui.controlsPlayPauseButton.parentElement).toBe(parent);
+    expect(ui.controlsPlayPauseButton?.className).toBe('icons');
+    expect(ui.controlsPlayPauseButton?.parentElement).toBe(parent);
 
-    fireEvent.click(ui.controlsPlayPauseButton);
+    if (ui.controlsPlayPauseButton) fireEvent.click(ui.controlsPlayPauseButton);
 
     expect(togglePlayPauseMock).toHaveBeenCalledTimes(1);
 
@@ -537,25 +537,26 @@ describe('UI Class', () => {
     ui.addVolumeControls(parent);
 
     expect(ui.controlsVolumeWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsVolumeWrapper.className).toBe('vertical-slider flex');
-    expect(ui.controlsVolumeWrapper.parentElement).toBe(parent);
+    expect(ui.controlsVolumeWrapper?.className).toBe('vertical-slider flex');
+    expect(ui.controlsVolumeWrapper?.parentElement).toBe(parent);
 
     expect(ui.controlsVolumeButton).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsVolumeButton.className).toBe('icons');
-    expect(ui.controlsVolumeButton.parentElement).toBe(ui.controlsVolumeWrapper);
+    expect(ui.controlsVolumeButton?.className).toBe('icons');
+    expect(ui.controlsVolumeButton?.parentElement).toBe(ui.controlsVolumeWrapper);
     expect(ui.controlsVolumeRangeInput).toBeInstanceOf(HTMLInputElement);
-    expect(ui.controlsVolumeRangeInput.type).toBe('range');
-    expect(ui.controlsVolumeRangeInput.min).toBe('0');
-    expect(ui.controlsVolumeRangeInput.max).toBe('1');
-    expect(ui.controlsVolumeRangeInput.step).toBe('any');
-    expect(ui.controlsVolumeRangeInput.value).toBe(ui.volumeSliderValue);
+    expect(ui.controlsVolumeRangeInput?.type).toBe('range');
+    expect(ui.controlsVolumeRangeInput?.min).toBe('0');
+    expect(ui.controlsVolumeRangeInput?.max).toBe('1');
+    expect(ui.controlsVolumeRangeInput?.step).toBe('any');
+    expect(ui.controlsVolumeRangeInput?.value).toBe(ui.volumeSliderValue);
 
-    fireEvent.click(ui.controlsVolumeButton);
+    if (ui.controlsVolumeButton) fireEvent.click(ui.controlsVolumeButton);
     expect(toggleMuteUnMuteMock).toHaveBeenCalledTimes(1);
 
-    fireEvent.input(ui.controlsVolumeRangeInput, { target: { value: '0.5' } });
+    if (ui.controlsVolumeRangeInput)
+      fireEvent.input(ui.controlsVolumeRangeInput, { target: { value: '0.5' } });
     expect(onVolumeSliderChange).toHaveBeenCalledTimes(1);
-    expect(ui.controlsVolumeRangeInput.value).toBe('0.5');
+    expect(ui.controlsVolumeRangeInput?.value).toBe('0.5');
 
     Utils.onVolumeSliderChange = originalOnVolumeSliderChange;
     Utils.toggleMuteUnMute = originalToggleMuteUnMute;
@@ -569,8 +570,8 @@ describe('UI Class', () => {
     ui.addControlsTimeText(parent);
 
     expect(ui.controlsTimeText).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsTimeText.className).toBe('time-text');
-    expect(ui.controlsTimeText.parentElement).toBe(parent);
+    expect(ui.controlsTimeText?.className).toBe('time-text');
+    expect(ui.controlsTimeText?.parentElement).toBe(parent);
   });
 
   test('addControlsProgressBar', () => {
@@ -584,21 +585,22 @@ describe('UI Class', () => {
     ui.addControlsProgressBar();
 
     expect(ui.controlsProgressBar).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsProgressBar.className).toBe('video-progress none');
-    expect(ui.controlsProgressBar.parentElement).toBe(ui.controlsWrapper);
+    expect(ui.controlsProgressBar?.className).toBe('video-progress none');
+    expect(ui.controlsProgressBar?.parentElement).toBe(ui.controlsWrapper);
     expect(ui.controlsProgressRangeInput).toBeInstanceOf(HTMLInputElement);
-    expect(ui.controlsProgressRangeInput.type).toBe('range');
-    expect(ui.controlsProgressRangeInput.min).toBe('0');
-    expect(ui.controlsProgressRangeInput.max).toBe('0');
-    expect(ui.controlsProgressRangeInput.step).toBe('any');
-    expect(ui.controlsProgressRangeInput.value).toBe(ui.progressSliderValue);
+    expect(ui.controlsProgressRangeInput?.type).toBe('range');
+    expect(ui.controlsProgressRangeInput?.min).toBe('0');
+    expect(ui.controlsProgressRangeInput?.max).toBe('0');
+    expect(ui.controlsProgressRangeInput?.step).toBe('any');
+    expect(ui.controlsProgressRangeInput?.value).toBe(ui.progressSliderValue);
 
-    fireEvent.input(ui.controlsProgressRangeInput, {
-      target: { value: '0.5' },
-    });
+    if (ui.controlsProgressRangeInput)
+      fireEvent.input(ui.controlsProgressRangeInput, {
+        target: { value: '0.5' },
+      });
 
     expect(onVideoProgressChange).toHaveBeenCalledTimes(1);
-    expect(ui.controlsProgressRangeInput.value).toBe('0.5');
+    expect(ui.controlsProgressRangeInput?.value).toBe('0.5');
 
     Utils.onVideoProgressChange = originalOnVideoProgressChange;
   });
@@ -611,8 +613,8 @@ describe('UI Class', () => {
     ui.addControlsPIP(parent);
 
     expect(ui.controlsPIP).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsPIP.className).toBe('icons none');
-    expect(ui.controlsPIP.parentElement).toBe(parent);
+    expect(ui.controlsPIP?.className).toBe('icons none');
+    expect(ui.controlsPIP?.parentElement).toBe(parent);
   });
 
   test('addControlsRemovePlayback', () => {
@@ -623,8 +625,8 @@ describe('UI Class', () => {
     ui.addControlsRemovePlayback(parent);
 
     expect(ui.controlsRemotePlaybackButton).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsRemotePlaybackButton.className).toBe('icons none');
-    expect(ui.controlsRemotePlaybackButton.parentElement).toBe(parent);
+    expect(ui.controlsRemotePlaybackButton?.className).toBe('icons none');
+    expect(ui.controlsRemotePlaybackButton?.parentElement).toBe(parent);
   });
 
   test('addControlsCloseCaptionButton', () => {
@@ -637,14 +639,14 @@ describe('UI Class', () => {
     ui.addControlsCloseCaptionButton(parent);
 
     expect(ui.controlsCloseCaptionButton).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsCloseCaptionButton.className).toBe('icons none');
-    expect(ui.controlsCloseCaptionButton.parentElement).toBe(parent);
+    expect(ui.controlsCloseCaptionButton?.className).toBe('icons none');
+    expect(ui.controlsCloseCaptionButton?.parentElement).toBe(parent);
 
-    fireEvent.click(ui.controlsCloseCaptionButton);
+    if (ui.controlsCloseCaptionButton) fireEvent.click(ui.controlsCloseCaptionButton);
     expect(addControlsCloseCaptionMenuMock).toHaveBeenCalledTimes(1);
     expect(ui.optionsMenuState).toBe(SETTINGS_SUB_MENU.CC);
 
-    fireEvent.click(ui.controlsCloseCaptionButton);
+    if (ui.controlsCloseCaptionButton) fireEvent.click(ui.controlsCloseCaptionButton);
     expect(addControlsCloseCaptionMenuMock).toHaveBeenCalledTimes(2);
     expect(ui.optionsMenuState).toBe(SETTINGS_SUB_MENU.NONE);
   });
@@ -690,29 +692,29 @@ describe('UI Class', () => {
 
     ui.addControlsCloseCaptionMenu();
 
-    expect(ui.optionsMenuWrapper.innerHTML).not.toBe('');
+    expect(ui.optionsMenuWrapper?.innerHTML).not.toBe('');
     expect(toggleShowHideMock).toHaveBeenCalledTimes(1);
-    expect(ui.optionsMenuWrapper.style.right).toBe('70px');
-    expect(ui.optionsMenuWrapper.childElementCount).toBe(2);
-    expect(ui.optionsMenuWrapper.children[0].innerHTML).toBe(
+    expect(ui.optionsMenuWrapper?.style.right).toBe('70px');
+    expect(ui.optionsMenuWrapper?.childElementCount).toBe(2);
+    expect(ui.optionsMenuWrapper?.children[0].innerHTML).toBe(
       '<div class="head-item">Close Caption</div>',
     );
-    expect(ui.optionsMenuWrapper.children[1].childElementCount).toBe(2);
+    expect(ui.optionsMenuWrapper?.children[1].childElementCount).toBe(2);
 
-    const offCC = getByRole(ui.optionsMenuWrapper, 'cc-off');
-    const engCC = getByRole(ui.optionsMenuWrapper, 'cc-0');
+    const offCC = ui.optionsMenuWrapper ? getByRole(ui.optionsMenuWrapper, 'cc-off') : undefined;
+    const engCC = ui.optionsMenuWrapper ? getByRole(ui.optionsMenuWrapper, 'cc-0') : undefined;
 
-    expect(offCC.innerHTML).toBe('<div class="menu-select"></div><div>Off</div>');
-    expect(engCC.innerHTML).toBe('<div></div><div><div>English</div></div>');
-    expect(offCC.firstElementChild?.className).toBe('menu-select');
-    expect(engCC.firstElementChild?.className).toBe('');
+    expect(offCC?.innerHTML).toBe('<div class="menu-select"></div><div>Off</div>');
+    expect(engCC?.innerHTML).toBe('<div></div><div><div>English</div></div>');
+    expect(offCC?.firstElementChild?.className).toBe('menu-select');
+    expect(engCC?.firstElementChild?.className).toBe('');
 
-    fireEvent.click(offCC);
+    if (offCC) fireEvent.click(offCC);
 
     expect(setSelectedTextTrackMock).toHaveBeenCalledTimes(1);
     expect(sessionStorage.removeItem).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(engCC);
+    if (engCC) fireEvent.click(engCC);
 
     expect(setSelectedTextTrackMock).toHaveBeenCalledTimes(2);
     expect(sessionStorage.removeItem).toHaveBeenCalledTimes(1);
@@ -732,22 +734,22 @@ describe('UI Class', () => {
     ui.addControlsSettingsButton(parent);
 
     expect(ui.controlsSettingsButton).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsSettingsButton.className).toBe('icons');
-    expect(ui.controlsSettingsButton.parentElement).toBe(parent);
+    expect(ui.controlsSettingsButton?.className).toBe('icons');
+    expect(ui.controlsSettingsButton?.parentElement).toBe(parent);
 
     ui.optionsMenuState = SETTINGS_SUB_MENU.NONE;
 
-    fireEvent.click(ui.controlsSettingsButton);
+    if (ui.controlsSettingsButton) fireEvent.click(ui.controlsSettingsButton);
     expect(addControlsSetingsMenuMock).toHaveBeenCalledTimes(1);
     expect(ui.optionsMenuState).toBe(SETTINGS_SUB_MENU.SETINGS);
 
     ui.optionsMenuState = SETTINGS_SUB_MENU.CC;
 
-    fireEvent.click(ui.controlsSettingsButton);
+    if (ui.controlsSettingsButton) fireEvent.click(ui.controlsSettingsButton);
     expect(addControlsSetingsMenuMock).toHaveBeenCalledTimes(2);
     expect(ui.optionsMenuState).toBe(SETTINGS_SUB_MENU.SETINGS);
 
-    fireEvent.click(ui.controlsSettingsButton);
+    if (ui.controlsSettingsButton) fireEvent.click(ui.controlsSettingsButton);
     expect(addControlsSetingsMenuMock).toHaveBeenCalledTimes(3);
     expect(ui.optionsMenuState).toBe(SETTINGS_SUB_MENU.NONE);
   });
@@ -1067,10 +1069,10 @@ describe('UI Class', () => {
     ui.addControlsFullScreen(parent);
 
     expect(ui.controlsFullScreen).toBeInstanceOf(HTMLDivElement);
-    expect(ui.controlsFullScreen.className).toBe('icons');
-    expect(ui.controlsFullScreen.parentElement).toBe(parent);
+    expect(ui.controlsFullScreen?.className).toBe('icons');
+    expect(ui.controlsFullScreen?.parentElement).toBe(parent);
 
-    fireEvent.click(ui.controlsFullScreen);
+    if (ui.controlsFullScreen) fireEvent.click(ui.controlsFullScreen);
 
     expect(toggleFullScreenMock).toHaveBeenCalledTimes(1);
 
@@ -1085,8 +1087,8 @@ describe('UI Class', () => {
     ui.addContextMenu();
 
     expect(ui.contextMenu).toBeInstanceOf(HTMLDivElement);
-    expect(ui.contextMenu.className).toBe('context-menu');
-    expect(ui.contextMenu.parentElement).toBe(ui.mainWrapper);
+    expect(ui.contextMenu?.className).toBe('context-menu');
+    expect(ui.contextMenu?.parentElement).toBe(ui.mainWrapper);
   });
 
   test('addVideoElement', () => {
@@ -1099,6 +1101,8 @@ describe('UI Class', () => {
 
     ui.addVideoElement();
 
+    ui.isContainerFocused = true;
+
     expect(ui.videoElement).toBeInstanceOf(HTMLVideoElement);
     expect(ui.videoElement).toHaveAttribute('preload', 'metadata');
     expect(ui.videoElement).toHaveAttribute('playsinline', 'true');
@@ -1106,9 +1110,9 @@ describe('UI Class', () => {
     expect(ui.videoElement).toHaveAttribute('webkit-playsinline', 'true');
     expect(ui.videoElement).toHaveAttribute('x-webkit-airplay', 'allow');
     expect(ui.videoElement).toHaveAttribute('airplay', 'allow');
-    expect(ui.videoElement.parentElement).toBe(ui.media);
+    expect(ui.videoElement?.parentElement).toBe(ui.media);
 
-    fireEvent.click(ui.videoElement);
+    if (ui.videoElement) fireEvent.click(ui.videoElement);
 
     expect(togglePlayPauseMock).toHaveBeenCalledTimes(1);
 
@@ -1124,7 +1128,7 @@ describe('UI Class', () => {
 
     ui.removeVideoPlayer();
 
-    expect(ui.videoElement.remove).toHaveBeenCalledTimes(1);
+    expect(ui.videoElement?.remove).toHaveBeenCalledTimes(1);
   });
 
   test('videoElementContextMenu', () => {
@@ -1148,8 +1152,8 @@ describe('UI Class', () => {
     ui.addOptionsMenuWrapper();
 
     expect(ui.optionsMenuWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.optionsMenuWrapper.className).toBe('options-menu none');
-    expect(ui.optionsMenuWrapper.parentElement).toBe(ui.wrapper);
+    expect(ui.optionsMenuWrapper?.className).toBe('options-menu none');
+    expect(ui.optionsMenuWrapper?.parentElement).toBe(ui.wrapper);
   });
 
   test('addErrorWrapper', () => {
@@ -1160,8 +1164,8 @@ describe('UI Class', () => {
     ui.addErrorWrapper();
 
     expect(ui.errorWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.errorWrapper.className).toBe('error-wrapper');
-    expect(ui.errorWrapper.parentElement).toBe(ui.wrapper);
+    expect(ui.errorWrapper?.className).toBe('error-wrapper');
+    expect(ui.errorWrapper?.parentElement).toBe(ui.wrapper);
   });
 
   test('addContentNotAvailableWrapper', () => {
@@ -1172,8 +1176,8 @@ describe('UI Class', () => {
     ui.addContentNotAvailableWrapper();
 
     expect(ui.contentNotAvailableWrapper).toBeInstanceOf(HTMLDivElement);
-    expect(ui.contentNotAvailableWrapper.className).toBe('content-not-available');
-    expect(ui.contentNotAvailableWrapper.parentElement).toBe(ui.wrapper);
+    expect(ui.contentNotAvailableWrapper?.className).toBe('content-not-available');
+    expect(ui.contentNotAvailableWrapper?.parentElement).toBe(ui.wrapper);
   });
 
   test('getVideoElement', () => {

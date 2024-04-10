@@ -16,7 +16,9 @@ export class NativePlayer {
   };
 
   destroy = async () => {
-    this.ui.videoElement.src = '';
-    this.ui.videoElement.load();
+    if (this.ui.videoElement) {
+      this.ui.videoElement.src = '';
+      this.ui.videoElement.load();
+    }
   };
 }

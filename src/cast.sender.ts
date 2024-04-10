@@ -7,14 +7,14 @@ const MESSAGE_NAMESPACE = 'urn:x-cast:com.multiplayer.app';
 export class CastingSender {
   ui: UI;
   androidReceiverCompatible = false;
-  castReceiverId: string | null = null;
+  castReceiverId?: string | null = null;
   hasReceivers = false;
   session: any = null;
   receiverName = '';
   apiReady = false;
   isCasting = false;
-  seekTime = -1;
-  playerCastingButton!: HTMLDivElement;
+  seekTime?: number = -1;
+  playerCastingButton?: HTMLDivElement;
   isTextTrackVisible = false;
   loaded = false;
   stoppedForced = false;
@@ -50,7 +50,7 @@ export class CastingSender {
 
     this.playerCastingButton = this.ui.controlsRemotePlaybackButton;
 
-    this.castReceiverId = this.ui.player.config.castReceiverId;
+    this.castReceiverId = this.ui.player?.config.castReceiverId;
 
     if (!this.loaded) return;
     if (!this.castReceiverId) return;
@@ -111,7 +111,8 @@ export class CastingSender {
 
   onReceiverStatusChange = (availability: any) => {
     this.hasReceivers = availability === 'available';
-    if (this.ui.player.isInitialized) {
+    if (this.ui.player?.isInitialized) {
+      if (!this.playerCastingButton) return;
       if (this.hasReceivers) {
         this.playerCastingButton.innerHTML = Utils.Icons({
           type: 'cast_enter',
@@ -136,28 +137,30 @@ export class CastingSender {
       // discounting...
     }
 
-    this.seekTime = this.ui.player.isInitialized ? this.ui.getVideoElement().currentTime : -1;
+    this.seekTime = this.ui.player?.isInitialized ? this.ui.getVideoElement()?.currentTime : -1;
     this.isCasting = connected;
     this.receiverName = connected ? this.session.receiver.friendlyName : '';
 
     if (this.isCasting) {
-      this.playerCastingButton.innerHTML = Utils.Icons({
-        type: 'cast_exit',
-      });
-      this.ui.mainWrapper.classList.add('none');
-      this.ui.player.removePlayer();
+      if (this.playerCastingButton) {
+        this.playerCastingButton.innerHTML = Utils.Icons({
+          type: 'cast_exit',
+        });
+      }
+      this.ui.mainWrapper?.classList.add('none');
+      this.ui.player?.removePlayer();
       setTimeout(() => {
-        this.ui.player.setPlayerState({ isCasting: true });
+        this.ui.player?.setPlayerState({ isCasting: true });
         this.ui.addCastingUIElements();
         this.CastingUIBinds();
         this.stoppedForced = false;
       }, 300);
     } else {
-      this.ui.player.setPlayerState({ isCasting: false });
+      this.ui.player?.setPlayerState({ isCasting: false });
       this.ui.removeCastingUIElements();
       if (this.stoppedForced) return;
       this.ui.player
-        .init({
+        ?.init({
           elem: this.ui.container,
           source: this.ui.player.source,
           config: this.ui.player.config,
@@ -174,14 +177,21 @@ export class CastingSender {
   };
 
   CastingUIBinds = () => {
-    this.ui.castingTitle.innerHTML = `Casting to <b>${this.receiverName}</b>`;
-    this.ui.castingRemotePlaybackButton.onclick = this.cast.bind(this);
-    this.ui.castingPlayPauseButton.onclick = this.onPlayPause.bind(this);
-    this.ui.castingVolumeButtoon.onclick = this.onMuteUnMute.bind(this);
-    this.ui.castingForwardButton.onclick = this.onForward.bind(this);
-    this.ui.castingRewindButton.onclick = this.onRewind.bind(this);
-    this.ui.castingRestartPlayButton.onclick = this.onRestartPlay.bind(this);
-    this.ui.castingCloseCaptionButton.onclick = this.onTextTracksChange.bind(this);
+    if (this.ui.castingTitle)
+      this.ui.castingTitle.innerHTML = `Casting to <b>${this.receiverName}</b>`;
+    if (this.ui.castingRemotePlaybackButton)
+      this.ui.castingRemotePlaybackButton.onclick = this.cast.bind(this);
+    if (this.ui.castingPlayPauseButton)
+      this.ui.castingPlayPauseButton.onclick = this.onPlayPause.bind(this);
+    if (this.ui.castingVolumeButtoon)
+      this.ui.castingVolumeButtoon.onclick = this.onMuteUnMute.bind(this);
+    if (this.ui.castingForwardButton)
+      this.ui.castingForwardButton.onclick = this.onForward.bind(this);
+    if (this.ui.castingRewindButton) this.ui.castingRewindButton.onclick = this.onRewind.bind(this);
+    if (this.ui.castingRestartPlayButton)
+      this.ui.castingRestartPlayButton.onclick = this.onRestartPlay.bind(this);
+    if (this.ui.castingCloseCaptionButton)
+      this.ui.castingCloseCaptionButton.onclick = this.onTextTracksChange.bind(this);
   };
 
   onConnectionError = (error: any) => {
@@ -236,10 +246,10 @@ export class CastingSender {
         }
         case 'player_loaded': {
           const { texts, variants } = data;
-          this.ui.player.setPlayerState({ textTracks: texts || [] });
-          this.ui.player.setPlayerState({ videoTracks: variants || [] });
+          this.ui.player?.setPlayerState({ textTracks: texts || [] });
+          this.ui.player?.setPlayerState({ videoTracks: variants || [] });
           if (Array.isArray(texts) && texts.length) {
-            this.ui.castingCloseCaptionButton.classList.remove('none');
+            this.ui.castingCloseCaptionButton?.classList.remove('none');
           }
           break;
         }
@@ -247,42 +257,48 @@ export class CastingSender {
           const { event, value } = data;
           switch (event) {
             case 'playing':
-              this.ui.player.setPlayerState({ isPlaying: value });
-              this.ui.castingPlayPauseButton.innerHTML = value
-                ? Utils.Icons({ type: 'pause' })
-                : Utils.Icons({ type: 'play' });
+              this.ui.player?.setPlayerState({ isPlaying: value });
+              if (this.ui.castingPlayPauseButton) {
+                this.ui.castingPlayPauseButton.innerHTML = value
+                  ? Utils.Icons({ type: 'pause' })
+                  : Utils.Icons({ type: 'play' });
+              }
               break;
             case 'mute':
-              this.ui.player.setPlayerState({ isMuted: value });
-              this.ui.castingVolumeButtoon.innerHTML = value
-                ? Utils.Icons({ type: 'volume_off' })
-                : Utils.Icons({ type: 'volume_up' });
+              this.ui.player?.setPlayerState({ isMuted: value });
+              if (this.ui.castingVolumeButtoon) {
+                this.ui.castingVolumeButtoon.innerHTML = value
+                  ? Utils.Icons({ type: 'volume_off' })
+                  : Utils.Icons({ type: 'volume_up' });
+              }
               break;
             case 'text-tracks':
               this.isTextTrackVisible = value;
-              this.ui.castingCloseCaptionButton.innerHTML = value
-                ? Utils.Icons({ type: 'cc_enabled' })
-                : Utils.Icons({ type: 'cc_disabled' });
+              if (this.ui.castingCloseCaptionButton) {
+                this.ui.castingCloseCaptionButton.innerHTML = value
+                  ? Utils.Icons({ type: 'cc_enabled' })
+                  : Utils.Icons({ type: 'cc_disabled' });
+              }
               break;
             case 'abort':
             case 'emptied':
             case 'ended':
-              this.ui.castingPlayPauseButton.classList.add('none');
-              this.ui.castingVolumeButtoon.classList.add('none');
-              this.ui.castingForwardButton.classList.add('none');
-              this.ui.castingRestartPlayButton.classList.add('none');
-              this.ui.castingRewindButton.classList.add('none');
-              this.ui.castingCloseCaptionButton.classList.add('none');
+              this.ui.castingPlayPauseButton?.classList.add('none');
+              this.ui.castingVolumeButtoon?.classList.add('none');
+              this.ui.castingForwardButton?.classList.add('none');
+              this.ui.castingRestartPlayButton?.classList.add('none');
+              this.ui.castingRewindButton?.classList.add('none');
+              this.ui.castingCloseCaptionButton?.classList.add('none');
               break;
             case 'canplaythrough':
             case 'loadeddata':
               Utils.addEventCallback(this.ui, EventsEnum.LOADEDMETADATA);
-              this.ui.castingPlayPauseButton.classList.remove('none');
-              this.ui.castingVolumeButtoon.classList.remove('none');
+              this.ui.castingPlayPauseButton?.classList.remove('none');
+              this.ui.castingVolumeButtoon?.classList.remove('none');
               if (this.type !== 'channel') {
-                this.ui.castingForwardButton.classList.remove('none');
-                this.ui.castingRestartPlayButton.classList.remove('none');
-                this.ui.castingRewindButton.classList.remove('none');
+                this.ui.castingForwardButton?.classList.remove('none');
+                this.ui.castingRestartPlayButton?.classList.remove('none');
+                this.ui.castingRewindButton?.classList.remove('none');
               }
               break;
             default:
@@ -320,10 +336,10 @@ export class CastingSender {
       type: 'player',
       data: {
         event: 'playing',
-        value: !this.ui.player.playerState.isPlaying,
+        value: !this.ui.player?.playerState.isPlaying,
       },
     });
-    if (!this.ui.player.playerState.isPlaying) {
+    if (!this.ui.player?.playerState.isPlaying) {
       this.ui.player?.onPlayCallback?.();
     } else {
       this.ui.player?.onPauseCallback?.();
@@ -335,7 +351,7 @@ export class CastingSender {
       type: 'player',
       data: {
         event: 'mute',
-        value: !this.ui.player.playerState.isMuted,
+        value: !this.ui.player?.playerState.isMuted,
       },
     });
   };

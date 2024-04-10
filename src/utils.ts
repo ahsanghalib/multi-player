@@ -20,25 +20,25 @@ export class Utils {
 
   static async togglePlayPause(ui: UI) {
     ui.isContainerFocused = true;
-    if (ui.player.playerState.isCasting) {
-      ui.player.castSender.onPlayPause();
+    if (ui.player?.playerState.isCasting) {
+      ui.player?.castSender.onPlayPause();
       return;
     }
 
-    if (!ui.player.playerState.loaded) return;
+    if (!ui.player?.playerState.loaded) return;
 
-    if (ui.contextMenu.style.display === 'block') {
+    if (ui.contextMenu?.style.display === 'block') {
       ui.contextMenu.style.display = 'none';
       return;
     }
 
-    if (ui.optionsMenuWrapper.classList.contains('flex')) {
+    if (ui.optionsMenuWrapper?.classList.contains('flex')) {
       this.toggleShowHide(ui.optionsMenuWrapper, 'none');
       return;
     }
 
     const video = ui.videoElement;
-    if (video.paused) {
+    if (video && video.paused) {
       ui.player.hls.startLoad();
       await video.play();
       ui.player.setPlayerState({ hasUserPaused: false });
@@ -47,33 +47,35 @@ export class Utils {
       }
     } else {
       ui.player.hls.stopLoad();
-      video.pause();
-      ui.player.setPlayerState({ hasUserPaused: true });
+      if (video) video.pause();
+      ui.player?.setPlayerState({ hasUserPaused: true });
       if (typeof ui.player.onPauseCallback === 'function') {
-        ui.player.onPauseCallback();
+        ui.player?.onPauseCallback();
       }
     }
   }
 
   static toggleMuteUnMute(ui: UI) {
     ui.isContainerFocused = true;
-    if (ui.player.playerState.isCasting) {
+    if (ui.player?.playerState.isCasting) {
       ui.player.castSender.onMuteUnMute();
       return;
     }
 
-    if (!ui.player.playerState.loaded) return;
+    if (!ui.player?.playerState.loaded) return;
 
     const video = ui.videoElement;
-    if (video.muted) {
-      video.muted = false;
-    } else {
-      video.muted = true;
+    if (video) {
+      if (video.muted) {
+        video.muted = false;
+      } else {
+        video.muted = true;
+      }
     }
   }
 
   static toggleForwardRewind(ui: UI, forward: boolean) {
-    if (ui.player.playerState.isCasting) {
+    if (ui.player?.playerState.isCasting) {
       if (forward) {
         ui.player.castSender.onForward();
       } else {
@@ -82,7 +84,7 @@ export class Utils {
       return;
     }
 
-    if (!ui.player.playerState.loaded) return;
+    if (!ui.player?.playerState.loaded) return;
 
     const video = ui.videoElement;
     if (video) {
@@ -94,13 +96,13 @@ export class Utils {
         if (forward) {
           const v = Math.min(ct + 30, dt);
           ui.progressSliderValue = String(v);
-          ui.controlsProgressRangeInput.value = String(v);
+          if (ui.controlsProgressRangeInput) ui.controlsProgressRangeInput.value = String(v);
           video.currentTime = v;
           return;
         }
         const v = Math.max(ct - 15, 0);
         ui.progressSliderValue = String(v);
-        ui.controlsProgressRangeInput.value = String(v);
+        if (ui.controlsProgressRangeInput) ui.controlsProgressRangeInput.value = String(v);
         video.currentTime = v;
       }
     }
@@ -108,8 +110,8 @@ export class Utils {
 
   static seekTime(ui: UI, timeInSeconds: number) {
     ui.isContainerFocused = true;
-    if (ui.player.playerState.isCasting) return;
-    if (!ui.player.playerState.loaded) return;
+    if (ui.player?.playerState.isCasting) return;
+    if (!ui.player?.playerState.loaded) return;
 
     const video = ui.videoElement;
     if (video) {
@@ -120,8 +122,8 @@ export class Utils {
 
   static togglePip(ui: UI) {
     ui.isContainerFocused = true;
-    if (ui.player.playerState.isCasting) return;
-    if (!ui.player.playerState.loaded) return;
+    if (ui.player?.playerState.isCasting) return;
+    if (!ui.player?.playerState.loaded) return;
 
     const video = ui.videoElement;
     if (!document.pictureInPictureEnabled) return;
@@ -137,14 +139,15 @@ export class Utils {
 
   static toggleFullScreen(ui: UI) {
     ui.isContainerFocused = true;
-    if (ui.player.playerState.isCasting) return;
-    if (!ui.player.playerState.loaded) return;
+    if (ui.player?.playerState.isCasting) return;
+    if (!ui.player?.playerState.loaded) return;
 
     const video = ui.videoElement;
     const videoContainer = ui.mainWrapper;
     if (video === document.pictureInPictureElement) {
       this.togglePip(ui);
     }
+
     if ((document as any).fullscreenElement) {
       (document as any).exitFullscreen();
     } else if ((document as any).webkitFullscreenElement) {
@@ -161,29 +164,31 @@ export class Utils {
   }
 
   static fullScreenEvent(ui: UI) {
-    if (ui.player.playerState.isCasting) return;
+    if (ui.player?.playerState.isCasting) return;
     if (this.isFullScreen()) {
-      ui.controlsFullScreen.innerHTML = this.Icons({
-        type: 'fullscreen_exit',
-      });
+      if (ui.controlsFullScreen)
+        ui.controlsFullScreen.innerHTML = this.Icons({
+          type: 'fullscreen_exit',
+        });
     } else {
-      ui.controlsFullScreen.innerHTML = this.Icons({
-        type: 'fullscreen_enter',
-      });
+      if (ui.controlsFullScreen)
+        ui.controlsFullScreen.innerHTML = this.Icons({
+          type: 'fullscreen_enter',
+        });
     }
   }
 
   static onEndedReplay(ui: UI) {
     ui.isContainerFocused = true;
-    if (ui.player.playerState.isCasting) {
+    if (ui.player?.playerState.isCasting) {
       ui.player.castSender.onRestartPlay();
       return;
     }
 
-    if (!ui.player.playerState.loaded) return;
+    if (!ui.player?.playerState.loaded) return;
 
-    ui.videoElement.currentTime = 0;
-    if (!ui.player.playerState.isPlaying) {
+    if (ui.videoElement) ui.videoElement.currentTime = 0;
+    if (!ui.player?.playerState.isPlaying) {
       this.toggleWrappers({ ui, none: true });
       this.togglePlayPause(ui).catch(() => console.log());
     }
@@ -267,7 +272,8 @@ export class Utils {
     );
   }
 
-  static toggleShowHide(elem: HTMLElement, show: 'flex' | 'block' | 'none') {
+  static toggleShowHide(elem: HTMLElement | undefined, show: 'flex' | 'block' | 'none') {
+    if (!elem) return;
     if (show === 'none') {
       elem.classList.remove('flex');
       elem.classList.remove('block');
@@ -321,7 +327,7 @@ export class Utils {
       this.toggleShowHide(ui.errorWrapper, 'none');
       this.toggleShowHide(ui.endedWrapper, 'none');
       this.toggleShowHide(ui.contentNotAvailableWrapper, 'none');
-      ui.player.setPlayerState({
+      ui.player?.setPlayerState({
         uiState: 'none',
       });
     };
@@ -334,21 +340,21 @@ export class Utils {
     if (loading) {
       allNone();
       this.toggleShowHide(ui.loaderWrapper, 'flex');
-      ui.player.setPlayerState({ uiState: 'loading' });
+      ui.player?.setPlayerState({ uiState: 'loading' });
       return;
     }
 
     if (error) {
       allNone();
       this.toggleShowHide(ui.errorWrapper, 'flex');
-      ui.player.setPlayerState({ uiState: 'error' });
+      ui.player?.setPlayerState({ uiState: 'error' });
       return;
     }
 
     if (ended) {
       allNone();
       this.toggleShowHide(ui.endedWrapper, 'flex');
-      ui.player.setPlayerState({ uiState: 'ended' });
+      ui.player?.setPlayerState({ uiState: 'ended' });
       return;
     }
 
@@ -359,7 +365,7 @@ export class Utils {
   }
 
   static fatelErrorRetry(ui: UI) {
-    const maxCount = ui.player.getConfig().maxRetryCount;
+    const maxCount = ui.player?.getConfig().maxRetryCount;
     console.log('RETRY #', this.retryCount, this.fairPlayErrorCount);
 
     if (this.retryCount === maxCount) {
@@ -369,7 +375,7 @@ export class Utils {
 
     this.toggleWrappers({ ui, loading: true });
     this.retryCount += 1;
-    ui.player.retry();
+    ui.player?.retry();
   }
 
   static resetRetryCounter() {
@@ -417,30 +423,31 @@ export class Utils {
   }
 
   static checkTextTracks(ui: UI) {
-    if (ui.player.getPlayerState().loaded) {
+    if (ui.player?.getPlayerState().loaded) {
       if (this.checkTextTracksTimer) clearTimeout(this.checkTextTracksTimer);
-      const tracks = ui.getVideoElement().textTracks;
-
-      const tracksData: Array<any> = Object.keys(tracks || {}).reduce((a: any, c: any) => {
-        tracks[c].mode = 'hidden';
-        return tracks[c].kind !== 'metadata' && !!Object.keys(tracks[c].cues || {}).length
-          ? [
-              ...a,
-              {
-                id: c,
-                label: tracks[c].label,
-                lang: tracks[c].language,
-                track: tracks[c],
-              },
-            ]
-          : [...a];
-      }, []);
+      const tracks = ui.getVideoElement()?.textTracks;
+      const tracksData: Array<any> = tracks
+        ? Object.keys(tracks || {}).reduce((a: any, c: any) => {
+            tracks[c].mode = 'hidden';
+            return tracks[c].kind !== 'metadata' && !!Object.keys(tracks[c].cues || {}).length
+              ? [
+                  ...a,
+                  {
+                    id: c,
+                    label: tracks[c].label,
+                    lang: tracks[c].language,
+                    track: tracks[c],
+                  },
+                ]
+              : [...a];
+          }, [])
+        : [];
 
       if (!tracksData.length) {
         this.checkTextTracksTimer = setTimeout(() => this.checkTextTracks(ui), 500);
       } else {
         ui.player.setPlayerState({ textTracks: tracksData });
-        ui.controlsCloseCaptionButton.classList.remove('none');
+        ui.controlsCloseCaptionButton?.classList.remove('none');
         const id = sessionStorage.getItem(STORAGE_KEYS.CC_ID);
         if (id) this.setSelectedTextTrack(ui, id);
         this.setCloseCaptionButtonUI(ui);
@@ -449,19 +456,21 @@ export class Utils {
   }
 
   static setCloseCaptionButtonUI(ui: UI) {
-    if (ui.player.playerState.selectedTextTrackId) {
-      ui.controlsCloseCaptionButton.innerHTML = this.Icons({
-        type: 'cc_enabled',
-      });
+    if (ui.player?.playerState.selectedTextTrackId) {
+      if (ui.controlsCloseCaptionButton)
+        ui.controlsCloseCaptionButton.innerHTML = this.Icons({
+          type: 'cc_enabled',
+        });
     } else {
-      ui.controlsCloseCaptionButton.innerHTML = this.Icons({
-        type: 'cc_disabled',
-      });
+      if (ui.controlsCloseCaptionButton)
+        ui.controlsCloseCaptionButton.innerHTML = this.Icons({
+          type: 'cc_disabled',
+        });
     }
   }
 
   static isLive(ui: UI) {
-    if (ui.videoElement.duration === Infinity || ui.player.shaka.isLive()) {
+    if (ui.videoElement?.duration === Infinity || ui.player?.shaka.isLive()) {
       return true;
     }
     return false;
@@ -472,20 +481,22 @@ export class Utils {
     ui.volumeSliderValue = value;
     const volume = Number(value);
     const video = ui.videoElement;
-    video.volume = volume;
-    if (volume > 0) {
-      if (video.muted) {
-        video.muted = false;
+    if (video) {
+      video.volume = volume;
+      if (volume > 0) {
+        if (video.muted) {
+          video.muted = false;
+        }
+      } else {
+        video.muted = true;
       }
-    } else {
-      video.muted = true;
     }
   }
 
   static onVideoProgressChange(ui: UI, e: any) {
     const { value } = e.target;
     ui.progressSliderValue = value;
-    ui.videoElement.currentTime = Number(value);
+    if (ui.videoElement) ui.videoElement.currentTime = Number(value);
   }
 
   static sliderColorValue(slider: HTMLInputElement) {
@@ -497,20 +508,20 @@ export class Utils {
   }
 
   static enterPIP(ui: UI, callback?: () => void) {
-    ui.controlsPIP.innerHTML = this.Icons({ type: 'pip_exit' });
+    if (ui.controlsPIP) ui.controlsPIP.innerHTML = this.Icons({ type: 'pip_exit' });
     if (typeof callback === 'function') callback();
   }
 
   static leavePIP(ui: UI, callback?: () => void) {
-    ui.controlsPIP.innerHTML = this.Icons({ type: 'pip_enter' });
+    if (ui.controlsPIP) ui.controlsPIP.innerHTML = this.Icons({ type: 'pip_enter' });
     if (typeof callback === 'function') callback();
   }
 
   static setSelectedTextTrack(ui: UI, trackId: string | null) {
     ui.optionsMenuState = SETTINGS_SUB_MENU.NONE;
     this.toggleShowHide(ui.optionsMenuWrapper, 'none');
-    if (trackId === ui.player.playerState.selectedTextTrackId) return;
-    ui.player.setPlayerState({ selectedTextTrackId: trackId });
+    if (trackId === ui.player?.playerState.selectedTextTrackId) return;
+    ui.player?.setPlayerState({ selectedTextTrackId: trackId });
     this.setCloseCaptionButtonUI(ui);
     this.toggleTextTracks(ui, trackId);
   }
@@ -546,7 +557,7 @@ export class Utils {
   };
 
   static toggleTextTracks(ui: UI, trackId: string | null) {
-    const tracks = ui.player.playerState.textTracks;
+    const tracks = ui.player?.playerState.textTracks;
     this.resetCloseCaptionContainer(ui);
 
     const cuesEvent = this.activeCuesEvent(ui);
@@ -556,15 +567,15 @@ export class Utils {
         t.track.removeEventListener('cuechange', cuesEvent, true);
       });
       if (trackId) {
-        Object.keys(ui.videoElement.textTracks || {}).forEach((t: any) => {
+        Object.keys(ui.videoElement?.textTracks || {}).forEach((t: any) => {
           if (ui.videoElement) ui.videoElement.textTracks[t].mode = 'disabled';
         });
-        Object.keys(ui.videoElement.textTracks || {}).forEach((t: any) => {
+        Object.keys(ui.videoElement?.textTracks || {}).forEach((t: any) => {
           if (ui.videoElement) ui.videoElement.textTracks[t].mode = 'hidden';
         });
         tracks[trackId as any].track.addEventListener('cuechange', cuesEvent, true);
       } else {
-        Object.keys(ui.videoElement.textTracks || {}).forEach((t: any) => {
+        Object.keys(ui.videoElement?.textTracks || {}).forEach((t: any) => {
           if (ui.videoElement) ui.videoElement.textTracks[t].mode = 'disabled';
         });
       }
@@ -607,7 +618,7 @@ export class Utils {
 
     localStorage.setItem(STORAGE_KEYS.CC_STYLES, JSON.stringify({ ...values }));
 
-    const elems = ui.closeCaptionsContainer.getElementsByClassName(
+    const elems = ui.closeCaptionsContainer?.getElementsByClassName(
       'close-caption',
     ) as HTMLCollectionOf<HTMLDivElement>;
 
@@ -688,7 +699,7 @@ export class Utils {
   }
 
   static addEventCallback = (ui: UI, event: EventsEnum) => {
-    if (ui.player.eventCallbacks?.length) {
+    if (ui.player?.eventCallbacks?.length) {
       const idx = ui.player.eventCallbacks.findIndex((e) => (e.event as EventsEnum) === event);
       if (idx !== -1) {
         const call = ui.player.eventCallbacks[idx];
@@ -705,7 +716,7 @@ export class Utils {
         this.togglePlayPause(ui);
       }
       if (event?.code === KEYBOARD_CODES.ARROW_UP_KEY) {
-        if (ui.player.playerState.isCasting) {
+        if (ui.player?.playerState.isCasting) {
           ui.player.castSender.onMuteUnMute();
           return;
         }
@@ -715,7 +726,7 @@ export class Utils {
         }
       }
       if (event?.code === KEYBOARD_CODES.ARROW_DOWN_KEY) {
-        if (ui.player.playerState.isCasting) {
+        if (ui.player?.playerState.isCasting) {
           ui.player.castSender.onMuteUnMute();
           return;
         }

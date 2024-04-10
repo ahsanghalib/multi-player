@@ -60,47 +60,51 @@ export class VideoEvents {
   addEvents = () => {
     this.removeEvents();
     this.events.forEach((d) => {
-      this.ui.videoElement.addEventListener(d.event, d.callback);
+      if (this.ui.videoElement) {
+        this.ui.videoElement.addEventListener(d.event, d.callback);
+      }
     });
   };
 
   removeEvents = () => {
     this.events.forEach((d) => {
-      this.ui.videoElement.removeEventListener(d.event, d.callback);
+      if (this.ui.videoElement) {
+        this.ui.videoElement.removeEventListener(d.event, d.callback);
+      }
     });
   };
 
   getConfig = () => {
-    return this.ui.player.getConfig();
+    return this.ui.player?.getConfig();
   };
 
   abortEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onAbort');
+    if (this.getConfig()?.debug) console.log('VIDEO - onAbort');
     this.timeUpdated = false;
     Utils.addEventCallback(this.ui, EventsEnum.ABORT);
   };
 
   canPlayEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onCanPlay');
+    if (this.getConfig()?.debug) console.log('VIDEO - onCanPlay');
     Utils.addEventCallback(this.ui, EventsEnum.CANPLAY);
   };
 
   canPlayThroughEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onCanPlayThrough');
+    if (this.getConfig()?.debug) console.log('VIDEO - onCanPlayThrough');
     Utils.addEventCallback(this.ui, EventsEnum.CANPLAYTHROUGH);
   };
 
   durationChangeEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onDurationChange');
+    if (this.getConfig()?.debug) console.log('VIDEO - onDurationChange');
     Utils.addEventCallback(this.ui, EventsEnum.DURATIONCHANGE);
   };
 
   emptiedEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onEmptied');
-    this.ui.player.setPlayerState({ isPlaying: false });
+    if (this.getConfig()?.debug) console.log('VIDEO - onEmptied');
+    this.ui.player?.setPlayerState({ isPlaying: false });
     if (
-      (this.ui.player.playerState.uiState === 'error',
-      this.ui.player.playerState.player !== PlayersEnum.SHAKA)
+      (this.ui.player?.playerState.uiState === 'error',
+      this.ui.player?.playerState.player !== PlayersEnum.SHAKA)
     ) {
       Utils.toggleWrappers({ ui: this.ui, loading: true });
     }
@@ -108,81 +112,87 @@ export class VideoEvents {
   };
 
   endedEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onEnded');
+    if (this.getConfig()?.debug) console.log('VIDEO - onEnded');
     Utils.toggleWrappers({ ui: this.ui, ended: true });
     Utils.addEventCallback(this.ui, EventsEnum.ENDED);
   };
 
   errorEvent = (e: any) => {
     console.log('error', e);
-    if (this.getConfig().debug) console.log('VIDEO - onError');
+    if (this.getConfig()?.debug) console.log('VIDEO - onError');
     Utils.fatelErrorRetry(this.ui);
     Utils.addEventCallback(this.ui, EventsEnum.ERROR);
   };
 
   loadedDataEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onLoadedData');
-    if (this.ui.videoElement.buffered.length) {
+    if (this.getConfig()?.debug) console.log('VIDEO - onLoadedData');
+    if (this.ui.videoElement?.buffered.length) {
       Utils.resetRetryCounter();
     }
-    if (!this.getConfig().disableControls) {
+    if (!this.getConfig()?.disableControls && this.ui.controlsWrapper) {
       Utils.toggleShowHide(this.ui.controlsWrapper, 'flex');
       Utils.toggleOpacity(this.ui.controlsWrapper, false);
     }
-    this.ui.player.setPlayerState({ loaded: true, isPlaying: false });
+    this.ui.player?.setPlayerState({ loaded: true, isPlaying: false });
     Utils.checkTextTracks(this.ui);
     this.volumeChangeEvent();
     Utils.addEventCallback(this.ui, EventsEnum.LOADEDDATA);
   };
 
   loadedMetaDataEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onLoadedMetaData');
+    if (this.getConfig()?.debug) console.log('VIDEO - onLoadedMetaData');
     const video = this.ui.videoElement;
-    video
-      .play()
-      .then(() => {})
-      .catch(() => {
-        video.muted = true;
-        video.play().catch(() => {});
-      });
+    if (video) {
+      video
+        .play()
+        .then(() => {})
+        .catch(() => {
+          video.muted = true;
+          video.play().catch(() => {});
+        });
+    }
     Utils.addEventCallback(this.ui, EventsEnum.LOADEDMETADATA);
   };
 
   loadStartEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onLoadStart');
+    if (this.getConfig()?.debug) console.log('VIDEO - onLoadStart');
     Utils.toggleWrappers({ ui: this.ui, loading: true });
-    this.ui.player.setPlayerState({ isPlaying: false });
+    this.ui.player?.setPlayerState({ isPlaying: false });
     Utils.addEventCallback(this.ui, EventsEnum.LOADSTART);
   };
 
   pauseEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onPause');
-    this.ui.controlsPlayPauseButton.innerHTML = Utils.Icons({ type: 'play' });
-    this.ui.player.setPlayerState({ isPlaying: false });
-    if (this.ui.player.playerState.isPIP) this.ui.player?.onPauseCallback?.();
+    if (this.getConfig()?.debug) console.log('VIDEO - onPause');
+    if (this.ui.controlsPlayPauseButton) {
+      this.ui.controlsPlayPauseButton.innerHTML = Utils.Icons({ type: 'play' });
+    }
+    this.ui.player?.setPlayerState({ isPlaying: false });
+    if (this.ui.player?.playerState.isPIP) this.ui.player?.onPauseCallback?.();
     Utils.addEventCallback(this.ui, EventsEnum.PAUSE);
   };
 
   playEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onPlay');
+    if (this.getConfig()?.debug) console.log('VIDEO - onPlay');
     Utils.toggleWrappers({ ui: this.ui, none: true });
-    if (this.ui.player.playerState.isPIP) this.ui.player?.onPlayCallback?.();
+    if (this.ui.player?.playerState.isPIP) this.ui.player?.onPlayCallback?.();
     Utils.addEventCallback(this.ui, EventsEnum.PLAY);
   };
 
   playingEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onPlaying');
-    this.ui.controlsPlayPauseButton.innerHTML = Utils.Icons({
-      type: 'pause',
-    });
+    if (this.getConfig()?.debug) console.log('VIDEO - onPlaying');
+    if (this.ui.controlsPlayPauseButton) {
+      this.ui.controlsPlayPauseButton.innerHTML = Utils.Icons({
+        type: 'pause',
+      });
+    }
     Utils.toggleWrappers({ ui: this.ui, none: true });
-    this.ui.player.setPlayerState({ isPlaying: true });
+    this.ui.player?.setPlayerState({ isPlaying: true });
     Utils.resetRetryCounter();
     Utils.addEventCallback(this.ui, EventsEnum.PLAYING);
   };
 
   progressEvent = () => {
-    if (this.getConfig().debug) {
+    if (this.getConfig()?.debug) {
       console.log(
         'VIDEO - onProgress',
         'progressCounter',
@@ -194,7 +204,7 @@ export class VideoEvents {
 
     Utils.addEventCallback(this.ui, EventsEnum.PROGRESS);
 
-    if (!this.ui.player.playerState.hasUserPaused) {
+    if (!this.ui.player?.playerState.hasUserPaused) {
       if (this.timeUpdated) {
         this.progressCounter = 0;
         this.timeUpdated = false;
@@ -202,14 +212,14 @@ export class VideoEvents {
       }
 
       if (this.progressCounter > 5 && this.progressCounter <= 10) {
-        if (this.ui.videoElement.buffered?.length) {
+        if (this.ui.videoElement?.buffered?.length) {
           this.ui.videoElement.currentTime = this.ui.videoElement.buffered.end(0);
         }
       }
 
       if (this.progressCounter > 10) {
         this.progressCounter = 0;
-        this.ui.player.reloadPlayer().catch(() => console.log());
+        this.ui.player?.reloadPlayer().catch(() => console.log());
       }
     }
 
@@ -217,77 +227,83 @@ export class VideoEvents {
   };
 
   rateChangeEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onRateChange');
+    if (this.getConfig()?.debug) console.log('VIDEO - onRateChange');
     Utils.toggleWrappers({ ui: this.ui, loading: true });
     Utils.addEventCallback(this.ui, EventsEnum.RATECHANGE);
   };
 
   seekedEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onSeeked', this.ui.player.playerState);
+    if (this.getConfig()?.debug) console.log('VIDEO - onSeeked', this.ui.player?.playerState);
     Utils.toggleWrappers({ ui: this.ui, none: true });
-    if (!this.ui.player.playerState.isPlaying) {
-      this.ui.player.hls.stopLoad();
-      if (!this.ui.player.playerState.hasUserPaused) {
-        this.ui.videoElement.play().catch(() => console.log());
+    if (!this.ui.player?.playerState.isPlaying) {
+      this.ui.player?.hls.stopLoad();
+      if (!this.ui.player?.playerState.hasUserPaused) {
+        this.ui.videoElement?.play().catch(() => console.log());
       }
     }
     Utils.addEventCallback(this.ui, EventsEnum.SEEKED);
   };
 
   seekingEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onSeeking');
-    if (!this.ui.player.playerState.isPlaying) {
+    if (this.getConfig()?.debug) console.log('VIDEO - onSeeking');
+    if (!this.ui.player?.playerState.isPlaying) {
       Utils.toggleWrappers({ ui: this.ui, loading: true });
-      this.ui.player.hls.startLoad();
+      this.ui.player?.hls.startLoad();
     }
     Utils.addEventCallback(this.ui, EventsEnum.SEEKING);
   };
 
   stalledEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onStalled');
-    if (this.ui.player.playerState.isPlaying) {
+    if (this.getConfig()?.debug) console.log('VIDEO - onStalled');
+    if (this.ui.player?.playerState.isPlaying) {
       Utils.toggleWrappers({ ui: this.ui, loading: true });
     }
-    if (Utils.isLive(this.ui) && !this.timeUpdated && !this.ui.player.playerState.hasUserPaused) {
-      if (this.ui.videoElement.buffered.length) {
+    if (Utils.isLive(this.ui) && !this.timeUpdated && !this.ui.player?.playerState.hasUserPaused) {
+      if (this.ui.videoElement?.buffered.length) {
         this.ui.videoElement.currentTime = this.ui.videoElement.buffered.end(0);
       }
-      this.ui.videoElement.play().catch(() => {});
+      this.ui.videoElement?.play().catch(() => {});
     }
     Utils.addEventCallback(this.ui, EventsEnum.STALLED);
   };
 
   suspendEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onSuspend');
+    if (this.getConfig()?.debug) console.log('VIDEO - onSuspend');
     Utils.addEventCallback(this.ui, EventsEnum.SUSPEND);
   };
 
   timeUpdateEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onTimeUpdate');
+    if (this.getConfig()?.debug) console.log('VIDEO - onTimeUpdate');
     this.timeUpdated = true;
-    if (this.ui.player.playerState.isPlaying) {
+    if (this.ui.player?.playerState.isPlaying) {
       Utils.toggleWrappers({ ui: this.ui, none: true });
     }
     const video = this.ui.videoElement;
-    const currentTime = video.currentTime;
-    const duration = video.duration;
+    const currentTime = video?.currentTime;
+    const duration = video?.duration;
     const isLive = Utils.isLive(this.ui);
 
-    if (this.ui.player.playerState.loaded) {
+    if (this.ui.player?.playerState.loaded) {
       if (isLive) {
-        this.ui.controlsTimeText.innerText = 'Live';
-        Utils.toggleShowHide(this.ui.controlsProgressBar, 'none');
+        if (this.ui.controlsTimeText) this.ui.controlsTimeText.innerText = 'Live';
+        if (this.ui.controlsProgressBar) Utils.toggleShowHide(this.ui.controlsProgressBar, 'none');
       } else if (duration && currentTime) {
         sessionStorage.setItem(STORAGE_KEYS.VIDOE_CURRENT_TIME, String(Math.floor(currentTime)));
-        Utils.sliderColorValue(this.ui.controlsProgressRangeInput);
-        Utils.toggleShowHide(this.ui.controlsProgressBar, 'flex');
-        this.ui.controlsProgressRangeInput.value = String(currentTime);
-        this.ui.controlsTimeText.innerText = `${Utils.formatTime(
-          currentTime,
-        )} / ${Utils.formatTime(duration)}`;
-        this.ui.controlsProgressRangeInput.max = String(duration);
+        if (this.ui.controlsProgressBar) Utils.toggleShowHide(this.ui.controlsProgressBar, 'flex');
+        if (this.ui.controlsProgressRangeInput) {
+          Utils.sliderColorValue(this.ui.controlsProgressRangeInput);
+          this.ui.controlsProgressRangeInput.value = String(currentTime);
+        }
+        if (this.ui.controlsTimeText) {
+          this.ui.controlsTimeText.innerText = `${Utils.formatTime(
+            currentTime,
+          )} / ${Utils.formatTime(duration)}`;
+        }
+        if (this.ui.controlsProgressRangeInput) {
+          this.ui.controlsProgressRangeInput.max = String(duration);
+        }
       } else {
-        this.ui.controlsTimeText.innerText = '';
+        if (this.ui.controlsTimeText) this.ui.controlsTimeText.innerText = '';
       }
     }
 
@@ -295,38 +311,42 @@ export class VideoEvents {
   };
 
   volumeChangeEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onVolumeChange');
+    if (this.getConfig()?.debug) console.log('VIDEO - onVolumeChange');
     const video = this.ui.videoElement;
-    if (video.muted) {
+    if (video?.muted) {
       this.ui.volumeSliderValue = '0';
-      this.ui.controlsVolumeRangeInput.value = '0';
-      this.ui.player.setPlayerState({ isMuted: true });
-      this.ui.controlsVolumeButton.innerHTML = Utils.Icons({
-        type: 'volume_off',
-      });
+      if (this.ui.controlsVolumeRangeInput) this.ui.controlsVolumeRangeInput.value = '0';
+      this.ui.player?.setPlayerState({ isMuted: true });
+      if (this.ui.controlsVolumeButton)
+        this.ui.controlsVolumeButton.innerHTML = Utils.Icons({
+          type: 'volume_off',
+        });
     } else {
-      this.ui.volumeSliderValue = String(video.volume);
-      this.ui.controlsVolumeRangeInput.value = String(video.volume);
-      this.ui.player.setPlayerState({ isMuted: false });
-      if (video.volume > 0.5) {
-        this.ui.controlsVolumeButton.innerHTML = Utils.Icons({
-          type: 'volume_up',
-        });
+      this.ui.volumeSliderValue = String(video?.volume);
+      if (this.ui.controlsVolumeRangeInput)
+        this.ui.controlsVolumeRangeInput.value = String(video?.volume);
+      this.ui.player?.setPlayerState({ isMuted: false });
+      if (video && video.volume > 0.5) {
+        if (this.ui.controlsVolumeButton)
+          this.ui.controlsVolumeButton.innerHTML = Utils.Icons({
+            type: 'volume_up',
+          });
       } else {
-        this.ui.controlsVolumeButton.innerHTML = Utils.Icons({
-          type: 'volume_down',
-        });
+        if (this.ui.controlsVolumeButton)
+          this.ui.controlsVolumeButton.innerHTML = Utils.Icons({
+            type: 'volume_down',
+          });
       }
     }
-    Utils.sliderColorValue(this.ui.controlsVolumeRangeInput);
+    if (this.ui.controlsVolumeRangeInput) Utils.sliderColorValue(this.ui.controlsVolumeRangeInput);
     Utils.addEventCallback(this.ui, EventsEnum.VOLUMECHANGE);
   };
 
   waitingEvent = () => {
-    if (this.getConfig().debug) console.log('VIDEO - onWaiting');
+    if (this.getConfig()?.debug) console.log('VIDEO - onWaiting');
     Utils.toggleWrappers({ ui: this.ui, loading: true });
-    if (!this.ui.player.playerState.hasUserPaused) {
-      this.ui.player.hls.startLoad();
+    if (!this.ui.player?.playerState.hasUserPaused) {
+      this.ui.player?.hls.startLoad();
     }
     Utils.addEventCallback(this.ui, EventsEnum.WAITING);
   };

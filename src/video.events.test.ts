@@ -260,12 +260,19 @@ describe('VideoEvents', () => {
   });
 
   test('loadedDataEvent', () => {
+    const controlsWrapper = {
+      classList: {
+        add: () => {},
+        remove: () => {},
+      },
+    };
     const ui = {
       videoElement: {
         buffered: {
           length: 1,
         },
       },
+      controlsWrapper,
       player: {
         setPlayerState: setPlayerStateMock,
         getConfig: vi.fn().mockReturnValue({
@@ -297,14 +304,14 @@ describe('VideoEvents', () => {
 
     videoEvents.loadedDataEvent();
 
-    expect(videoEvents.getConfig().debug).toBe(true);
+    expect(videoEvents.getConfig()?.debug).toBe(true);
     expect(console.log).toHaveBeenCalledTimes(1);
     expect(addEventCallbackMock).toHaveBeenCalledTimes(1);
     expect(resetRetryCounterMock).toHaveBeenCalledTimes(1);
     expect(toggleShowHideMock).toHaveBeenCalledTimes(1);
-    expect(toggleShowHideMock).toHaveBeenCalledWith(undefined, 'flex');
+    expect(toggleShowHideMock).toHaveBeenCalledWith(controlsWrapper, 'flex');
     expect(toggleOpacityMock).toHaveBeenCalledTimes(1);
-    expect(toggleOpacityMock).toHaveBeenCalledWith(undefined, false);
+    expect(toggleOpacityMock).toHaveBeenCalledWith(controlsWrapper, false);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
     expect(setPlayerStateMock).toHaveBeenCalledWith({
       isPlaying: false,
@@ -899,6 +906,12 @@ describe('VideoEvents', () => {
   });
 
   test('timeUpdateEvent - isLive true', () => {
+    const controlsProgressBar = {
+      classList: {
+        add: vi.fn(),
+        remove: vi.fn(),
+      },
+    };
     const ui = {
       controlsTimeText: {
         innerText: '',
@@ -907,6 +920,7 @@ describe('VideoEvents', () => {
         currentTime: 10,
         duration: 100,
       },
+      controlsProgressBar,
       player: {
         playerState: {
           isPlaying: true,
@@ -955,6 +969,12 @@ describe('VideoEvents', () => {
         value: '',
         max: '',
         min: '',
+      },
+      controlsProgressBar: {
+        classList: {
+          add: vi.fn(),
+          remove: vi.fn(),
+        },
       },
       controlsTimeText: {
         innerText: '',

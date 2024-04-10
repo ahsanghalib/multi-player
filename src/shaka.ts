@@ -42,7 +42,7 @@ export class ShakaPlayer {
 
       await this.player?.attach(video);
 
-      this.ui.player.setPlayerState({ player: PlayersEnum.SHAKA });
+      this.ui.player?.setPlayerState({ player: PlayersEnum.SHAKA });
 
       this.url = source.url;
 
@@ -104,7 +104,7 @@ export class ShakaPlayer {
         .catch(() => {});
     } catch (e) {
       console.log('shaka-init-error', e);
-      this.ui.player.setPlayerState({ player: PlayersEnum.NONE });
+      this.ui.player?.setPlayerState({ player: PlayersEnum.NONE });
       return Promise.reject();
     }
   };
@@ -284,7 +284,7 @@ export class ShakaPlayer {
   };
 
   shakaBufferingEvent = (d: any) => {
-    if (this.ui.player.getPlayerState().loaded) {
+    if (this.ui.player?.getPlayerState().loaded) {
       if (d?.buffering) {
         Utils.toggleWrappers({ ui: this.ui, loading: true });
       } else {
@@ -299,7 +299,7 @@ export class ShakaPlayer {
   };
 
   shakaStallDetectedEvent = () => {
-    if (this.ui.player.getPlayerState().loaded) {
+    if (this.ui.player?.getPlayerState().loaded) {
       Utils.toggleWrappers({ ui: this.ui, loading: true });
     }
   };

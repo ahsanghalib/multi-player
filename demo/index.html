@@ -11,13 +11,13 @@
     <div id="container" style="max-width: 800px; width: 100%; height: auto"></div>
 
     <script type="module">
-      // import mplayer from 'https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player@0.1/dist/index.js';
+      // import mplayer from 'https://cdn.jsdelivr.net/gh/ahsanghalib/multi-player1/dist/index.js';
 
       import mplayer from '../dist/index.js';
 
       mplayer.init({
         elem: document.getElementById('container'),
-        videoPosterUrl: '/video-poster.jpg'
+        videoPosterUrl: '/video-poster.jpg',
         source: {
           url: 'https://stream.ads.ottera.tv/playlist.m3u8?network_id=1044&live=1&avod=1',
           // url: '',

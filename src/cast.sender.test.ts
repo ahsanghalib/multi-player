@@ -174,7 +174,7 @@ describe('CastingSender', () => {
 
     expect(sender.hasReceivers).toBe(true);
     expect(sender.isCasting).toBe(false);
-    expect(sender.playerCastingButton.innerHTML).toEqual(
+    expect(sender.playerCastingButton?.innerHTML).toEqual(
       Utils.Icons({
         type: 'cast_enter',
       }),
@@ -203,7 +203,7 @@ describe('CastingSender', () => {
 
     expect(sender.hasReceivers).toBe(false);
     expect(sender.isCasting).toBe(false);
-    expect(sender.playerCastingButton.innerHTML).toEqual('');
+    expect(sender.playerCastingButton?.innerHTML).toEqual('');
     expect(classListAddMock).toHaveBeenCalledTimes(1);
   });
 
@@ -245,7 +245,7 @@ describe('CastingSender', () => {
     expect(sender.seekTime).toBe(100);
     expect(sender.receiverName).toBe('receiver');
 
-    expect(sender.playerCastingButton.innerHTML).toEqual(
+    expect(sender.playerCastingButton?.innerHTML).toEqual(
       Utils.Icons({
         type: 'cast_exit',
       }),
@@ -302,7 +302,7 @@ describe('CastingSender', () => {
     expect(sender.seekTime).toBe(-1);
     expect(sender.receiverName).toBe('');
 
-    expect(sender.playerCastingButton.innerHTML).toEqual('');
+    expect(sender.playerCastingButton?.innerHTML).toEqual('');
     expect(classListAddMock).toHaveBeenCalledTimes(0);
     expect(removePlayerMock).toHaveBeenCalledTimes(0);
 
@@ -462,7 +462,7 @@ describe('CastingSender', () => {
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-    expect(sender.ui.castingPlayPauseButton.innerHTML).toEqual(Utils.Icons({ type: 'pause' }));
+    expect(sender.ui.castingPlayPauseButton?.innerHTML).toEqual(Utils.Icons({ type: 'pause' }));
   });
 
   test('onMessageReceived - player - playing false', () => {
@@ -485,7 +485,7 @@ describe('CastingSender', () => {
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-    expect(sender.ui.castingPlayPauseButton.innerHTML).toEqual(Utils.Icons({ type: 'play' }));
+    expect(sender.ui.castingPlayPauseButton?.innerHTML).toEqual(Utils.Icons({ type: 'play' }));
   });
 
   test('onMessageReceived - player - mute true', () => {
@@ -508,7 +508,7 @@ describe('CastingSender', () => {
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-    expect(sender.ui.castingVolumeButtoon.innerHTML).toEqual(Utils.Icons({ type: 'volume_off' }));
+    expect(sender.ui.castingVolumeButtoon?.innerHTML).toEqual(Utils.Icons({ type: 'volume_off' }));
   });
 
   test('onMessageReceived - player - mute false', () => {
@@ -531,7 +531,7 @@ describe('CastingSender', () => {
 
     expect(console.log).toHaveBeenCalledTimes(0);
     expect(setPlayerStateMock).toHaveBeenCalledTimes(1);
-    expect(sender.ui.castingVolumeButtoon.innerHTML).toEqual(Utils.Icons({ type: 'volume_up' }));
+    expect(sender.ui.castingVolumeButtoon?.innerHTML).toEqual(Utils.Icons({ type: 'volume_up' }));
   });
 
   test('onMessageReceived - player - text-tracks true', () => {
@@ -550,7 +550,7 @@ describe('CastingSender', () => {
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
-    expect(sender.ui.castingCloseCaptionButton.innerHTML).toEqual(
+    expect(sender.ui.castingCloseCaptionButton?.innerHTML).toEqual(
       Utils.Icons({ type: 'cc_enabled' }),
     );
     expect(sender.isTextTrackVisible).toBe(true);
@@ -572,7 +572,7 @@ describe('CastingSender', () => {
     );
 
     expect(console.log).toHaveBeenCalledTimes(0);
-    expect(sender.ui.castingCloseCaptionButton.innerHTML).toEqual(
+    expect(sender.ui.castingCloseCaptionButton?.innerHTML).toEqual(
       Utils.Icons({ type: 'cc_disabled' }),
     );
     expect(sender.isTextTrackVisible).toBe(false);

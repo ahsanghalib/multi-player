@@ -147,6 +147,7 @@ describe('Player Class', () => {
 
   test('setSource - native player', async () => {
     const player = Player.getInstance();
+    player.ui.videoElement = document.createElement('video');
     const source = {
       url: 'https://source.mp4',
       startTime: -1,
@@ -164,6 +165,7 @@ describe('Player Class', () => {
 
   test('setSource - if casitng return', async () => {
     const player = Player.getInstance();
+    player.ui.videoElement = document.createElement('video');
     const source = {
       url: 'https://source.mp4',
       startTime: -1,
@@ -183,6 +185,7 @@ describe('Player Class', () => {
 
   test('setSource - shaka player', async () => {
     const player = Player.getInstance();
+    player.ui.videoElement = document.createElement('video');
     const source = {
       url: 'https://source.mpd',
       drm: {
@@ -202,8 +205,9 @@ describe('Player Class', () => {
     });
   });
 
-  test('setSource - shaka player', async () => {
+  test('setSource - hls player', async () => {
     const player = Player.getInstance();
+    player.ui.videoElement = document.createElement('video');
     const source = {
       url: 'https://source.m3u8',
       startTime: -1,
@@ -551,7 +555,7 @@ describe('Player Class', () => {
     player.removePlayer();
 
     await waitFor(() => {
-      expect(player.ui.videoElement.muted).toBe(true);
+      expect(player.ui.videoElement?.muted).toBe(true);
       expect(videoRemoveEventsMock).toHaveBeenCalledTimes(1);
       expect(removeUIMock).toHaveBeenCalledTimes(1);
       expect(player.isInitialized).toBe(false);

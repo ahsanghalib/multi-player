@@ -136,7 +136,7 @@ export class Player {
     onEnterPIPCallback,
     onPlayerStateChange,
   }: {
-    elem: HTMLDivElement;
+    elem?: HTMLDivElement;
     source: ISource;
     config?: Partial<IConfig>;
     contextLogoUrl?: string;
@@ -215,27 +215,29 @@ export class Player {
 
       await this.detachMediaElement(retry);
 
-      if (useShaka) {
-        await this.shaka.init(
-          this.ui.videoElement,
-          this.source,
-          this.config.debug,
-          mimeType,
-          this.config.isVidgo,
-        );
-        return Promise.resolve();
-      }
+      if (this.ui.videoElement) {
+        if (useShaka) {
+          await this.shaka.init(
+            this.ui.videoElement,
+            this.source,
+            this.config.debug,
+            mimeType,
+            this.config.isVidgo,
+          );
+          return Promise.resolve();
+        }
 
-      if (useHLS) {
-        this.setPlayerState({ player: PlayersEnum.HLS });
-        await this.hls.init(this.ui.videoElement, this.source, this.config.debug);
-        return Promise.resolve();
-      }
+        if (useHLS) {
+          this.setPlayerState({ player: PlayersEnum.HLS });
+          await this.hls.init(this.ui.videoElement, this.source, this.config.debug);
+          return Promise.resolve();
+        }
 
-      if (useNative) {
-        this.setPlayerState({ player: PlayersEnum.NATIVE });
-        await this.native.init(this.ui.videoElement, this.source);
-        return Promise.resolve();
+        if (useNative) {
+          this.setPlayerState({ player: PlayersEnum.NATIVE });
+          await this.native.init(this.ui.videoElement, this.source);
+          return Promise.resolve();
+        }
       }
       return Promise.resolve();
     } catch (e) {
@@ -305,12 +307,15 @@ export class Player {
         Utils.toggleOpacity(this.ui.controlsWrapper, false);
         Utils.toggleShowHide(this.ui.optionsMenuWrapper, 'none');
         Utils.toggleShowHide(this.ui.controlsProgressBar, 'none');
-        this.ui.controlsTimeText.innerText = '';
-        this.ui.controlsPIP.innerHTML = '';
-        this.ui.controlsPIP.classList.add('none');
-        this.ui.controlsCloseCaptionButton.classList.add('none');
+        if (this.ui.controlsTimeText) this.ui.controlsTimeText.innerText = '';
+        if (this.ui.controlsPIP) {
+          this.ui.controlsPIP.innerHTML = '';
+          this.ui.controlsPIP.classList.add('none');
+        }
+        if (this.ui.controlsCloseCaptionButton)
+          this.ui.controlsCloseCaptionButton.classList.add('none');
         this.ui.optionsMenuState = SETTINGS_SUB_MENU.NONE;
-        this.ui.optionsMenuWrapper.innerHTML = '';
+        if (this.ui.optionsMenuWrapper) this.ui.optionsMenuWrapper.innerHTML = '';
         Utils.resetRetryCounter();
       }
 
@@ -343,7 +348,7 @@ export class Player {
 
   removePlayer = () => {
     if (!this.isInitialized) return;
-    this.ui.videoElement.muted = true;
+    if (this.ui.videoElement) this.ui.videoElement.muted = true;
     this.detachMediaElement(false)
       .then(() => {
         this.videoEvents.removeEvents();
@@ -448,7 +453,7 @@ export class Player {
     // Picture in Picture state.
     const showPIP = !!document.pictureInPictureEnabled;
     const isPIP = this.ui.videoElement === document.pictureInPictureElement;
-    if (showPIP) {
+    if (showPIP && this.ui.controlsPIP) {
       this.ui.controlsPIP.innerHTML = isPIP
         ? Utils.Icons({ type: 'pip_exit' })
         : Utils.Icons({ type: 'pip_enter' });

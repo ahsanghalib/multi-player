@@ -57,7 +57,7 @@ describe('Shaka Player', () => {
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.isLive = isLiveMock.mockReturnValue(true);
+    if (shakaPlayer.player) shakaPlayer.player.isLive = isLiveMock.mockReturnValue(true);
 
     expect(shakaPlayer.isLive()).toBe(true);
   });
@@ -90,9 +90,11 @@ describe('Shaka Player', () => {
     } as any);
 
     shakaPlayer.addEvents = addEventsMock;
-    shakaPlayer.player.attach = attachMockResolved;
-    shakaPlayer.player.resetConfiguration = resetConfigurationMock;
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
+    if (shakaPlayer.player) {
+      shakaPlayer.player.attach = attachMockResolved;
+      shakaPlayer.player.resetConfiguration = resetConfigurationMock;
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
+    }
 
     shakaPlayer
       .init({} as any, { url: 'https://source.url' } as ISource, false, '', false)
@@ -130,10 +132,12 @@ describe('Shaka Player', () => {
     } as any);
 
     shakaPlayer.addEvents = addEventsMock;
-    shakaPlayer.player.attach = attachMockRejected;
-    shakaPlayer.player.resetConfiguration = resetConfigurationMock;
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
-    shakaPlayer.player.configure = playerConfigureMock;
+    if (shakaPlayer.player) {
+      shakaPlayer.player.attach = attachMockRejected;
+      shakaPlayer.player.resetConfiguration = resetConfigurationMock;
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
+      shakaPlayer.player.configure = playerConfigureMock;
+    }
 
     shakaPlayer
       .init({} as any, { url: 'https://source.url' } as ISource, false, '', false)
@@ -170,10 +174,12 @@ describe('Shaka Player', () => {
       },
     } as any);
 
-    shakaPlayer.player.attach = attachMockResolved;
-    shakaPlayer.player.resetConfiguration = resetConfigurationMock;
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
-    shakaPlayer.player.configure = playerConfigureMock;
+    if (shakaPlayer.player) {
+      shakaPlayer.player.attach = attachMockResolved;
+      shakaPlayer.player.resetConfiguration = resetConfigurationMock;
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
+      shakaPlayer.player.configure = playerConfigureMock;
+    }
     shakaPlayer.addEvents = addEventsMock;
     shakaPlayer.basicDrmConfigs = basicDrmConfigsMock;
     shakaPlayer.buydrmWidevineRequestFilter = buydrmWidevineRequestFilterMock;
@@ -229,10 +235,12 @@ describe('Shaka Player', () => {
       },
     } as any);
 
-    shakaPlayer.player.attach = attachMockResolved;
-    shakaPlayer.player.resetConfiguration = resetConfigurationMock;
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
-    shakaPlayer.player.configure = playerConfigureMock;
+    if (shakaPlayer.player) {
+      shakaPlayer.player.attach = attachMockResolved;
+      shakaPlayer.player.resetConfiguration = resetConfigurationMock;
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
+      shakaPlayer.player.configure = playerConfigureMock;
+    }
     shakaPlayer.addEvents = addEventsMock;
     shakaPlayer.basicDrmConfigs = basicDrmConfigsMock;
     shakaPlayer.vidgoResponseFilter = vidgoResponseFilterMock;
@@ -288,10 +296,12 @@ describe('Shaka Player', () => {
       },
     } as any);
 
-    shakaPlayer.player.attach = attachMockResolved;
-    shakaPlayer.player.resetConfiguration = resetConfigurationMock;
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
-    shakaPlayer.player.configure = playerConfigureMock;
+    if (shakaPlayer.player) {
+      shakaPlayer.player.attach = attachMockResolved;
+      shakaPlayer.player.resetConfiguration = resetConfigurationMock;
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
+      shakaPlayer.player.configure = playerConfigureMock;
+    }
     shakaPlayer.addEvents = addEventsMock;
     shakaPlayer.basicDrmConfigs = basicDrmConfigsMock;
     shakaPlayer.buydrmFairplayRequestFilter = buydrmFairplayRequestFilterMock;
@@ -349,10 +359,12 @@ describe('Shaka Player', () => {
       },
     } as any);
 
-    shakaPlayer.player.attach = attachMockResolved;
-    shakaPlayer.player.resetConfiguration = resetConfigurationMock;
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
-    shakaPlayer.player.configure = playerConfigureMock;
+    if (shakaPlayer.player) {
+      shakaPlayer.player.attach = attachMockResolved;
+      shakaPlayer.player.resetConfiguration = resetConfigurationMock;
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
+      shakaPlayer.player.configure = playerConfigureMock;
+    }
     shakaPlayer.addEvents = addEventsMock;
     shakaPlayer.basicDrmConfigs = basicDrmConfigsMock;
     shakaPlayer.buydrmFairplayRequestFilter = buydrmFairplayRequestFilterMock;
@@ -411,11 +423,13 @@ describe('Shaka Player', () => {
       },
     } as any);
 
-    shakaPlayer.player.attach = attachMockResolved;
-    shakaPlayer.player.resetConfiguration = resetConfigurationMock;
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
-    shakaPlayer.player.configure = playerConfigureMock;
-    shakaPlayer.player.load = playerLoadResolveMock;
+    if (shakaPlayer.player) {
+      shakaPlayer.player.attach = attachMockResolved;
+      shakaPlayer.player.resetConfiguration = resetConfigurationMock;
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock;
+      shakaPlayer.player.configure = playerConfigureMock;
+      shakaPlayer.player.load = playerLoadResolveMock;
+    }
     shakaPlayer.addEvents = addEventsMock;
     shakaPlayer.basicDrmConfigs = basicDrmConfigsMock;
     shakaPlayer.buydrmFairplayRequestFilter = buydrmFairplayRequestFilterMock;
@@ -469,10 +483,12 @@ describe('Shaka Player', () => {
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
-      registerRequestFilter: registerRequestFilterMock,
-      registerResponseFilter: registerResponseFilterMock,
-    });
+    if (shakaPlayer.player) {
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
+        registerRequestFilter: registerRequestFilterMock,
+        registerResponseFilter: registerResponseFilterMock,
+      });
+    }
 
     shakaPlayer.buydrmWidevineRequestFilter({
       url: 'https://source.url',
@@ -494,10 +510,12 @@ describe('Shaka Player', () => {
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
-      registerRequestFilter: registerRequestFilterMock,
-      registerResponseFilter: registerResponseFilterMock,
-    });
+    if (shakaPlayer.player) {
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
+        registerRequestFilter: registerRequestFilterMock,
+        registerResponseFilter: registerResponseFilterMock,
+      });
+    }
 
     shakaPlayer.buydrmFairplayRequestFilter({
       url: 'https://source.url',
@@ -519,10 +537,12 @@ describe('Shaka Player', () => {
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
-      registerRequestFilter: registerRequestFilterMock,
-      registerResponseFilter: registerResponseFilterMock,
-    });
+    if (shakaPlayer.player) {
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
+        registerRequestFilter: registerRequestFilterMock,
+        registerResponseFilter: registerResponseFilterMock,
+      });
+    }
 
     shakaPlayer.buyDrmFairplayResponseFilter();
 
@@ -536,10 +556,12 @@ describe('Shaka Player', () => {
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
-      registerRequestFilter: registerRequestFilterMock,
-      registerResponseFilter: registerResponseFilterMock,
-    });
+    if (shakaPlayer.player) {
+      shakaPlayer.player.getNetworkingEngine = getNetworkingEngineMock.mockReturnValue({
+        registerRequestFilter: registerRequestFilterMock,
+        registerResponseFilter: registerResponseFilterMock,
+      });
+    }
 
     shakaPlayer.vidgoResponseFilter();
 
@@ -816,7 +838,7 @@ describe('Shaka Player', () => {
     const shakaPlayer = new ShakaPlayer({} as any);
 
     shakaPlayer.url = 'https://source.url';
-    shakaPlayer.player.load = playerLoadResolveMock;
+    if (shakaPlayer.player) shakaPlayer.player.load = playerLoadResolveMock;
 
     shakaPlayer.reload();
 
@@ -832,7 +854,7 @@ describe('Shaka Player', () => {
     const shakaPlayer = new ShakaPlayer({} as any);
 
     shakaPlayer.url = 'https://source.url';
-    shakaPlayer.player.load = playerLoadResolveMock.mockRejectedValue(true);
+    if (shakaPlayer.player) shakaPlayer.player.load = playerLoadResolveMock.mockRejectedValue(true);
 
     shakaPlayer.reload().catch(() => {});
 
@@ -850,11 +872,11 @@ describe('Shaka Player', () => {
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.detach = vi.fn();
+    if (shakaPlayer.player) shakaPlayer.player.detach = vi.fn();
 
     shakaPlayer.destroy();
 
-    expect(shakaPlayer.player.detach).toHaveBeenCalledTimes(1);
+    expect(shakaPlayer.player?.detach).toHaveBeenCalledTimes(1);
   });
 
   test('addEvents', () => {
@@ -862,7 +884,7 @@ describe('Shaka Player', () => {
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.addEventListener = addEventListenerMock;
+    if (shakaPlayer.player) shakaPlayer.player.addEventListener = addEventListenerMock;
     shakaPlayer.removeEvents = removeEventsMock;
 
     shakaPlayer.addEvents();
@@ -876,7 +898,7 @@ describe('Shaka Player', () => {
 
     const shakaPlayer = new ShakaPlayer({} as any);
 
-    shakaPlayer.player.removeEventListener = removeEventListenerMock;
+    if (shakaPlayer.player) shakaPlayer.player.removeEventListener = removeEventListenerMock;
 
     shakaPlayer.removeEvents();
 

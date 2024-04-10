@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { width } from 'happy-dom/lib/PropertySymbol';
 import { Player } from './player';
 import {
   SETTINGS_CC_COLORS,
@@ -12,50 +11,50 @@ import {
 import { Utils } from './utils';
 
 export class UI {
-  player!: Player;
-  container!: HTMLDivElement;
-  containerWrapper!: HTMLDivElement;
-  mainWrapper!: HTMLDivElement;
-  contextMenu!: HTMLDivElement;
+  player?: Player;
+  container?: HTMLDivElement;
+  containerWrapper?: HTMLDivElement;
+  mainWrapper?: HTMLDivElement;
+  contextMenu?: HTMLDivElement;
   contextLogoUrl = '';
   videoPosterUrl = '';
   contextMenuTimer: NodeJS.Timeout | null = null;
-  wrapper!: HTMLDivElement;
-  media!: HTMLDivElement;
-  videoElement!: HTMLVideoElement;
-  closeCaptionsContainer!: HTMLDivElement;
-  loaderWrapper!: HTMLDivElement;
-  endedWrapper!: HTMLDivElement;
-  replayButton!: HTMLDivElement;
-  errorWrapper!: HTMLDivElement;
-  contentNotAvailableWrapper!: HTMLDivElement;
-  controlsWrapper!: HTMLDivElement;
+  wrapper?: HTMLDivElement;
+  media?: HTMLDivElement;
+  videoElement?: HTMLVideoElement;
+  closeCaptionsContainer?: HTMLDivElement;
+  loaderWrapper?: HTMLDivElement;
+  endedWrapper?: HTMLDivElement;
+  replayButton?: HTMLDivElement;
+  errorWrapper?: HTMLDivElement;
+  contentNotAvailableWrapper?: HTMLDivElement;
+  controlsWrapper?: HTMLDivElement;
   showControlsTimer: NodeJS.Timeout | null = null;
-  controlsPlayPauseButton!: HTMLDivElement;
-  controlsVolumeWrapper!: HTMLDivElement;
-  controlsVolumeButton!: HTMLDivElement;
-  controlsVolumeRangeInput!: HTMLInputElement;
-  controlsTimeText!: HTMLDivElement;
-  controlsProgressBar!: HTMLDivElement;
-  controlsProgressRangeInput!: HTMLInputElement;
-  controlsPIP!: HTMLDivElement;
-  controlsRemotePlaybackButton!: HTMLDivElement;
-  controlsCloseCaptionButton!: HTMLDivElement;
-  controlsFullScreen!: HTMLDivElement;
-  controlsSettingsButton!: HTMLDivElement;
-  optionsMenuWrapper!: HTMLDivElement;
+  controlsPlayPauseButton?: HTMLDivElement;
+  controlsVolumeWrapper?: HTMLDivElement;
+  controlsVolumeButton?: HTMLDivElement;
+  controlsVolumeRangeInput?: HTMLInputElement;
+  controlsTimeText?: HTMLDivElement;
+  controlsProgressBar?: HTMLDivElement;
+  controlsProgressRangeInput?: HTMLInputElement;
+  controlsPIP?: HTMLDivElement;
+  controlsRemotePlaybackButton?: HTMLDivElement;
+  controlsCloseCaptionButton?: HTMLDivElement;
+  controlsFullScreen?: HTMLDivElement;
+  controlsSettingsButton?: HTMLDivElement;
+  optionsMenuWrapper?: HTMLDivElement;
 
   // casting ui
-  castingWrapper!: HTMLDivElement;
-  castingTitle!: HTMLDivElement;
-  castingIconsContainer!: HTMLDivElement;
-  castingPlayPauseButton!: HTMLDivElement;
-  castingCloseCaptionButton!: HTMLDivElement;
-  castingVolumeButtoon!: HTMLDivElement;
-  castingRemotePlaybackButton!: HTMLDivElement;
-  castingRewindButton!: HTMLDivElement;
-  castingForwardButton!: HTMLDivElement;
-  castingRestartPlayButton!: HTMLDivElement;
+  castingWrapper?: HTMLDivElement;
+  castingTitle?: HTMLDivElement;
+  castingIconsContainer?: HTMLDivElement;
+  castingPlayPauseButton?: HTMLDivElement;
+  castingCloseCaptionButton?: HTMLDivElement;
+  castingVolumeButtoon?: HTMLDivElement;
+  castingRemotePlaybackButton?: HTMLDivElement;
+  castingRewindButton?: HTMLDivElement;
+  castingForwardButton?: HTMLDivElement;
+  castingRestartPlayButton?: HTMLDivElement;
 
   // values
   volumeSliderValue = '0';
@@ -64,7 +63,6 @@ export class UI {
   isCastingUIAdded = false;
 
   optionsMenuState = SETTINGS_SUB_MENU.NONE;
-  containerFocusCounter = 0;
   isContainerFocused = false;
 
   constructor() {
@@ -112,41 +110,44 @@ export class UI {
 
   removeUI = () => {
     if (!this.isElementsAdded) return;
-    this.mainWrapper.remove();
+    this.mainWrapper?.remove();
     this.isElementsAdded = false;
   };
 
   removeCastingUIElements = () => {
     if (!this.isCastingUIAdded) return;
-    this.castingWrapper.remove();
+    this.castingWrapper?.remove();
     this.isCastingUIAdded = false;
     this.isElementsAdded = false;
   };
 
   removeAllUI = () => {
     if (!this.isElementsAdded) return;
-    this.containerWrapper.remove();
+    this.containerWrapper?.remove();
     this.isCastingUIAdded = false;
     this.isElementsAdded = false;
   };
 
   create = (args: {
     tag: string;
-    parent: HTMLElement;
+    parent?: HTMLElement;
     classListAdd?: string[];
     className?: string;
     id?: string;
     innerHTML?: string;
     innerText?: string;
   }) => {
-    const el = document.createElement(args.tag) as any;
-    if (args.classListAdd) el.classList.add(...args.classListAdd);
-    if (args.className) el.className = args.className;
-    if (args.id) el.id = args.id;
-    if (args.innerHTML) el.innerHTML = args.innerHTML;
-    if (args.innerText) el.innerText = args.innerText;
-    args.parent.appendChild(el);
-    return el;
+    if (args.parent) {
+      const el = document.createElement(args.tag) as any;
+      if (args.classListAdd) el.classList.add(...args.classListAdd);
+      if (args.className) el.className = args.className;
+      if (args.id) el.id = args.id;
+      if (args.innerHTML) el.innerHTML = args.innerHTML;
+      if (args.innerText) el.innerText = args.innerText;
+      args.parent.appendChild(el);
+      return el;
+    }
+    return undefined;
   };
 
   addContainerWrapper = () => {
@@ -166,13 +167,15 @@ export class UI {
       parent: this.containerWrapper,
       className: 'media-player',
     });
-    if (this.contextLogoUrl) {
-      this.mainWrapper.oncontextmenu = this.mainWrapperContextMenu.bind(this);
+    if (this.mainWrapper) {
+      if (this.contextLogoUrl) {
+        this.mainWrapper.oncontextmenu = this.mainWrapperContextMenu.bind(this);
+      }
+      this.mainWrapper.onclick = this.mainWrapperClick.bind(this);
+      this.mainWrapper.onmouseenter = this.mainWrapperMouseEnter.bind(this);
+      this.mainWrapper.onmousemove = this.mainWrapperMouseEnter.bind(this);
+      this.mainWrapper.onmouseleave = this.mainWrapperMouseLeave.bind(this);
     }
-    this.mainWrapper.onclick = this.mainWrapperClick.bind(this);
-    this.mainWrapper.onmouseenter = this.mainWrapperMouseEnter.bind(this);
-    this.mainWrapper.onmousemove = this.mainWrapperMouseEnter.bind(this);
-    this.mainWrapper.onmouseleave = this.mainWrapperMouseLeave.bind(this);
   };
 
   addMediaDiv = () => {
@@ -201,15 +204,19 @@ export class UI {
 
   mainWrapperMouseEnter = () => {
     if (this.showControlsTimer) clearTimeout(this.showControlsTimer);
-    const playerState = this.player.getPlayerState();
-    if (playerState.loaded && playerState.uiState !== 'error' && playerState.uiState !== 'ended') {
+    const playerState = this.player?.getPlayerState();
+    if (
+      playerState?.loaded &&
+      playerState?.uiState !== 'error' &&
+      playerState?.uiState !== 'ended'
+    ) {
       Utils.toggleOpacity(this.controlsWrapper, true);
     }
   };
 
   mainWrapperMouseLeave = () => {
     if (this.showControlsTimer) clearTimeout(this.showControlsTimer);
-    if (this.optionsMenuWrapper.classList.contains('flex')) return;
+    if (this.optionsMenuWrapper?.classList.contains('flex')) return;
     this.showControlsTimer = setTimeout(() => {
       Utils.toggleOpacity(this.controlsWrapper, false);
     }, 1000);
@@ -217,6 +224,7 @@ export class UI {
 
   mainWrapperContextMenu = (e: MouseEvent) => {
     e.preventDefault();
+    if (!this.mainWrapper || !this.contextMenu) return;
     const { clientX, clientY } = e;
     const { x, y, width, height } = this.mainWrapper.getBoundingClientRect();
     this.contextMenu.style.display = `block`;
@@ -232,8 +240,11 @@ export class UI {
 
   hideContextMenu = (timer: boolean) => {
     if (this.contextMenuTimer) clearTimeout(this.contextMenuTimer);
+    if (!this.contextMenu) return;
     if (timer) {
-      this.contextMenuTimer = setTimeout(() => (this.contextMenu.style.display = `none`), 5 * 1000);
+      this.contextMenuTimer = setTimeout(() => {
+        if (this.contextMenu) this.contextMenu.style.display = `none`;
+      }, 5 * 1000);
     } else {
       this.contextMenu.style.display = `none`;
     }
@@ -273,7 +284,9 @@ export class UI {
       className: 'icons',
       innerHTML: Utils.Icons({ type: 'replay' }),
     });
-    this.endedWrapper.onclick = () => Utils.onEndedReplay(this);
+    if (this.endedWrapper) {
+      this.endedWrapper.onclick = () => Utils.onEndedReplay(this);
+    }
   };
 
   addControlsWrapper = () => {
@@ -314,10 +327,11 @@ export class UI {
       className: 'icons',
       innerHTML: Utils.Icons({ type: 'pause' }),
     });
-
-    this.controlsPlayPauseButton.onclick = async () => {
-      await Utils.togglePlayPause(this);
-    };
+    if (this.controlsPlayPauseButton) {
+      this.controlsPlayPauseButton.onclick = async () => {
+        await Utils.togglePlayPause(this);
+      };
+    }
   };
 
   addVolumeControls = (parent: HTMLElement) => {
@@ -332,9 +346,11 @@ export class UI {
       className: 'icons',
       innerHTML: Utils.Icons({ type: 'volume_off' }),
     });
-    this.controlsVolumeButton.onclick = () => {
-      Utils.toggleMuteUnMute(this);
-    };
+    if (this.controlsVolumeButton) {
+      this.controlsVolumeButton.onclick = () => {
+        Utils.toggleMuteUnMute(this);
+      };
+    }
     const volumeRangeWrapper = this.create({
       tag: 'div',
       parent: this.controlsVolumeWrapper,
@@ -344,16 +360,18 @@ export class UI {
       tag: 'input',
       parent: volumeRangeWrapper,
     });
-    this.controlsVolumeRangeInput.type = 'range';
-    this.controlsVolumeRangeInput.min = '0';
-    this.controlsVolumeRangeInput.max = '1';
-    this.controlsVolumeRangeInput.step = 'any';
-    this.controlsVolumeRangeInput.value = this.volumeSliderValue;
-    this.controlsVolumeRangeInput.onclick = () => {
-      this.container.focus();
-      this.isContainerFocused = true;
-    };
-    this.controlsVolumeRangeInput.oninput = (e: any) => Utils.onVolumeSliderChange(this, e);
+    if (this.controlsVolumeRangeInput) {
+      this.controlsVolumeRangeInput.type = 'range';
+      this.controlsVolumeRangeInput.min = '0';
+      this.controlsVolumeRangeInput.max = '1';
+      this.controlsVolumeRangeInput.step = 'any';
+      this.controlsVolumeRangeInput.value = this.volumeSliderValue;
+      this.controlsVolumeRangeInput.onclick = () => {
+        if (this.container) this.container.focus();
+        this.isContainerFocused = true;
+      };
+      this.controlsVolumeRangeInput.oninput = (e: any) => Utils.onVolumeSliderChange(this, e);
+    }
   };
 
   addControlsTimeText = (parent: HTMLElement) => {
@@ -374,17 +392,18 @@ export class UI {
       tag: 'input',
       parent: this.controlsProgressBar,
     });
-    this.controlsProgressRangeInput.type = 'range';
-    this.controlsProgressRangeInput.min = '0';
-    this.controlsProgressRangeInput.max = '0';
-    this.controlsProgressRangeInput.step = 'any';
-    this.controlsProgressRangeInput.value = this.progressSliderValue;
-
-    this.controlsProgressRangeInput.onclick = () => {
-      this.container.focus();
-      this.isContainerFocused = true;
-    };
-    this.controlsProgressRangeInput.oninput = (e: any) => Utils.onVideoProgressChange(this, e);
+    if (this.controlsProgressRangeInput) {
+      this.controlsProgressRangeInput.type = 'range';
+      this.controlsProgressRangeInput.min = '0';
+      this.controlsProgressRangeInput.max = '0';
+      this.controlsProgressRangeInput.step = 'any';
+      this.controlsProgressRangeInput.value = this.progressSliderValue;
+      this.controlsProgressRangeInput.onclick = () => {
+        if (this.container) this.container.focus();
+        this.isContainerFocused = true;
+      };
+      this.controlsProgressRangeInput.oninput = (e: any) => Utils.onVideoProgressChange(this, e);
+    }
   };
 
   addControlsPIP = (parent: HTMLElement) => {
@@ -394,7 +413,9 @@ export class UI {
       classListAdd: ['icons', 'none'],
     });
 
-    this.controlsPIP.onclick = () => Utils.togglePip(this);
+    if (this.controlsPIP) {
+      this.controlsPIP.onclick = () => Utils.togglePip(this);
+    }
   };
 
   addControlsRemovePlayback = (parent: HTMLElement) => {
@@ -412,25 +433,28 @@ export class UI {
       classListAdd: ['icons', 'none'],
     });
 
-    this.controlsCloseCaptionButton.onclick = () => {
-      if (this.optionsMenuState !== SETTINGS_SUB_MENU.CC) {
-        this.optionsMenuState = SETTINGS_SUB_MENU.CC;
-        this.addControlsCloseCaptionMenu();
-      } else {
-        this.optionsMenuState = SETTINGS_SUB_MENU.NONE;
-        this.addControlsCloseCaptionMenu();
-      }
-    };
+    if (this.controlsCloseCaptionButton) {
+      this.controlsCloseCaptionButton.onclick = () => {
+        if (this.optionsMenuState !== SETTINGS_SUB_MENU.CC) {
+          this.optionsMenuState = SETTINGS_SUB_MENU.CC;
+          this.addControlsCloseCaptionMenu();
+        } else {
+          this.optionsMenuState = SETTINGS_SUB_MENU.NONE;
+          this.addControlsCloseCaptionMenu();
+        }
+      };
+    }
   };
 
   addControlsCloseCaptionMenu = () => {
+    if (!this.optionsMenuWrapper) return;
     this.optionsMenuWrapper.innerHTML = '';
     if (this.optionsMenuState === SETTINGS_SUB_MENU.CC) {
       Utils.toggleShowHide(this.optionsMenuWrapper, 'flex');
       this.optionsMenuWrapper.style.right = '70px';
 
-      const tracks = this.player.playerState.textTracks;
-      const selected = this.player.playerState.selectedTextTrackId;
+      const tracks = this.player?.playerState.textTracks;
+      const selected = this.player?.playerState.selectedTextTrackId;
 
       const head = this.create({
         tag: 'div',
@@ -476,6 +500,7 @@ export class UI {
         innerText: 'Off',
       });
 
+      if (!tracks?.length) return;
       tracks.forEach((t, idx) => {
         const ccMenuItem = this.create({
           tag: 'div',
@@ -511,21 +536,24 @@ export class UI {
       className: 'icons',
       innerHTML: Utils.Icons({ type: 'settings' }),
     });
-    this.controlsSettingsButton.onclick = () => {
-      if (
-        this.optionsMenuState === SETTINGS_SUB_MENU.NONE ||
-        this.optionsMenuState === SETTINGS_SUB_MENU.CC
-      ) {
-        this.optionsMenuState = SETTINGS_SUB_MENU.SETINGS;
-        this.addControlsSetingsMenu();
-      } else {
-        this.optionsMenuState = SETTINGS_SUB_MENU.NONE;
-        this.addControlsSetingsMenu();
-      }
-    };
+    if (this.controlsSettingsButton) {
+      this.controlsSettingsButton.onclick = () => {
+        if (
+          this.optionsMenuState === SETTINGS_SUB_MENU.NONE ||
+          this.optionsMenuState === SETTINGS_SUB_MENU.CC
+        ) {
+          this.optionsMenuState = SETTINGS_SUB_MENU.SETINGS;
+          this.addControlsSetingsMenu();
+        } else {
+          this.optionsMenuState = SETTINGS_SUB_MENU.NONE;
+          this.addControlsSetingsMenu();
+        }
+      };
+    }
   };
 
   addControlsSetingsMenu = () => {
+    if (!this.optionsMenuWrapper) return;
     this.optionsMenuWrapper.innerHTML = '';
     if (this.optionsMenuState === SETTINGS_SUB_MENU.NONE) {
       Utils.toggleShowHide(this.optionsMenuWrapper, 'none');
@@ -911,7 +939,9 @@ export class UI {
       className: 'icons',
       innerHTML: Utils.Icons({ type: 'fullscreen_enter' }),
     });
-    this.controlsFullScreen.onclick = () => Utils.toggleFullScreen(this);
+    if (this.controlsFullScreen) {
+      this.controlsFullScreen.onclick = () => Utils.toggleFullScreen(this);
+    }
   };
 
   addContextMenu = () => {
@@ -933,26 +963,28 @@ export class UI {
 
   addVideoElement = () => {
     this.videoElement = this.create({ tag: 'video', parent: this.media });
-    this.videoElement.setAttribute('preload', 'metadata');
-    this.videoElement.setAttribute('playsinline', 'true');
-    this.videoElement.setAttribute('webkit-playsinline', 'true');
-    this.videoElement.setAttribute('x-webkit-airplay', 'allow');
-    this.videoElement.setAttribute('airplay', 'allow');
-    this.videoElement.style.width = '100%';
-    this.videoElement.style.height = '100%';
-    this.videoElement.setAttribute('poster', this.videoPosterUrl || '');
-    this.videoElement.oncontextmenu = this.videoElementContextMenu.bind(this);
-    this.videoElement.onclick = async () => {
-      if (!this.isContainerFocused) {
-        this.isContainerFocused = true;
-        return;
-      }
-      await Utils.togglePlayPause(this);
-    };
+    if (this.videoElement) {
+      this.videoElement.setAttribute('preload', 'metadata');
+      this.videoElement.setAttribute('playsinline', 'true');
+      this.videoElement.setAttribute('webkit-playsinline', 'true');
+      this.videoElement.setAttribute('x-webkit-airplay', 'allow');
+      this.videoElement.setAttribute('airplay', 'allow');
+      this.videoElement.style.width = '100%';
+      this.videoElement.style.height = '100%';
+      this.videoElement.setAttribute('poster', this.videoPosterUrl || '');
+      this.videoElement.oncontextmenu = this.videoElementContextMenu.bind(this);
+      this.videoElement.onclick = async () => {
+        if (!this.isContainerFocused) {
+          this.isContainerFocused = true;
+          return;
+        }
+        await Utils.togglePlayPause(this);
+      };
+    }
   };
 
   removeVideoPlayer = () => {
-    this.videoElement.remove();
+    this.videoElement?.remove();
   };
 
   videoElementContextMenu = (e: MouseEvent) => {
@@ -999,19 +1031,20 @@ export class UI {
         parent: this.containerWrapper,
         className: 'cast-overlay-container',
       });
-      this.castingWrapper.oncontextmenu = (e: any) => {
-        e.preventDefault();
-      };
-      this.addCastingTtile();
-      this.addCastingIconsContainer();
-      this.addCastingRewindButton();
-      this.addCastingPlayPauseButton();
-      this.addCastingForwardButton();
-      this.addCastingRestartPlayButton();
-      this.addCastingCloseCaptionButton();
-      this.addCastingVolumeButtoon();
-      this.addCastingRemotePlaybackButton();
-      this.isCastingUIAdded = true;
+      if (this.castingWrapper) {
+        this.castingWrapper.oncontextmenu = (e: any) => {
+          e.preventDefault();
+        };
+        this.addCastingIconsContainer();
+        this.addCastingRewindButton();
+        this.addCastingPlayPauseButton();
+        this.addCastingForwardButton();
+        this.addCastingRestartPlayButton();
+        this.addCastingCloseCaptionButton();
+        this.addCastingVolumeButtoon();
+        this.addCastingRemotePlaybackButton();
+        this.isCastingUIAdded = true;
+      }
     }
   };
 

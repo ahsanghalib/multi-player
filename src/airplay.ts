@@ -10,10 +10,11 @@ export class AirPlay {
   }
 
   protected webkitPlaybackTargetAvailabilityChangedEvent = (
-    airplay: HTMLDivElement,
-    video: any,
+    airplay?: HTMLDivElement,
+    video?: any,
   ) => {
     return (event: any) => {
+      if (!airplay || !video) return;
       switch (event?.availability) {
         case 'available':
           airplay.innerHTML = Utils.Icons({
@@ -34,19 +35,20 @@ export class AirPlay {
   };
 
   protected webkitCurrentPlaybackTargetIsWirelessChangedEvent = (
-    airplay: HTMLDivElement,
     isLive: boolean,
-    volume: HTMLDivElement,
+    airplay?: HTMLDivElement,
+    volume?: HTMLDivElement,
   ) => {
     return (event: any) => {
+      if (!airplay || !volume) return;
       const state = event?.target?.remote?.state;
       if (state === 'connected') {
         airplay.innerHTML = Utils.Icons({
           type: 'airplay_exit',
         });
         Utils.toggleShowHide(volume, 'none');
-        this.ui.player.setPlayerState({ isAirplay: true });
-        if (this.ui.player.playerState.isPlaying && isLive) {
+        this.ui.player?.setPlayerState({ isAirplay: true });
+        if (this.ui.player?.playerState.isPlaying && isLive) {
           this.ui.player.reloadPlayer().catch(() => console.log());
         }
       } else if (state === 'disconnected') {
@@ -54,8 +56,8 @@ export class AirPlay {
           type: 'airplay_enter',
         });
         Utils.toggleShowHide(volume, 'flex');
-        this.ui.player.setPlayerState({ isAirplay: false });
-        if (this.ui.player.playerState.isPlaying && isLive) {
+        this.ui.player?.setPlayerState({ isAirplay: false });
+        if (this.ui.player?.playerState.isPlaying && isLive) {
           this.ui.player.reloadPlayer().catch(() => console.log());
         }
       }
@@ -72,11 +74,13 @@ export class AirPlay {
       const volume = this.ui.controlsVolumeWrapper;
       const isLive = Utils.isLive(this.ui);
 
+      if (!video || !airplay || !volume) return;
+
       const webkitPlaybackTargetAvailabilityChanged =
         this.webkitPlaybackTargetAvailabilityChangedEvent(airplay, video);
 
       const webkitCurrentPlaybackTargetIsWirelessChanged =
-        this.webkitCurrentPlaybackTargetIsWirelessChangedEvent(airplay, isLive, volume);
+        this.webkitCurrentPlaybackTargetIsWirelessChangedEvent(isLive, airplay, volume);
 
       video.addEventListener(
         'webkitplaybacktargetavailabilitychanged',
