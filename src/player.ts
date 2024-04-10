@@ -113,6 +113,7 @@ export class Player {
    * @param source: ISource;
    * @param config?: Partial<IConfig>;
    * @param contextLogoUrl?: string;
+   * @param videoPosterUrl?: string;
    * @param onPauseCallback?: () => void;
    * @param onPlayCallback?: () => void;
    * @param onEnterPIPCallback?: () => void;
@@ -126,6 +127,7 @@ export class Player {
     elem,
     source,
     contextLogoUrl,
+    videoPosterUrl,
     config,
     eventCallbacks,
     onPauseCallback,
@@ -138,6 +140,7 @@ export class Player {
     source: ISource;
     config?: Partial<IConfig>;
     contextLogoUrl?: string;
+    videoPosterUrl?: string;
     onPauseCallback?: () => void;
     onPlayCallback?: () => void;
     onEnterPIPCallback?: () => void;
@@ -153,7 +156,7 @@ export class Player {
 
       if (!this.isInitialized && !this.playerState.isCasting) {
         clearTimeout(this.stateTimer);
-        this.ui.setContainer(this, elem, contextLogoUrl);
+        this.ui.setContainer(this, elem, contextLogoUrl, videoPosterUrl);
         this.videoEvents.addEvents();
         this.airplay.init();
         this.__windowOnLoad();

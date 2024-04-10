@@ -699,6 +699,8 @@ export class Utils {
 
   static keyDownEvents = (ui: UI, event: any) => {
     if (ui.isContainerFocused) {
+      event.preventDefault();
+
       if (event?.code === KEYBOARD_CODES.SPACE_KEY) {
         this.togglePlayPause(ui);
       }
@@ -723,9 +725,11 @@ export class Utils {
         }
       }
       if (event?.code === KEYBOARD_CODES.ARROW_LEFT_KEY) {
+        if (this.isLive(ui)) return;
         this.toggleForwardRewind(ui, false);
       }
       if (event?.code === KEYBOARD_CODES.ARROW_RIGHT_KEY) {
+        if (this.isLive(ui)) return;
         this.toggleForwardRewind(ui, true);
       }
     }

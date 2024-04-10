@@ -18,6 +18,7 @@ export class UI {
   mainWrapper!: HTMLDivElement;
   contextMenu!: HTMLDivElement;
   contextLogoUrl = '';
+  videoPosterUrl = '';
   contextMenuTimer: NodeJS.Timeout | null = null;
   wrapper!: HTMLDivElement;
   media!: HTMLDivElement;
@@ -70,21 +71,22 @@ export class UI {
     /* don't need any initialization here */
   }
 
-  setContainer = (player: Player, elem: HTMLDivElement, contextLogoUrl = '') => {
+  setContainer = (
+    player: Player,
+    elem: HTMLDivElement,
+    contextLogoUrl = '',
+    videoPosterUrl = '',
+  ) => {
     this.player = player;
     this.container = elem;
     this.container.style.backgroundColor = '#000';
     this.container.tabIndex = -1;
-    // this.container.onfocus = () => {
-    //   if (this.containerFocusCounter === 1) this.isContainerFocused = true;
-    //   this.containerFocusCounter += 1;
-    //   console.log('container onfocus');
-    // };
     this.container.onblur = () => {
       this.isContainerFocused = false;
       console.log('container onblur');
     };
     this.contextLogoUrl = contextLogoUrl;
+    this.videoPosterUrl = videoPosterUrl;
     this.addContainerWrapper();
     if (!this.isElementsAdded) this.addElements();
     Utils.toggleWrappers({ ui: this, none: true });
@@ -936,6 +938,9 @@ export class UI {
     this.videoElement.setAttribute('webkit-playsinline', 'true');
     this.videoElement.setAttribute('x-webkit-airplay', 'allow');
     this.videoElement.setAttribute('airplay', 'allow');
+    this.videoElement.style.width = '100%';
+    this.videoElement.style.height = '100%';
+    this.videoElement.setAttribute('poster', this.videoPosterUrl || '');
     this.videoElement.oncontextmenu = this.videoElementContextMenu.bind(this);
     this.videoElement.onclick = async () => {
       if (!this.isContainerFocused) {
