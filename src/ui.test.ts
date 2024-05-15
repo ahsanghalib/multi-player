@@ -1097,6 +1097,7 @@ describe('UI Class', () => {
     const originalTogglePlayPause = Utils.togglePlayPause;
     Utils.togglePlayPause = togglePlayPauseMock;
 
+    ui.isContainerFocused = true;
     ui.addVideoElement();
 
     expect(ui.videoElement).toBeInstanceOf(HTMLVideoElement);
