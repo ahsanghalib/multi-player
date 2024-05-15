@@ -25,6 +25,7 @@ export interface IConfig {
   disableControls: boolean;
   type: string | null;
   castReceiverId: string | null;
+  startMuted: boolean;
 }
 
 export interface IPlayerState {
@@ -44,6 +45,7 @@ export interface IPlayerState {
   isCasting: boolean;
   isAirplay: boolean;
   hasUserPaused: boolean;
+  isUnmounting: boolean;
 }
 
 export enum MimeTypesEnum {

@@ -138,6 +138,7 @@ export class VideoEvents {
   loadedMetaDataEvent = () => {
     if (this.getConfig().debug) console.log('VIDEO - onLoadedMetaData');
     const video = this.ui.videoElement;
+    if (this.getConfig()?.startMuted) video.muted = true;
     video
       .play()
       .then(() => {})
