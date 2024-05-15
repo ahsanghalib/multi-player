@@ -338,6 +338,9 @@ describe('VideoEvents', () => {
         getConfig: vi.fn().mockReturnValue({
           debug: true,
         }),
+        getPlayerState: vi.fn().mockReturnValue({
+          isMuted: true,
+        }),
       },
     };
 
@@ -364,6 +367,9 @@ describe('VideoEvents', () => {
       player: {
         getConfig: vi.fn().mockReturnValue({
           debug: true,
+        }),
+        getPlayerState: vi.fn().mockReturnValue({
+          isMuted: true,
         }),
       },
     };

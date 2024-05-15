@@ -29,6 +29,7 @@ const defaultConfig: IConfig = {
   disableControls: false,
   type: null,
   castReceiverId: null,
+  startMuted: false,
 };
 
 const defaultPlayerState: IPlayerState = {
@@ -48,6 +49,7 @@ const defaultPlayerState: IPlayerState = {
   isCasting: false,
   isAirplay: false,
   hasUserPaused: false,
+  isUnmounting: false,
 };
 
 export class Player {
@@ -64,6 +66,8 @@ export class Player {
   isInitialized = false;
   stateTimer: NodeJS.Timeout | undefined = undefined;
   playerState: IPlayerState;
+  unMountTimer: NodeJS.Timeout | undefined = undefined;
+  reInitTimer: NodeJS.Timeout | undefined = undefined;
 
   source: ISource = { url: undefined, drm: undefined };
   config: IConfig;
@@ -152,6 +156,25 @@ export class Player {
     }>;
   }) => {
     try {
+      clearTimeout(this.reInitTimer);
+      if (this.playerState.isUnmounting) {
+        this.reInitTimer = setTimeout(() => {
+          this.init({
+            elem,
+            source,
+            contextLogoUrl,
+            videoPosterUrl,
+            config,
+            eventCallbacks,
+            onPauseCallback,
+            onPlayCallback,
+            onEnterPIPCallback,
+            onLeavePIPCallback,
+            onPlayerStateChange,
+          });
+        }, 50);
+      }
+
       if (!elem) return;
 
       if (!this.isInitialized && !this.playerState.isCasting) {
@@ -372,6 +395,8 @@ export class Player {
   };
 
   unmount = () => {
+    clearTimeout(this.unMountTimer);
+    this.setPlayerState({ isUnmounting: true });
     if (this.playerState.isCasting) {
       this.castSender.stopCasting();
       this.isInitialized = false;
@@ -383,6 +408,7 @@ export class Player {
     sessionStorage.removeItem(STORAGE_KEYS.VIDOE_CURRENT_TIME);
     this.removePlayer();
     this.ui.removeAllUI();
+    this.unMountTimer = setTimeout(() => this.setPlayerState({ isUnmounting: false }), 50);
   };
 
   reloadPlayer = async (wait = true) => {
