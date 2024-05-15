@@ -94,13 +94,13 @@ export class Utils {
         if (forward) {
           const v = Math.min(ct + 30, dt);
           ui.progressSliderValue = String(v);
-          ui.controlsProgressRangeInput.value = String(v);
+          if (ui.controlsProgressRangeInput) ui.controlsProgressRangeInput.value = String(v);
           video.currentTime = v;
           return;
         }
         const v = Math.max(ct - 15, 0);
         ui.progressSliderValue = String(v);
-        ui.controlsProgressRangeInput.value = String(v);
+        if (ui.controlsProgressRangeInput) ui.controlsProgressRangeInput.value = String(v);
         video.currentTime = v;
       }
     }
